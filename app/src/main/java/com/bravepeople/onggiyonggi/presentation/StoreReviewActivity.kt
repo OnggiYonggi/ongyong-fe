@@ -29,7 +29,7 @@ class StoreReviewActivity : AppCompatActivity() {
             Review(3, "userC", "2025.03.08", R.drawable.img_user3, R.drawable.img_review3, true)
         )
 
-        binding.reviewRecyclerView.layoutManager = LinearLayoutManager(this)
-        binding.reviewRecyclerView.adapter = ReviewAdapter(dummyReviews)
+        binding.rvReview.layoutManager = LinearLayoutManager(this)
+        binding.rvReview.adapter = ReviewAdapter(dummyReviews)
     }
 }

@@ -19,7 +19,7 @@
             android:padding="16dp">
 
             <ImageView
-                android:id="@+id/storeImage"
+                android:id="@+id/img_store"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
                 android:scaleType="centerCrop"
@@ -33,7 +33,7 @@
                 android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/storeName"
+                    android:id="@+id/tv_storeName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="스타벅스 광교역점"
@@ -41,14 +41,14 @@
                     android:textStyle="bold" />
 
                 <TextView
-                    android:id="@+id/storeAddress"
+                    android:id="@+id/tv_storeAddress"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="광교역 123-1"
                     android:textSize="14sp" />
 
                 <TextView
-                    android:id="@+id/storeHours"
+                    android:id="@+id/tv_storeHours"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="09:00 ~ 21:00"
@@ -56,7 +56,7 @@
             </LinearLayout>
 
             <ImageView
-                android:id="@+id/ic_pin"
+                android:id="@+id/img_pin"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:layout_gravity="top"
@@ -79,7 +79,7 @@
                 android:gravity="center_vertical">
 
                 <TextView
-                    android:id="@+id/reviewTitle"
+                    android:id="@+id/tv_reviewTitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="리뷰"
@@ -88,7 +88,7 @@
                     android:layout_marginEnd="8dp" />
 
                 <Button
-                    android:id="@+id/sortButton"
+                    android:id="@+id/btn_sort"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="최신순"
@@ -107,7 +107,7 @@
 
             <!-- + 버튼 -->
             <Button
-                android:id="@+id/addReviewButton"
+                android:id="@+id/btn_addReview"
                 android:layout_width="25dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
@@ -123,7 +123,7 @@
 
         <!-- 리뷰 목록 -->
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/reviewRecyclerView"
+            android:id="@+id/rv_review"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:nestedScrollingEnabled="false"

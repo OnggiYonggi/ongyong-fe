@@ -15,11 +15,11 @@ class ReviewAdapter(private val reviews: List<Review>) :
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(review: Review) {
-            binding.userName.text = review.userName
-            binding.reviewDate.text = review.reviewDate
-            binding.profileImage.setImageResource(review.profileImageResId)
-            binding.reviewImage.setImageResource(review.reviewImageResId)
-            binding.icHeart.setImageResource(
+            binding.tvUserName.text = review.userName
+            binding.tvReviewDate.text = review.reviewDate
+            binding.imgProfie.setImageResource(review.profileImageResId)
+            binding.imgReview.setImageResource(review.reviewImageResId)
+            binding.imgHeart.setImageResource(
                 if (review.isLiked) R.drawable.ic_heart else R.drawable.ic_heart
             )
         }
