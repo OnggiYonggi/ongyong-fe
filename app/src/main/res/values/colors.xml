@@ -2,4 +2,11 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <color name="store_bar_gray">#4B4B4B</color>
+    <color name="store_text_gray">#3D3D3D</color>
+    <color name="store_line_gray">#7A7A7A</color>
+    <color name="store_reviews_background_gray">#E9E9E9</color>
+    <color name="store_review_date_gray">#888888</color>
+    <color name="capture_pressed_gray">#C0BDBD</color>
 </resources>

@@ -2,34 +2,30 @@ package com.bravepeople.onggiyonggi.presentation
 
 import android.content.Intent
 import android.os.Bundle
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import com.bravepeople.onggiyonggi.R
 import com.bravepeople.onggiyonggi.databinding.ActivityMainBinding
-
-
+import com.bravepeople.onggiyonggi.presentation.review.ReviewFragment
 
 class MainActivity : AppCompatActivity() {
-
-    private lateinit var binding: ActivityMainBinding
-
+    private  lateinit var binding: ActivityMainBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContentView(R.layout.activity_main)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
+        init()
+        setting()
+    }
+
+    private fun init(){
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+    }
 
-        binding.btnReview.setOnClickListener {
-            val intent = Intent(this, StoreReviewActivity::class.java)
-            startActivity(intent)
+    private fun setting(){
+        binding.btnReview.setOnClickListener{
+            val reviewFragment=ReviewFragment()
+            reviewFragment.show(supportFragmentManager, "ReviewFragment")
+
+            /*val intent=Intent(this, ReviewActivity::class.java)
+            startActivity(intent)*/
         }
     }
 }

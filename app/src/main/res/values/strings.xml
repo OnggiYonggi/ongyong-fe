@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">onggiyonggi</string>
+
+    <string name="store_review_title">리뷰</string>
+    <string name="receipt_photo_title">영수증 사진을 찍어주세요</string>
+    <string name="food_photo_title">음식을 담은 다회용기 사진을 찍어주세요</string>
 </resources>
