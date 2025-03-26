@@ -9,4 +9,8 @@
     <color name="store_reviews_background_gray">#E9E9E9</color>
     <color name="store_review_date_gray">#888888</color>
     <color name="capture_pressed_gray">#C0BDBD</color>
+
+    <color name="bnv_clicked_black">#3D3D3D</color>
+    <color name="bnv_unclicked_grey">#888888</color>
+>>>>>>> Stashed changes
 </resources>

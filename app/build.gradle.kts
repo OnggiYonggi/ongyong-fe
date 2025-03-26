@@ -1,7 +1,16 @@
+import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
+
+val naverClientId = gradleLocalProperties(rootDir, providers).getProperty("naver.client.id")
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
     id("androidx.navigation.safeargs.kotlin")
+    id("kotlin-parcelize")
+    id("org.jetbrains.kotlin.plugin.serialization") version "1.9.22"
+    id("kotlin-kapt")
+    id("com.google.devtools.ksp") version "2.1.10-1.0.31"
+    id("com.google.dagger.hilt.android") version "2.51"
 }
 
 android {
@@ -16,6 +25,17 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField(
+            "String",
+            "NAVER_CLIENT_ID",
+            gradleLocalProperties(rootDir, providers).getProperty("naver.client.id")
+        )
+
+        buildConfigField("String", "NAVER_CLIENT_ID", "${naverClientId}")
+
+        manifestPlaceholders["NAVER_CLIENT_ID",] = naverClientId
+
     }
 
     buildTypes {
@@ -53,9 +73,25 @@ dependencies {
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
     implementation(libs.androidx.navigation.fragment)
+    implementation(libs.play.services.location)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+
+    //javapoet
+    implementation("com.squareup:javapoet:1.13.0")
+
+    //retrofit
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
+    implementation("com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:1.0.0")
+
+    // define a BOM and its version
+    implementation(platform("com.squareup.okhttp3:okhttp-bom:4.10.0"))
+
+    // define any required OkHttp artifacts without version
+    implementation("com.squareup.okhttp3:okhttp")
+    implementation("com.squareup.okhttp3:logging-interceptor")
 
     //viewmodel
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7")
@@ -77,4 +113,25 @@ dependencies {
 
     //lottie
     implementation("com.airbnb.android:lottie:6.1.0")
+
+    //hilt
+    implementation("com.google.dagger:hilt-android:2.48")
+    kapt("com.google.dagger:hilt-android-compiler:2.46.1")
+    kapt("com.google.dagger:dagger-android-processor:2.46.1")
+
+    //coroutine
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.7")
+
+    // 네이버 지도 SDK
+    implementation("com.naver.maps:map-sdk:3.21.0")
+}
+
+kapt {
+    correctErrorTypes = true
+}
+
+hilt {
+    enableAggregatingTask = false
 }
