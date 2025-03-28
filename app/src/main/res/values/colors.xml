@@ -3,14 +3,19 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 
+    <color name="bnv_clicked_black">#000000</color>
+    <color name="bnv_unclicked_grey">#B7B7B7</color>
+
     <color name="store_bar_gray">#4B4B4B</color>
+    <color name="store_address_gray">#8E8E8E</color>
     <color name="store_text_gray">#3D3D3D</color>
     <color name="store_line_gray">#7A7A7A</color>
     <color name="store_reviews_background_gray">#E9E9E9</color>
     <color name="store_review_date_gray">#888888</color>
     <color name="capture_pressed_gray">#C0BDBD</color>
 
-    <color name="bnv_clicked_black">#3D3D3D</color>
-    <color name="bnv_unclicked_grey">#888888</color>
->>>>>>> Stashed changes
+    <color name="write_select_gray">#DBDBDB</color>
+    <color name="write_select_green">#A0C878</color>
+    <color name="write_register_green">#66A55B</color>
+    <color name="write_register_darkgreen">#588E4F</color>
 </resources>
