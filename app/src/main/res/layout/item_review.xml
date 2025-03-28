@@ -5,7 +5,7 @@
     android:layout_margin="5dp"
     android:background="@color/store_reviews_background_gray"
     android:elevation="4dp"
-    android:padding="12dp"
+    android:padding="6dp"
     android:radius="12dp">
 
     <!-- 유저 프로필 -->
@@ -15,7 +15,6 @@
         android:layout_height="32dp"
         android:scaleType="centerCrop"
         android:src="@drawable/img_user1"
-        android:layout_marginTop="15dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -43,14 +42,15 @@
         app:layout_constraintBottom_toBottomOf="@id/iv_profile" />
 
     <!-- 하트 아이콘 -->
-    <ImageView
-        android:id="@+id/iv_like"
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btn_like"
         android:layout_width="20dp"
         android:layout_height="20dp"
-        android:layout_marginTop="4dp"
-        android:src="@drawable/ic_heart"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/iv_food" />
+        android:layout_marginEnd="4dp"
+        android:background="@drawable/btn_like"
+        app:layout_constraintTop_toTopOf="@id/iv_profile"
+        app:layout_constraintBottom_toBottomOf="@id/iv_profile"
+        app:layout_constraintEnd_toEndOf="@id/iv_food" />
 
     <!-- 리뷰 이미지 -->
     <ImageView
@@ -60,17 +60,17 @@
         android:layout_marginTop="10dp"
         android:scaleType="centerCrop"
         android:src="@drawable/img_review1"
-        app:layout_constraintBottom_toBottomOf="@id/gl_h95"
+        app:layout_constraintBottom_toBottomOf="@id/gl_h98"
         app:layout_constraintDimensionRatio="1:1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/iv_profile" />
 
     <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/gl_h95"
+        android:id="@+id/gl_h98"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.95" />
+        app:layout_constraintGuide_percent="0.98" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

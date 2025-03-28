@@ -1,7 +1,55 @@
 <resources>
     <string name="app_name">onggiyonggi</string>
 
+    <string name="store_name">스타벅스 광교역점</string>
+    <string name="store_address">광교역 123-1</string>
+    <string name="store_time">09:00 ~ 21:00</string>
+
     <string name="store_review_title">리뷰</string>
     <string name="receipt_photo_title">영수증 사진을 찍어주세요</string>
     <string name="food_photo_title">음식을 담은 다회용기 사진을 찍어주세요</string>
+
+    <string name="write_review_title">리뷰 작성</string>
+    <string name="write_date">2025년 3월 15일 토</string>
+    <string name="write_food_name">품명</string>
+    <string name="write_food_unit_price">단가</string>
+    <string name="write_food_count">수량</string>
+    <string name="write_food_total_price">금액</string>
+    <string name="write_rephoto">다시 찍기</string>
+    <string name="write_review">상세한 리뷰를 적어주세요!</string>
+    <string name="write_review_number_of_character">%d/200</string>
+    <string name="write_register">등록하기</string>
+
+    <string name="write_food_name_mock">스타벅스 프렌치 바닐라 라떼</string>
+    <string name="write_food_unit_price_input">%d원</string>
+    <string name="write_food_count_mock">2</string>
+    <string name="write_food_total_price_input">%d원</string>
+    <string name="write_container_type">텀블러</string>
+    <string name="write_container_size">중간 사이즈</string>
+
+    <string name="write_select_question">어떤 용기를 가져갔나요?</string>
+    <string name="write_select_answer0">텀블러</string>
+    <string name="write_select_answer1">접시</string>
+    <string name="write_select_answer2">락앤락</string>
+    <string name="write_select_answer3">냄비</string>
+    <string name="write_select_answer4">유리컵</string>
+
+    <string name="write_select_question2">음식 양은 어땠나요?</string>
+    <string name="write_select_2_answer0">부족해요</string>
+    <string name="write_select_2_answer1">적당해요</string>
+    <string name="write_select_2_answer2">커요</string>
+
+    <string name="write_select_question3">음식 맛은 어땠나요?</string>
+    <string name="write_select_3_answer0">맛있어요</string>
+    <string name="write_select_3_answer1">신선해요</string>
+    <string name="write_select_3_answer2">건강해요</string>
+    <string name="write_select_3_answer3">느끼해요</string>
+    <string name="write_select_3_answer4">매워요</string>
+    <string name="write_select_3_answer5">달달해요</string>
+
+    <string name="write_select_question4">서비스는 어땠나요?</string>
+    <string name="write_select_4_answer0">음식이 빨리 나와요</string>
+    <string name="write_select_4_answer1">음식이 늦어요</string>
+    <string name="write_select_4_answer2">직원이 친절해요</string>
+    <string name="write_select_4_answer3">위생이 아쉬워요</string>
 </resources>

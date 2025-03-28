@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import com.bravepeople.onggiyonggi.R
 import com.bravepeople.onggiyonggi.data.Review
-import com.bravepeople.onggiyonggi.data.Store
+import com.bravepeople.onggiyonggi.data.StoreOrReceipt
 import com.bravepeople.onggiyonggi.databinding.ItemReviewBinding
 import com.bravepeople.onggiyonggi.databinding.ItemStoreBinding
 import com.bravepeople.onggiyonggi.presentation.review_register.ReviewRegisterActivity
@@ -19,7 +19,7 @@ class ReviewAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         private const val VIEW_TYPE_REVIEW = 1
     }
 
-    private lateinit var storeData: Store
+    private lateinit var storeData: StoreOrReceipt.Store
     private lateinit var reviewList: List<Review>
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -47,10 +47,16 @@ class ReviewAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         return if (position == 0) VIEW_TYPE_STORE else VIEW_TYPE_REVIEW
     }
 
+    fun setReviewList(store: StoreOrReceipt.Store, reviewList:List<Review>){
+        this.storeData=store
+        this.reviewList=reviewList
+        notifyDataSetChanged()
+    }
+
     inner class StoreViewHolder(private val binding: ItemStoreBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(data: Store) {
+        fun bind(data: StoreOrReceipt.Store) {
             with(binding) {
                 ivStore.load(data.image)
                 tvStoreName.text = data.name
@@ -75,14 +81,10 @@ class ReviewAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
                 tvUserName.text = data.userName
                 tvReviewDate.text = data.reviewDate
                 ivFood.load(data.food)
+                btnLike.setOnClickListener{
+                    btnLike.isSelected=!btnLike.isSelected
+                }
             }
         }
     }
-
-    fun setReviewList(store:Store, reviewList:List<Review>){
-        this.storeData=store
-        this.reviewList=reviewList
-        notifyDataSetChanged()
-    }
-
 }

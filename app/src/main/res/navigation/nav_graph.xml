@@ -44,5 +44,21 @@
         android:id="@+id/writeReviewFragment"
         android:name="com.bravepeople.onggiyonggi.presentation.review_register.WriteReviewFragment"
         android:label="write a review">
+
+        <action
+            android:id="@+id/action_write_to_complete"
+            app:destination="@id/reviewCompleteFragment"/>
+
+        <action
+            android:id="@+id/action_write_to_photo"
+            app:destination="@id/photoFragment"/>
     </fragment>
+
+    <fragment
+        android:id="@+id/reviewCompleteFragment"
+        android:name="com.bravepeople.onggiyonggi.presentation.review_register.ReviewCompleteFragment"
+        android:label="review complete">
+    </fragment>
+
+
 </navigation>
