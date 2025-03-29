@@ -23,6 +23,7 @@ class ReviewFragment:BottomSheetDialogFragment() {
     private var isFirstResume = true
 
     private val reviewViewModel:ReviewViewModel by activityViewModels()
+    private lateinit var reviewAdapter:ReviewAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -39,7 +40,7 @@ class ReviewFragment:BottomSheetDialogFragment() {
     }
 
     private fun setting(){
-        val reviewAdapter=ReviewAdapter()
+        reviewAdapter=ReviewAdapter()
         val gridLayoutManager = GridLayoutManager(requireContext(), 2)
         gridLayoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
             override fun getSpanSize(position: Int): Int {
@@ -53,7 +54,8 @@ class ReviewFragment:BottomSheetDialogFragment() {
         val reviews = reviewViewModel.getReviewList()
         Timber.d( "store = $store, reviews = ${reviews.size}")
 
-        reviewAdapter.setReviewList(store, reviews)
+        reviewAdapter.setStore(store)
+        reviewAdapter.setReviewList(reviews)
     }
 
     override fun onStart() {
@@ -82,6 +84,7 @@ class ReviewFragment:BottomSheetDialogFragment() {
         super.onResume()
         if (!isFirstResume) {
             bottomSheetBehavior?.state = BottomSheetBehavior.STATE_EXPANDED
+            reviewAdapter.setReviewList(reviewViewModel.getNewList())
         }
         isFirstResume = false
     }

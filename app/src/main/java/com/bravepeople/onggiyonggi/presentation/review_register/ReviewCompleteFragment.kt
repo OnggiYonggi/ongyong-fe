@@ -1,10 +1,16 @@
 package com.bravepeople.onggiyonggi.presentation.review_register
 
+import android.graphics.Color
 import android.os.Bundle
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.style.ForegroundColorSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import com.bravepeople.onggiyonggi.R
 import com.bravepeople.onggiyonggi.databinding.FragmentReviewCompleteBinding
 import timber.log.Timber
 
@@ -12,6 +18,8 @@ class ReviewCompleteFragment:Fragment() {
     private var _binding:FragmentReviewCompleteBinding?=null
     private val binding:FragmentReviewCompleteBinding
         get()= requireNotNull(_binding){"receipt fragment is null"}
+
+    private val reviewCompleteViewModel:ReviewCompleteViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -29,6 +37,45 @@ class ReviewCompleteFragment:Fragment() {
 
     private fun setting(){
         Timber.d("review complete fragment!")
+
+        val lottieView=binding.lavEarth
+        lottieView.setAnimation(R.raw.earth)
+        lottieView.playAnimation()
+
+        setCharacter()
+        setReview()
+        clickEndButton()
+    }
+
+    private fun setCharacter(){
+        val name=reviewCompleteViewModel.name
+        val percentage=reviewCompleteViewModel.likeability.toString()+"%"
+        val text=context?.getString(R.string.review_complete_character_likeability, name, percentage)
+        val spannable=SpannableString(text)
+
+        val start=text!!.indexOf(percentage)
+        val end=start + percentage.length
+
+        spannable.setSpan(
+            ForegroundColorSpan(Color.RED),
+            start, end,
+            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+        )
+
+        binding.tvReviewCharacter.text=spannable
+    }
+
+    private fun setReview(){
+        with(binding){
+            tvMyReviewStore.text=reviewCompleteViewModel.storeName
+            tvMyReviewContent.text=reviewCompleteViewModel.review
+        }
+    }
+
+    private fun clickEndButton(){
+        binding.btnEnd.setOnClickListener{
+            requireActivity().finish()
+        }
     }
 
     override fun onDestroyView() {

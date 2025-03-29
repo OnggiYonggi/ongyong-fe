@@ -20,7 +20,7 @@ class ReviewAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     }
 
     private lateinit var storeData: StoreOrReceipt.Store
-    private lateinit var reviewList: List<Review>
+    private val reviewList = mutableListOf<Review>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return if (viewType == VIEW_TYPE_STORE) {
@@ -47,9 +47,14 @@ class ReviewAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         return if (position == 0) VIEW_TYPE_STORE else VIEW_TYPE_REVIEW
     }
 
-    fun setReviewList(store: StoreOrReceipt.Store, reviewList:List<Review>){
+    fun setStore(store: StoreOrReceipt.Store){
         this.storeData=store
-        this.reviewList=reviewList
+        notifyDataSetChanged()
+    }
+
+    fun setReviewList(newReviewList:List<Review>){
+        reviewList.clear()
+        reviewList.addAll(newReviewList)
         notifyDataSetChanged()
     }
 

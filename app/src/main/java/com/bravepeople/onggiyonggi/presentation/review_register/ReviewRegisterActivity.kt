@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
 import com.bravepeople.onggiyonggi.R
 import com.bravepeople.onggiyonggi.databinding.ActivityReviewBinding
+import timber.log.Timber
 
 class ReviewRegisterActivity:AppCompatActivity() {
     private  lateinit var binding: ActivityReviewBinding

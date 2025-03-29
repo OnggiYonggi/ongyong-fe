@@ -18,4 +18,8 @@
     <color name="write_select_green">#A0C878</color>
     <color name="write_register_green">#66A55B</color>
     <color name="write_register_darkgreen">#588E4F</color>
+
+    <color name="review_register_complete_darkblue">#27374D</color>
+    <color name="review_register_complete_green">#D2FAC2</color>
+    <color name="review_register_complete_end_gray">#616161</color>
 </resources>
