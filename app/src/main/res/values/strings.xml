@@ -25,7 +25,12 @@
     <string name="review_complete_good_life">일회용기 NO! \n다회용기로 친환경 라이프 실천 중!</string>
     <string name="review_complete_my_review">내가 작성한 리뷰</string>
     <string name="review_complete_next">리뷰 모아보기</string>
-    
+
+    <string name="review_detail_title">리뷰 상세</string>
+    <string name="review_detail_what">용기</string>
+    <string name="review_detail_size">크기</string>
+    <string name="review_detail_amount">양</string>
+    <string name="review_detail_taste">맛</string>
     
     <!-- mock data -->
 

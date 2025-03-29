@@ -1,5 +1,6 @@
 package com.bravepeople.onggiyonggi.presentation.review
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -8,13 +9,15 @@ import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bravepeople.onggiyonggi.R
 import com.bravepeople.onggiyonggi.data.Review
 import com.bravepeople.onggiyonggi.databinding.FragmentReviewBinding
+import com.bravepeople.onggiyonggi.presentation.review.review_detail.ReviewDetailActivity
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import timber.log.Timber
 
-class ReviewFragment:BottomSheetDialogFragment() {
+class ReviewFragment:BottomSheetDialogFragment(), ReviewClickListener {
     private var _binding: FragmentReviewBinding?=null
     private val binding: FragmentReviewBinding
         get()= requireNotNull(_binding){"receipt fragment is null"}
@@ -40,7 +43,7 @@ class ReviewFragment:BottomSheetDialogFragment() {
     }
 
     private fun setting(){
-        reviewAdapter=ReviewAdapter()
+        reviewAdapter=ReviewAdapter(this)
         val gridLayoutManager = GridLayoutManager(requireContext(), 2)
         gridLayoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
             override fun getSpanSize(position: Int): Int {
@@ -92,6 +95,16 @@ class ReviewFragment:BottomSheetDialogFragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding=null
+    }
+
+    override fun onReviewClick(review: Review) {
+        val intent= Intent(requireContext(), ReviewDetailActivity::class.java)
+        intent.putExtra("review", review)
+        startActivity(intent)
+        requireActivity().overridePendingTransition(
+            R.anim.slide_in_right,
+            R.anim.stay_still
+        )
     }
 
 }

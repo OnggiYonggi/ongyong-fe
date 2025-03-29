@@ -44,6 +44,11 @@
             android:exported="false">
         </activity>
 
+        <activity android:name=".presentation.review.review_detail.ReviewDetailActivity"
+            android:exported="false">
+        </activity>
+
+
         <meta-data
             android:name="com.naver.maps.map.NCP_KEY_ID"
             android:value="${NAVER_CLIENT_ID}" />

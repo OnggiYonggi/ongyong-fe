@@ -13,7 +13,9 @@ import com.bravepeople.onggiyonggi.databinding.ItemReviewBinding
 import com.bravepeople.onggiyonggi.databinding.ItemStoreBinding
 import com.bravepeople.onggiyonggi.presentation.review_register.ReviewRegisterActivity
 
-class ReviewAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class ReviewAdapter(
+    private val reviewClickListener: ReviewClickListener
+) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     companion object {
         private const val VIEW_TYPE_STORE = 0
         private const val VIEW_TYPE_REVIEW = 1
@@ -88,6 +90,10 @@ class ReviewAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
                 ivFood.load(data.food)
                 btnLike.setOnClickListener{
                     btnLike.isSelected=!btnLike.isSelected
+                }
+
+                ivFood.setOnClickListener{
+                    reviewClickListener.onReviewClick(data)
                 }
             }
         }

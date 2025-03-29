@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingStart="15dp"
+    android:paddingEnd="15dp"
+    android:paddingBottom="20dp"
+    android:paddingTop="0dp"
+    android:background="@color/white">
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btn_back"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginStart="-10dp"
+        android:background="@drawable/btn_back"
+        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintWidth_percent="0.13" />
+
+    <TextView
+        android:id="@+id/tv_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/review_detail_title"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="@id/btn_back"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/btn_back" />
+
+    <ScrollView
+        android:id="@+id/sv"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:clipToPadding="false"
+        android:fillViewport="true"
+        android:paddingTop="20dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btn_back">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:id="@+id/iv_pin"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:background="@drawable/ic_pin_green"
+                app:layout_constraintDimensionRatio="1:1"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintWidth_percent="0.1" />
+
+            <TextView
+                android:id="@+id/tv_store_name"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="start"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/iv_pin"
+                app:layout_constraintTop_toTopOf="@id/iv_pin" />
+
+            <TextView
+                android:id="@+id/tv_store_address"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:gravity="start"
+                android:textColor="@color/store_address_gray"
+                android:textSize="14sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="@id/tv_store_name"
+                app:layout_constraintTop_toBottomOf="@id/tv_store_name" />
+
+            <View
+                android:id="@+id/v_line"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="20dp"
+                android:background="@color/store_bar_gray"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tv_store_address" />
+
+            <ImageView
+                android:id="@+id/iv_profile"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginTop="20dp"
+                android:background="@drawable/img_user1"
+                app:layout_constraintDimensionRatio="1:1"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/v_line"
+                app:layout_constraintWidth_percent="0.15" />
+
+            <TextView
+                android:id="@+id/tv_name"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toTopOf="@id/tv_date"
+                app:layout_constraintStart_toEndOf="@id/iv_profile"
+                app:layout_constraintTop_toTopOf="@id/iv_profile" />
+
+            <TextView
+                android:id="@+id/tv_date"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:textColor="@color/store_address_gray"
+                app:layout_constraintBottom_toBottomOf="@id/iv_profile"
+                app:layout_constraintStart_toStartOf="@id/tv_name"
+                app:layout_constraintTop_toBottomOf="@id/tv_name" />
+
+            <TextView
+                android:id="@+id/tv_like_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="10dp"
+                android:textColor="@color/store_text_gray"
+                app:layout_constraintBottom_toBottomOf="@id/btn_like"
+                app:layout_constraintEnd_toStartOf="@id/btn_like"
+                app:layout_constraintTop_toTopOf="@id/btn_like" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btn_like"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginEnd="20dp"
+                android:background="@drawable/btn_like"
+                app:layout_constraintBottom_toBottomOf="@id/iv_profile"
+                app:layout_constraintDimensionRatio="1:1"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@id/iv_profile"
+                app:layout_constraintWidth_percent="0.06" />
+
+            <ImageView
+                android:id="@+id/iv_review"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_marginTop="20dp"
+                android:adjustViewBounds="true"
+                app:layout_constraintDimensionRatio="1:1"
+                app:layout_constraintBottom_toTopOf="@id/iv_select_background"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/iv_profile" />
+
+            <ImageView
+                android:id="@+id/iv_select_background"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:background="@drawable/iv_select_background"
+                android:layout_marginTop="10dp"
+                app:layout_constraintBottom_toBottomOf="@id/tv_taste_title"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/iv_review" />
+
+            <TextView
+                android:id="@+id/tv_what_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="10dp"
+                android:text="@string/review_detail_what"
+                android:textColor="@color/store_address_gray"
+                app:layout_constraintStart_toStartOf="@id/iv_select_background"
+                app:layout_constraintTop_toTopOf="@id/iv_select_background" />
+
+            <TextView
+                android:id="@+id/tv_what"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="5dp"
+                app:layout_constraintStart_toEndOf="@id/tv_what_title"
+                app:layout_constraintTop_toTopOf="@id/tv_what_title" />
+
+            <TextView
+                android:id="@+id/tv_size_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:text="@string/review_detail_size"
+                android:textColor="@color/store_address_gray"
+                app:layout_constraintStart_toEndOf="@id/tv_what"
+                app:layout_constraintTop_toTopOf="@id/tv_what_title" />
+
+            <TextView
+                android:id="@+id/tv_size"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="5dp"
+                app:layout_constraintStart_toEndOf="@id/tv_size_title"
+                app:layout_constraintTop_toTopOf="@id/tv_what_title" />
+
+            <TextView
+                android:id="@+id/tv_amount_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:text="@string/review_detail_amount"
+                android:textColor="@color/store_address_gray"
+                app:layout_constraintStart_toEndOf="@id/tv_size"
+                app:layout_constraintTop_toTopOf="@id/tv_what_title" />
+
+            <TextView
+                android:id="@+id/tv_amount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="5dp"
+                app:layout_constraintStart_toEndOf="@id/tv_amount_title"
+                app:layout_constraintTop_toTopOf="@id/tv_what_title" />
+
+            <TextView
+                android:id="@+id/tv_taste_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:paddingTop="0dp"
+                android:paddingBottom="10dp"
+                android:text="@string/review_detail_taste"
+                android:textColor="@color/store_address_gray"
+                app:layout_constraintStart_toStartOf="@id/tv_what_title"
+                app:layout_constraintTop_toBottomOf="@id/tv_what_title" />
+
+            <TextView
+                android:id="@+id/tv_taste"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="5dp"
+                app:layout_constraintStart_toEndOf="@id/tv_taste_title"
+                app:layout_constraintTop_toTopOf="@id/tv_taste_title" />
+
+            <TextView
+                android:id="@+id/tv_review"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:gravity="start"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/iv_select_background" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
+</androidx.constraintlayout.widget.ConstraintLayout>
