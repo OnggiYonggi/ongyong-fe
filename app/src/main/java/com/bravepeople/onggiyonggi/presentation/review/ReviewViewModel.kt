@@ -15,4 +15,13 @@ class ReviewViewModel:ViewModel() {
 
     fun getStore()=store
     fun getReviewList()=reviewList
+
+    private val newList:List<Review> = listOf(
+        Review(0, "user","2025-03-24", R.drawable.img_user1, R.drawable.img_review1, false),
+        Review(1, "user","2025-03-23", R.drawable.img_user2, R.drawable.img_review2, false),
+        Review(2, "user","2025-03-22", R.drawable.img_user3, R.drawable.img_review3, false),
+        Review(0, "user","2025-03-24", R.drawable.img_user1, R.drawable.img_review1, false),
+    )
+
+    fun getNewList()=newList
 }

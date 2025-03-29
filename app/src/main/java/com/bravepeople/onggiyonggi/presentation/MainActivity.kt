@@ -7,6 +7,7 @@ import com.bravepeople.onggiyonggi.databinding.ActivityMainBinding
 import androidx.fragment.app.Fragment
 import com.bravepeople.onggiyonggi.R
 import com.bravepeople.onggiyonggi.presentation.home.HomeFragment
+import timber.log.Timber
 
 class MainActivity : AppCompatActivity() {
     private lateinit var  binding:ActivityMainBinding

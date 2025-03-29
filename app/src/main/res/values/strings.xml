@@ -20,6 +20,15 @@
     <string name="write_review_number_of_character">%d/200</string>
     <string name="write_register">등록하기</string>
 
+    <string name="review_complete_text">리뷰 등록 완료!</string>
+    <string name="review_complete_character_likeability">%s의 호감도가 %s 증가했어요!</string>
+    <string name="review_complete_good_life">일회용기 NO! \n다회용기로 친환경 라이프 실천 중!</string>
+    <string name="review_complete_my_review">내가 작성한 리뷰</string>
+    <string name="review_complete_next">리뷰 모아보기</string>
+    
+    
+    <!-- mock data -->
+
     <string name="write_food_name_mock">스타벅스 프렌치 바닐라 라떼</string>
     <string name="write_food_unit_price_input">%d원</string>
     <string name="write_food_count_mock">2</string>
