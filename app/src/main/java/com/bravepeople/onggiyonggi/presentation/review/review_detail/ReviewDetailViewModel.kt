@@ -5,8 +5,8 @@ import com.bravepeople.onggiyonggi.R
 import com.bravepeople.onggiyonggi.data.StoreOrReceipt
 
 class ReviewDetailViewModel:ViewModel() {
-    private val store="스타먹스 광교역점"
-    private val address="경기 수원시 영통구 대학로 47 (이의동)"
+    private val store="스타벅스 광교역점"
+    private val address="광교역 123-1"
 
     val profile=R.drawable.img_user1
     val username="user"

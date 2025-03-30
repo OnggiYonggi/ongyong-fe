@@ -22,4 +22,9 @@
     <color name="review_register_complete_darkblue">#27374D</color>
     <color name="review_register_complete_green">#D2FAC2</color>
     <color name="review_register_complete_end_gray">#616161</color>
+
+    <color name="search_text_black">#616161</color>
+    <color name="search_text_gray">#9A9A9A</color>
+    <color name="search_bar_gray">#AEAEB3</color>
+    <color name="search_list_bar_gray">#DFDFDF</color>
 </resources>

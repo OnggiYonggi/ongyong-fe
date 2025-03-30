@@ -31,6 +31,10 @@
     <string name="review_detail_size">크기</string>
     <string name="review_detail_amount">양</string>
     <string name="review_detail_taste">맛</string>
+
+    <string name="home_search">검색</string>
+    <string name="search_recent">최근 검색</string>
+    <string name="search_delete_all">전체 삭제</string>
     
     <!-- mock data -->
 
@@ -66,4 +70,13 @@
     <string name="write_select_4_answer1">음식이 늦어요</string>
     <string name="write_select_4_answer2">직원이 친절해요</string>
     <string name="write_select_4_answer3">위생이 아쉬워요</string>
+    
+    <string name="search_name_mock">핵밥 수원경기대점</string>
+    <string name="search_address_mock">경기 수원시 영통구 대학3로4번길 2 108</string>
+    <string name="search_name_mock2">탐앤탐스 광교역경기대점</string>
+    <string name="search_address_mock2">경기 수원시 영통구 대학3로4번길 12 이스턴타워 108호</string>
+    <string name="search_name_mock3">배부장찌개 수원광교점</string>
+    <string name="search_address_mock3">경기 수원시 영통구 대학1로54번길 14</string>
+    <string name="search_name_mock4">완미족발 수원경기대점</string>
+    <string name="search_address_mock4">경기 수원시 영통구 대학1로50번길 8 1층</string>
 </resources>

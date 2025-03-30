@@ -1,5 +1,6 @@
 package com.bravepeople.onggiyonggi.presentation.review
 
+import android.content.Context
 import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
@@ -14,6 +15,7 @@ import com.bravepeople.onggiyonggi.databinding.ItemStoreBinding
 import com.bravepeople.onggiyonggi.presentation.review_register.ReviewRegisterActivity
 
 class ReviewAdapter(
+    private val context: Context,
     private val reviewClickListener: ReviewClickListener
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     companion object {
@@ -26,10 +28,12 @@ class ReviewAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return if (viewType == VIEW_TYPE_STORE) {
-            val binding = ItemStoreBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+            val binding =
+                ItemStoreBinding.inflate(LayoutInflater.from(parent.context), parent, false)
             StoreViewHolder(binding)
         } else {
-            val binding = ItemReviewBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+            val binding =
+                ItemReviewBinding.inflate(LayoutInflater.from(parent.context), parent, false)
             ReviewViewHolder(binding)
         }
     }
@@ -49,12 +53,12 @@ class ReviewAdapter(
         return if (position == 0) VIEW_TYPE_STORE else VIEW_TYPE_REVIEW
     }
 
-    fun setStore(store: StoreOrReceipt.Store){
-        this.storeData=store
+    fun setStore(store: StoreOrReceipt.Store) {
+        this.storeData = store
         notifyDataSetChanged()
     }
 
-    fun setReviewList(newReviewList:List<Review>){
+    fun setReviewList(newReviewList: List<Review>) {
         reviewList.clear()
         reviewList.addAll(newReviewList)
         notifyDataSetChanged()
@@ -88,11 +92,11 @@ class ReviewAdapter(
                 tvUserName.text = data.userName
                 tvReviewDate.text = data.reviewDate
                 ivFood.load(data.food)
-                btnLike.setOnClickListener{
-                    btnLike.isSelected=!btnLike.isSelected
+                btnLike.setOnClickListener {
+                    btnLike.isSelected = !btnLike.isSelected
                 }
 
-                ivFood.setOnClickListener{
+                ivFood.setOnClickListener {
                     reviewClickListener.onReviewClick(data)
                 }
             }

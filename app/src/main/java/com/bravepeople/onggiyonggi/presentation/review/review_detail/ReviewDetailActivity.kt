@@ -7,6 +7,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import coil.load
 import com.bravepeople.onggiyonggi.R
 import com.bravepeople.onggiyonggi.data.Review
+import com.bravepeople.onggiyonggi.data.Search
 import com.bravepeople.onggiyonggi.databinding.ActivityReviewDetailBinding
 
 class ReviewDetailActivity:AppCompatActivity() {
@@ -49,9 +50,12 @@ class ReviewDetailActivity:AppCompatActivity() {
         val review=intent.getParcelableExtra<Review>("review")
 
         with(binding){
+            if(review!=null){
+                tvName.text=review.userName
+                tvDate.text=review.reviewDate
+            }
             ivProfile.load(review!!.profile)
-            tvName.text=review.userName
-            tvDate.text=review.reviewDate
+
             tvLikeCount.text=reviewDetailViewModel.countLike.toString()
 
             //가로는 parent만큼, 세로는 화면 비율에 맞춰서
