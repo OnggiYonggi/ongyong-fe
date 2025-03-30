@@ -7,8 +7,10 @@ import com.bravepeople.onggiyonggi.databinding.ActivityMainBinding
 import androidx.fragment.app.Fragment
 import com.bravepeople.onggiyonggi.R
 import com.bravepeople.onggiyonggi.presentation.home.HomeFragment
+import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     private lateinit var  binding:ActivityMainBinding
     override fun onCreate(savedInstanceState: Bundle?) {

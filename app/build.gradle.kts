@@ -32,6 +32,30 @@ android {
             gradleLocalProperties(rootDir, providers).getProperty("naver.client.id")
         )
 
+        buildConfigField(
+            "String",
+            "NAVER_API_CLIENT_ID",
+            gradleLocalProperties(rootDir, providers).getProperty("naver.api.client.id")
+        )
+
+        buildConfigField(
+            "String",
+            "NAVER_API_CLIENT_SECRET",
+            gradleLocalProperties(rootDir, providers).getProperty("naver.api.client.secret")
+        )
+
+        buildConfigField(
+            "String",
+            "BASE_URL",
+            gradleLocalProperties(rootDir, providers).getProperty("base.url")
+        )
+
+        buildConfigField(
+            "String",
+            "NAVER_MAP_URL",
+            gradleLocalProperties(rootDir, providers).getProperty("naver.map.url")
+        )
+
         buildConfigField("String", "NAVER_CLIENT_ID", "${naverClientId}")
 
         manifestPlaceholders["NAVER_CLIENT_ID",] = naverClientId
@@ -126,6 +150,10 @@ dependencies {
 
     // 네이버 지도 SDK
     implementation("com.naver.maps:map-sdk:3.21.0")
+
+    //xml converter
+    implementation ("com.squareup.retrofit2:converter-simplexml:2.9.0")
+
 }
 
 kapt {
