@@ -1,5 +1,6 @@
 package com.bravepeople.onggiyonggi.presentation.review_register
 
+import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.text.Spannable
@@ -9,9 +10,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import com.bravepeople.onggiyonggi.R
 import com.bravepeople.onggiyonggi.databinding.FragmentReviewCompleteBinding
+import com.bravepeople.onggiyonggi.presentation.MainActivity
 import timber.log.Timber
 
 class ReviewCompleteFragment:Fragment() {
@@ -20,6 +23,7 @@ class ReviewCompleteFragment:Fragment() {
         get()= requireNotNull(_binding){"receipt fragment is null"}
 
     private val reviewCompleteViewModel:ReviewCompleteViewModel by viewModels()
+    private val reviewRegisterViewModel:ReviewRegisterViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -74,7 +78,21 @@ class ReviewCompleteFragment:Fragment() {
 
     private fun clickEndButton(){
         binding.btnEnd.setOnClickListener{
-            requireActivity().finish()
+            val beforeActivity = reviewRegisterViewModel.getBeforeActivity()
+            val store = reviewRegisterViewModel.getStore()
+
+            if (beforeActivity == null) {
+                requireActivity().finish()
+            } else {
+                val intent = Intent(requireContext(), MainActivity::class.java).apply {
+                    putExtra("openFragment", "review")
+                    putExtra("store", store)
+                    putExtra("fromReview", true)
+                    flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                }
+                startActivity(intent)
+                requireActivity().finish()
+            }
         }
     }
 

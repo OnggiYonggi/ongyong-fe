@@ -1,4 +1,4 @@
-package com.bravepeople.onggiyonggi.presentation.home
+package com.bravepeople.onggiyonggi.presentation.home.search
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
@@ -14,7 +14,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.plus
 import okhttp3.ResponseBody
 import org.json.JSONObject
 import retrofit2.HttpException

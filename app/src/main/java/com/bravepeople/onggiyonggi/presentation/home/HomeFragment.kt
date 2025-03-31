@@ -1,6 +1,7 @@
 package com.bravepeople.onggiyonggi.presentation.home
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Looper
@@ -9,6 +10,8 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
 import androidx.activity.addCallback
 import androidx.core.content.ContextCompat
 import androidx.core.text.HtmlCompat
@@ -19,6 +22,10 @@ import com.bravepeople.onggiyonggi.R
 import com.bravepeople.onggiyonggi.data.Search
 import com.bravepeople.onggiyonggi.databinding.FragmentHomeBinding
 import com.bravepeople.onggiyonggi.extension.SearchState
+import com.bravepeople.onggiyonggi.presentation.home.register.StoreRegisterActivity
+import com.bravepeople.onggiyonggi.presentation.home.search.SearchRecentAdapter
+import com.bravepeople.onggiyonggi.presentation.home.search.SearchResultAdapter
+import com.bravepeople.onggiyonggi.presentation.home.search.SearchViewModel
 import com.bravepeople.onggiyonggi.presentation.review.ReviewFragment
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
@@ -26,6 +33,7 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.CameraUpdate
 import com.naver.maps.map.MapView
@@ -33,8 +41,6 @@ import com.naver.maps.map.NaverMap
 import com.naver.maps.map.OnMapReadyCallback
 import com.naver.maps.map.overlay.Marker
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.observeOn
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -56,6 +62,11 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
 
     private lateinit var newMarker: Marker
     private var isUserTyping = true
+
+    private var isFabOpen = false
+
+    private lateinit var fabOpen: Animation
+    private lateinit var fabClose: Animation
 
     // 위치 요청 받을 변수
     private lateinit var fusedLocationClient: FusedLocationProviderClient
@@ -94,15 +105,6 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
         super.onViewCreated(view, savedInstanceState)
         Timber.d("viewcreated")
 
-        /* requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
-             if (binding.btnBack.visibility == View.VISIBLE) {
-                 setVisibility(false) // 검색창 닫기
-             } else {
-                 isEnabled = false
-                 requireActivity().onBackPressed() // 기본 뒤로가기 동작 수행
-             }
-         }*/
-
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
             if (binding.btnBack.visibility == View.VISIBLE) {
                 binding.btnBack.performClick()
@@ -111,7 +113,6 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
                 requireActivity().onBackPressed()
             }
         }
-
 
         mapReset(savedInstanceState)
         setting()
@@ -130,6 +131,7 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
         clickCurrentBtn()
         clickSearchBar()
         clickEditText()
+        clickAddButton()
     }
 
     private fun permissionCheck() {
@@ -243,8 +245,8 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
         }
     }
 
-    private fun clickEditText(){
-        binding.etSearch.setOnTouchListener {v,event->
+    private fun clickEditText() {
+        binding.etSearch.setOnTouchListener { v, event ->
             Timber.d("etSearch 터치됨 → review fragment 제거 & 검색창 모드 전환")
 
             val reviewFragment = parentFragmentManager.findFragmentByTag("ReviewFragment")
@@ -290,6 +292,8 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
                 etSearch.visibility = View.VISIBLE
                 ivTextsBackground.visibility = View.VISIBLE
 
+                resetFabState()
+                fabMain.visibility=View.GONE
                 cvSearch.visibility = View.INVISIBLE
                 btnCurrent.visibility = View.INVISIBLE
                 tvSearch.visibility = View.INVISIBLE
@@ -308,6 +312,7 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
                 ivTextsBackground.visibility = View.INVISIBLE
                 rvResult.visibility = View.GONE
 
+                fabMain.visibility=View.VISIBLE
                 cvSearch.visibility = View.VISIBLE
                 btnCurrent.visibility = View.VISIBLE
                 tvSearch.visibility = View.VISIBLE
@@ -327,14 +332,14 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
                 Timber.d("text: ${inputText}")
 
                 if (inputText.isEmpty()) {
-                    with(binding){
+                    with(binding) {
                         tvRecentSearches.visibility = View.VISIBLE
                         tvDeleteAll.visibility = View.VISIBLE
                         rvSearch.visibility = View.VISIBLE
                         rvResult.visibility = View.GONE
                         ivTextsBackground.visibility = View.VISIBLE
                     }
-                }else{
+                } else {
                     // 사용자가 직접 입력한 경우에만 리스트 노출
                     if (isUserTyping) {
                         with(binding) {
@@ -490,6 +495,76 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
         }
     }
 
+    private fun clickAddButton() {
+
+        fabOpen = AnimationUtils.loadAnimation(requireContext(), R.anim.fab_open)
+        fabClose = AnimationUtils.loadAnimation(requireContext(), R.anim.fab_close)
+
+        binding.fabMain.setOnClickListener {
+            if (isFabOpen) {
+                with(binding) {
+                    fabMain.animate().rotation(0f).setDuration(200).start()
+                    fabNew.visibility = View.INVISIBLE
+                    fabNew.startAnimation(fabClose)
+
+                    fabNew.postDelayed({
+                        fabBan.visibility=View.INVISIBLE
+                        fabBan.startAnimation(fabClose)
+                    }, 80)
+                }
+                isFabOpen = false
+            } else {
+                with(binding){
+                    fabMain.animate().rotation(45f).setDuration(200).start()
+                    fabBan.visibility = View.VISIBLE
+                    fabBan.startAnimation(fabOpen)
+
+                    fabBan.postDelayed({
+                        fabNew.visibility = View.VISIBLE
+                        fabNew.startAnimation(fabOpen)
+                    }, 80)
+
+                    fabNew.setOnClickListener{
+                        val intent=Intent(requireContext(), StoreRegisterActivity::class.java)
+                        intent.putExtra("type", "new")
+                        startActivity(intent)
+                        requireActivity().overridePendingTransition(R.anim.slide_in_right, R.anim.stay_still)
+                    }
+                    fabBan.setOnClickListener{
+                        val intent=Intent(requireContext(), StoreRegisterActivity::class.java)
+                        intent.putExtra("type", "bav")
+                        startActivity(intent)
+                        requireActivity().overridePendingTransition(R.anim.slide_in_right, R.anim.stay_still)
+                    }
+                }
+                isFabOpen = true
+
+
+            }
+        }
+    }
+
+    private fun resetFabState() {
+        binding.fabMain.rotation = 0f
+
+        binding.fabNew.clearAnimation()
+        binding.fabNew.visibility = View.GONE
+
+        binding.fabBan.clearAnimation()
+        binding.fabBan.visibility = View.GONE
+
+        isFabOpen = false
+    }
+
+
+    fun openReviewFragment() {
+        resetFabState()
+        val reviewFragment = ReviewFragment()
+        childFragmentManager.beginTransaction()
+            .replace(R.id.fcv_review, reviewFragment)
+            .addToBackStack(null)
+            .commit()
+    }
 
     override fun onStart() {
         super.onStart()
@@ -499,6 +574,7 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
     override fun onResume() {
         super.onResume()
 
+        resetFabState()
         mapView.onResume()
         val permissionCheck = ContextCompat.checkSelfPermission(
             requireContext(),

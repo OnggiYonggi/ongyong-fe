@@ -10,6 +10,12 @@ import com.bravepeople.onggiyonggi.data.StoreOrReceipt
 class ReviewRegisterViewModel : ViewModel() {
     private lateinit var receipt: Uri
     private lateinit var food: Uri
+    private lateinit var beforeActivity:String
+
+    fun setBeforeActivity(before:String){
+        beforeActivity=before
+    }
+    fun getBeforeActivity():String =beforeActivity
 
     fun saveReceipt(receiptUri: Uri) {
         receipt = receiptUri
