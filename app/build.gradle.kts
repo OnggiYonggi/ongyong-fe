@@ -32,7 +32,7 @@ android {
             gradleLocalProperties(rootDir, providers).getProperty("naver.client.id")
         )
 
-        buildConfigField("String", "NAVER_CLIENT_ID", "${naverClientId}")
+        buildConfigField("String", "NAVER_CLIENT_ID", "\"dummy-client-id\"")
 
         manifestPlaceholders["NAVER_CLIENT_ID",] = naverClientId
 
