@@ -35,6 +35,12 @@
     <string name="home_search">검색</string>
     <string name="search_recent">최근 검색</string>
     <string name="search_delete_all">전체 삭제</string>
+
+    <string name="store_register_new">첫 리뷰 등록</string>
+    <string name="store_register_ban">제보하기</string>
+    <string name="store_register_what">어떤 가게 인가요?</string>
+    <string name="store_register_where">어느 가게를 등록하나요?</string>
+    <string name="store_register_ban_complete">제보가 완료되었습니다!</string>
     
     <!-- mock data -->
 

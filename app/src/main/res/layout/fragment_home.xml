@@ -24,6 +24,58 @@
         app:layout_constraintHorizontal_bias="0.9"
         app:layout_constraintVertical_bias="0.95"/>
 
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_new"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/fab_ban"
+        android:layout_marginBottom="5dp"
+        android:backgroundTint="@color/white"
+        android:src="@drawable/ic_star_yellow_24"
+        android:visibility="invisible"
+        app:maxImageSize="30dp"
+        app:tint="@null"
+        app:borderWidth="0dp"
+        app:fabSize="normal"
+        app:layout_constraintBottom_toTopOf="@id/fab_ban"
+        app:layout_constraintStart_toStartOf="@id/fab_main"
+        style="@style/MyFABStyle"/>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_ban"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/fab_main"
+        android:layout_marginBottom="5dp"
+        android:backgroundTint="@color/white"
+        android:src="@drawable/ic_ban_red_48"
+        android:visibility="invisible"
+        app:maxImageSize="30dp"
+        app:tint="@null"
+        app:borderWidth="0dp"
+        app:fabSize="normal"
+        app:layout_constraintBottom_toTopOf="@id/fab_main"
+        app:layout_constraintStart_toStartOf="@id/fab_main"
+        style="@style/MyFABStyle"/>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_main"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/home_fab_green"
+        android:src="@drawable/ic_add_white_24"
+        app:borderWidth="0dp"
+        app:fabSize="mini"
+        app:tint="@android:color/white"
+        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintHorizontal_bias="0.1"
+        app:layout_constraintVertical_bias="0.95"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        style="@style/MyFABStyle"/>
+
     <androidx.cardview.widget.CardView
         android:id="@+id/cv_search"
         android:layout_width="0dp"

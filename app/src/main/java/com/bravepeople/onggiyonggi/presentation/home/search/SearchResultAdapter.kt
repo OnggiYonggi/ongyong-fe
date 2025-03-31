@@ -1,4 +1,4 @@
-package com.bravepeople.onggiyonggi.presentation.home
+package com.bravepeople.onggiyonggi.presentation.home.search
 
 import android.text.Html
 import android.view.LayoutInflater
@@ -7,7 +7,6 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bravepeople.onggiyonggi.data.response_dto.ResponseNaverAddressDto
 import com.bravepeople.onggiyonggi.databinding.ItemSearchBinding
-import okhttp3.Response
 import timber.log.Timber
 
 class SearchResultAdapter(

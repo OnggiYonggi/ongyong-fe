@@ -5,21 +5,17 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import com.bravepeople.onggiyonggi.databinding.FragmentSearchBinding
-import com.bravepeople.onggiyonggi.presentation.home.SearchRecentAdapter
-import com.bravepeople.onggiyonggi.presentation.home.SearchViewModel
-import com.bravepeople.onggiyonggi.presentation.review.ReviewAdapter
-import com.bravepeople.onggiyonggi.presentation.review.ReviewViewModel
-import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.bravepeople.onggiyonggi.presentation.home.search.SearchRecentAdapter
+import com.bravepeople.onggiyonggi.presentation.home.search.SearchViewModel
 
 class SearchFragment:Fragment() {
     private var _binding: FragmentSearchBinding?=null
     private val binding: FragmentSearchBinding
         get()= requireNotNull(_binding){"receipt fragment is null"}
 
-    private val searchViewModel:SearchViewModel by viewModels()
+    private val searchViewModel: SearchViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -36,7 +32,7 @@ class SearchFragment:Fragment() {
     }
 
     private fun setting(){
-        val searchRecentAdapter=SearchRecentAdapter(requireContext(),
+        val searchRecentAdapter= SearchRecentAdapter(requireContext(),
             clickStore = {search ->
 
             },

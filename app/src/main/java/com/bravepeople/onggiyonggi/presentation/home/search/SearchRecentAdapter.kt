@@ -1,4 +1,4 @@
-package com.bravepeople.onggiyonggi.presentation.home
+package com.bravepeople.onggiyonggi.presentation.home.search
 
 import android.content.Context
 import android.view.LayoutInflater

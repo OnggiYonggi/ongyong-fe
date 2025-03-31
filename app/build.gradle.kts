@@ -154,6 +154,9 @@ dependencies {
     //xml converter
     implementation ("com.squareup.retrofit2:converter-simplexml:2.9.0")
 
+    //fab (floating action button)
+    implementation ("com.google.android.material:material:1.11.0")
+
 }
 
 kapt {

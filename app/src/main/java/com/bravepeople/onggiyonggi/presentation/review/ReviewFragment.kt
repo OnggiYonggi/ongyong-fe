@@ -84,9 +84,6 @@ class ReviewFragment : Fragment(), ReviewClickListener {
                                 parentView.layoutParams.height = ViewGroup.LayoutParams.MATCH_PARENT
                                 parentView.requestLayout()
                             }
-
-                            // 홈 UI 비활성화도 추가
-                            //(parentFragment as? ReviewBottomSheetListener)?.setHomeUiEnabled(false)
                         }
                         dragging = false
                     }
