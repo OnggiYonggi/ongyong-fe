@@ -25,6 +25,9 @@ class SignUpAgreementFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        binding.btnNext.isEnabled = false
+        binding.btnNext.alpha = 0.5f
+
         val item1 = binding.root.findViewById<View>(R.id.item1)
         val item2 = binding.root.findViewById<View>(R.id.item2)
         val item3 = binding.root.findViewById<View>(R.id.item3)
@@ -60,6 +63,8 @@ class SignUpAgreementFragment : Fragment() {
                 iv.setImageResource(newIcon)
                 iv.tag = !isChecked
             }
+
+            updateNextButtonState()
         }
 
         binding.btnNext.setOnClickListener {
@@ -76,10 +81,9 @@ class SignUpAgreementFragment : Fragment() {
                     .addToBackStack(null)
                     .commit()
             } else {
-                context?.let {
-                    Toast.makeText(it, "필수 항목에 모두 동의해주세요.", Toast.LENGTH_SHORT).show()
-                }
+                context?.let { }
             }
+
         }
 
 
@@ -101,11 +105,26 @@ class SignUpAgreementFragment : Fragment() {
             if (!isChecked) R.drawable.ic_check_green else R.drawable.ic_check_gray
         )
         imgCheck.tag = !isChecked
+        updateNextButtonState()
+
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
+
+    private fun updateNextButtonState() {
+        val requiredItems = listOf(R.id.item1, R.id.item2)
+        val allRequiredChecked = requiredItems.all { id ->
+            val item = binding.root.findViewById<View>(id)
+            val isChecked = item.findViewById<ImageView>(R.id.iv_check).tag as? Boolean ?: false
+            isChecked
+        }
+
+        binding.btnNext.isEnabled = allRequiredChecked
+        binding.btnNext.alpha = if (allRequiredChecked) 1f else 0.5f
+    }
+
 }
 

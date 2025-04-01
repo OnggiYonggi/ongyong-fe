@@ -51,7 +51,7 @@ class SignUpFormFragment : Fragment() {
                 return@setOnClickListener
             }
 
-            if (inputNickname == "nickname123") { // 예시 중복 닉네임
+            if (inputNickname == "nickname123") {
                 binding.tvNicknameCheckResult.apply {
                     text = "이미 사용 중인 닉네임입니다."
                     visibility = View.VISIBLE
@@ -78,7 +78,7 @@ class SignUpFormFragment : Fragment() {
                 return@setOnClickListener
             }
 
-            if (inputEmail == "test@example.com") { // 예시 중복 이메일
+            if (inputEmail == "test@example.com") {
                 binding.tvEmailCheckResult.apply {
                     text = "이미 사용 중인 이메일입니다."
                     visibility = View.VISIBLE
@@ -111,7 +111,15 @@ class SignUpFormFragment : Fragment() {
                     setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
                 }
             }
+            checkFieldsFilled()
         }
+
+        binding.etPasswd.addTextChangedListener { checkFieldsFilled() }
+        binding.etNickname.addTextChangedListener { checkFieldsFilled() }
+        binding.etEmail.addTextChangedListener { checkFieldsFilled() }
+
+        binding.btnDone.isEnabled = false
+        binding.btnDone.alpha = 0.5f
 
         binding.btnDone.setOnClickListener {
             parentFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
@@ -119,6 +127,18 @@ class SignUpFormFragment : Fragment() {
             requireActivity().findViewById<View>(R.id.login).visibility = View.VISIBLE
             requireActivity().findViewById<View>(R.id.container).visibility = View.GONE
         }
+    }
+
+    private fun checkFieldsFilled() {
+        val id = binding.etId.text.toString().trim()
+        val pw = binding.etPasswd.text.toString().trim()
+        val nickname = binding.etNickname.text.toString().trim()
+        val email = binding.etEmail.text.toString().trim()
+
+        val isFilled = id.isNotEmpty() && pw.isNotEmpty() && nickname.isNotEmpty() && email.isNotEmpty()
+
+        binding.btnDone.isEnabled = isFilled
+        binding.btnDone.alpha = if (isFilled) 1f else 0.5f
     }
 
     private fun showExitWarning() {
