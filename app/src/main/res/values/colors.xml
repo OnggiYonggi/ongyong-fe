@@ -6,6 +6,8 @@
     <color name="bnv_clicked_black">#000000</color>
     <color name="bnv_unclicked_grey">#B7B7B7</color>
 
+    <color name="home_fab_green">#53B13E</color>
+
     <color name="store_bar_gray">#4B4B4B</color>
     <color name="store_address_gray">#8E8E8E</color>
     <color name="store_text_gray">#3D3D3D</color>
@@ -18,5 +20,15 @@
     <color name="write_select_green">#A0C878</color>
     <color name="write_register_green">#66A55B</color>
     <color name="write_register_darkgreen">#588E4F</color>
+  
     <color name="red">#FF0000</color>
+
+    <color name="review_register_complete_darkblue">#27374D</color>
+    <color name="review_register_complete_green">#D2FAC2</color>
+    <color name="review_register_complete_end_gray">#616161</color>
+
+    <color name="search_text_black">#616161</color>
+    <color name="search_text_gray">#9A9A9A</color>
+    <color name="search_bar_gray">#AEAEB3</color>
+    <color name="search_list_bar_gray">#DFDFDF</color>
 </resources>

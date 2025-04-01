@@ -6,4 +6,19 @@
     </style>
 
     <style name="Theme.Onggiyonggi" parent="Base.Theme.Onggiyonggi" />
+
+    <style name="Theme.Transparent" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+    </style>
+
+    <style name="MyFABStyle" parent="Widget.MaterialComponents.FloatingActionButton">
+        <item name="shapeAppearance">@style/ShapeAppearance.FAB.Round</item>
+    </style>
+
+    <style name="ShapeAppearance.FAB.Round" parent="ShapeAppearance.Material3.Corner.None">
+        <item name="cornerSize">50%</item>
+    </style>
+
+
 </resources>

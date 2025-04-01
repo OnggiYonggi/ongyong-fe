@@ -1,5 +1,6 @@
 package com.bravepeople.onggiyonggi.presentation.review
 
+import android.content.Context
 import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
@@ -13,21 +14,26 @@ import com.bravepeople.onggiyonggi.databinding.ItemReviewBinding
 import com.bravepeople.onggiyonggi.databinding.ItemStoreBinding
 import com.bravepeople.onggiyonggi.presentation.review_register.ReviewRegisterActivity
 
-class ReviewAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class ReviewAdapter(
+    private val context: Context,
+    private val reviewClickListener: ReviewClickListener
+) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     companion object {
         private const val VIEW_TYPE_STORE = 0
         private const val VIEW_TYPE_REVIEW = 1
     }
 
     private lateinit var storeData: StoreOrReceipt.Store
-    private lateinit var reviewList: List<Review>
+    private val reviewList = mutableListOf<Review>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return if (viewType == VIEW_TYPE_STORE) {
-            val binding = ItemStoreBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+            val binding =
+                ItemStoreBinding.inflate(LayoutInflater.from(parent.context), parent, false)
             StoreViewHolder(binding)
         } else {
-            val binding = ItemReviewBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+            val binding =
+                ItemReviewBinding.inflate(LayoutInflater.from(parent.context), parent, false)
             ReviewViewHolder(binding)
         }
     }
@@ -47,9 +53,14 @@ class ReviewAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         return if (position == 0) VIEW_TYPE_STORE else VIEW_TYPE_REVIEW
     }
 
-    fun setReviewList(store: StoreOrReceipt.Store, reviewList:List<Review>){
-        this.storeData=store
-        this.reviewList=reviewList
+    fun setStore(store: StoreOrReceipt.Store) {
+        this.storeData = store
+        notifyDataSetChanged()
+    }
+
+    fun setReviewList(newReviewList: List<Review>) {
+        reviewList.clear()
+        reviewList.addAll(newReviewList)
         notifyDataSetChanged()
     }
 
@@ -81,8 +92,12 @@ class ReviewAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
                 tvUserName.text = data.userName
                 tvReviewDate.text = data.reviewDate
                 ivFood.load(data.food)
-                btnLike.setOnClickListener{
-                    btnLike.isSelected=!btnLike.isSelected
+                btnLike.setOnClickListener {
+                    btnLike.isSelected = !btnLike.isSelected
+                }
+
+                ivFood.setOnClickListener {
+                    reviewClickListener.onReviewClick(data)
                 }
             }
         }

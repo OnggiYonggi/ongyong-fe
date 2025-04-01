@@ -1,76 +1,83 @@
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="5dp"
-    android:background="@color/store_reviews_background_gray"
-    android:elevation="4dp"
-    android:padding="6dp"
-    android:radius="12dp">
+    app:cardBackgroundColor="@color/store_reviews_background_gray"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="4dp">
 
-    <!-- 유저 프로필 -->
-    <ImageView
-        android:id="@+id/iv_profile"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
-        android:scaleType="centerCrop"
-        android:src="@drawable/img_user1"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/tv_user_name"
-        android:layout_width="0dp"
+    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:text="닉네임"
-        android:textSize="14sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@id/tv_review_date"
-        app:layout_constraintStart_toEndOf="@id/iv_profile"
-        app:layout_constraintTop_toTopOf="@id/iv_profile"/>
+        android:layout_margin="5dp"
+        android:padding="6dp">
 
-    <TextView
-        android:id="@+id/tv_review_date"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="2025.03.23"
-        android:textColor="@color/store_review_date_gray"
-        android:textSize="12sp"
-        app:layout_constraintStart_toStartOf="@id/tv_user_name"
-        app:layout_constraintTop_toBottomOf="@id/tv_user_name"
-        app:layout_constraintBottom_toBottomOf="@id/iv_profile" />
+        <!-- 유저 프로필 -->
+        <ImageView
+            android:id="@+id/iv_profile"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/img_user1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- 하트 아이콘 -->
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/btn_like"
-        android:layout_width="20dp"
-        android:layout_height="20dp"
-        android:layout_marginEnd="4dp"
-        android:background="@drawable/btn_like"
-        app:layout_constraintTop_toTopOf="@id/iv_profile"
-        app:layout_constraintBottom_toBottomOf="@id/iv_profile"
-        app:layout_constraintEnd_toEndOf="@id/iv_food" />
+        <TextView
+            android:id="@+id/tv_user_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="닉네임"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toTopOf="@id/tv_review_date"
+            app:layout_constraintStart_toEndOf="@id/iv_profile"
+            app:layout_constraintTop_toTopOf="@id/iv_profile" />
 
-    <!-- 리뷰 이미지 -->
-    <ImageView
-        android:id="@+id/iv_food"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginTop="10dp"
-        android:scaleType="centerCrop"
-        android:src="@drawable/img_review1"
-        app:layout_constraintBottom_toBottomOf="@id/gl_h98"
-        app:layout_constraintDimensionRatio="1:1"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/iv_profile" />
+        <TextView
+            android:id="@+id/tv_review_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="2025.03.23"
+            android:textColor="@color/store_review_date_gray"
+            android:textSize="12sp"
+            app:layout_constraintBottom_toBottomOf="@id/iv_profile"
+            app:layout_constraintStart_toStartOf="@id/tv_user_name"
+            app:layout_constraintTop_toBottomOf="@id/tv_user_name" />
 
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/gl_h98"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.98" />
+        <!-- 하트 아이콘 -->
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btn_like"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_marginEnd="4dp"
+            android:background="@drawable/btn_like"
+            app:layout_constraintBottom_toBottomOf="@id/iv_profile"
+            app:layout_constraintEnd_toEndOf="@id/iv_food"
+            app:layout_constraintTop_toTopOf="@id/iv_profile" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <!-- 리뷰 이미지 -->
+        <ImageView
+            android:id="@+id/iv_food"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginTop="10dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/img_review1"
+            app:layout_constraintBottom_toBottomOf="@id/gl_h98"
+            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/iv_profile" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/gl_h98"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent="0.98" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.cardview.widget.CardView>

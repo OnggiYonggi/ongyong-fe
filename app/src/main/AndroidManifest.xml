@@ -42,7 +42,21 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
         </activity>
+
+        <activity android:name=".presentation.review_register.ReviewRegisterActivity"
+            android:exported="false">
+        </activity>
+
+        <activity android:name=".presentation.review.review_detail.ReviewDetailActivity"
+            android:exported="false">
+        </activity>
+
+        <activity android:name=".presentation.home.register.StoreRegisterActivity"
+            android:exported="false">
+        </activity>
+
 
         <meta-data
             android:name="com.naver.maps.map.NCP_KEY_ID"

@@ -20,6 +20,30 @@
     <string name="write_review_number_of_character">%d/200</string>
     <string name="write_register">등록하기</string>
 
+    <string name="review_complete_text">리뷰 등록 완료!</string>
+    <string name="review_complete_character_likeability">%s의 호감도가 %s 증가했어요!</string>
+    <string name="review_complete_good_life">일회용기 NO! \n다회용기로 친환경 라이프 실천 중!</string>
+    <string name="review_complete_my_review">내가 작성한 리뷰</string>
+    <string name="review_complete_next">리뷰 모아보기</string>
+
+    <string name="review_detail_title">리뷰 상세</string>
+    <string name="review_detail_what">용기</string>
+    <string name="review_detail_size">크기</string>
+    <string name="review_detail_amount">양</string>
+    <string name="review_detail_taste">맛</string>
+
+    <string name="home_search">검색</string>
+    <string name="search_recent">최근 검색</string>
+    <string name="search_delete_all">전체 삭제</string>
+
+    <string name="store_register_new">첫 리뷰 등록</string>
+    <string name="store_register_ban">제보하기</string>
+    <string name="store_register_what">어떤 가게 인가요?</string>
+    <string name="store_register_where">어느 가게를 등록하나요?</string>
+    <string name="store_register_ban_complete">제보가 완료되었습니다!</string>
+    
+    <!-- mock data -->
+
     <string name="write_food_name_mock">스타벅스 프렌치 바닐라 라떼</string>
     <string name="write_food_unit_price_input">%d원</string>
     <string name="write_food_count_mock">2</string>
@@ -52,4 +76,13 @@
     <string name="write_select_4_answer1">음식이 늦어요</string>
     <string name="write_select_4_answer2">직원이 친절해요</string>
     <string name="write_select_4_answer3">위생이 아쉬워요</string>
+    
+    <string name="search_name_mock">핵밥 수원경기대점</string>
+    <string name="search_address_mock">경기 수원시 영통구 대학3로4번길 2 108</string>
+    <string name="search_name_mock2">탐앤탐스 광교역경기대점</string>
+    <string name="search_address_mock2">경기 수원시 영통구 대학3로4번길 12 이스턴타워 108호</string>
+    <string name="search_name_mock3">배부장찌개 수원광교점</string>
+    <string name="search_address_mock3">경기 수원시 영통구 대학1로54번길 14</string>
+    <string name="search_name_mock4">완미족발 수원경기대점</string>
+    <string name="search_address_mock4">경기 수원시 영통구 대학1로50번길 8 1층</string>
 </resources>

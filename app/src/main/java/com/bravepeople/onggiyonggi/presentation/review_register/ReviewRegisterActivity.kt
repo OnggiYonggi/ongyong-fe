@@ -6,10 +6,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
 import com.bravepeople.onggiyonggi.R
 import com.bravepeople.onggiyonggi.databinding.ActivityReviewBinding
+import timber.log.Timber
 
 class ReviewRegisterActivity:AppCompatActivity() {
     private  lateinit var binding: ActivityReviewBinding
-    private val reviewViewModel:ReviewRegisterViewModel by viewModels()
+    private val reviewRegisterViewModel:ReviewRegisterViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         init()
@@ -38,6 +39,8 @@ class ReviewRegisterActivity:AppCompatActivity() {
     }
 
     private fun setting() {
+        val registerActivity=intent.getStringExtra("registerActivity")
+        if(registerActivity!=null) reviewRegisterViewModel.setBeforeActivity(registerActivity)
     }
 
 }
