@@ -57,7 +57,6 @@ android {
         )
 
         buildConfigField("String", "NAVER_CLIENT_ID", "${naverClientId}")
-
         manifestPlaceholders["NAVER_CLIENT_ID",] = naverClientId
 
     }
