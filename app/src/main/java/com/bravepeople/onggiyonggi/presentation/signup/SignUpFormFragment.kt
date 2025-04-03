@@ -1,4 +1,4 @@
-package com.bravepeople.onggiyonggi.presentation.login
+package com.bravepeople.onggiyonggi.presentation.signup
 
 import androidx.core.widget.addTextChangedListener
 import android.app.AlertDialog
@@ -123,10 +123,9 @@ class SignUpFormFragment : Fragment() {
 
         binding.btnDone.setOnClickListener {
             parentFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
-
-            requireActivity().findViewById<View>(R.id.login).visibility = View.VISIBLE
-            requireActivity().findViewById<View>(R.id.container).visibility = View.GONE
+            requireActivity().finish()
         }
+
     }
 
     private fun checkFieldsFilled() {
