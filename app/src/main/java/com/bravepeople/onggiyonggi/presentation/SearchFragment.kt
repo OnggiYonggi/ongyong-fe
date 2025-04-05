@@ -7,8 +7,8 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.bravepeople.onggiyonggi.databinding.FragmentSearchBinding
-import com.bravepeople.onggiyonggi.presentation.home.search.SearchRecentAdapter
-import com.bravepeople.onggiyonggi.presentation.home.search.SearchViewModel
+import com.bravepeople.onggiyonggi.presentation.main.home.search.SearchRecentAdapter
+import com.bravepeople.onggiyonggi.presentation.main.home.search.SearchViewModel
 
 class SearchFragment:Fragment() {
     private var _binding: FragmentSearchBinding?=null

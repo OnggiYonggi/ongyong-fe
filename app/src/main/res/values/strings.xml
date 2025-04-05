@@ -1,6 +1,19 @@
 <resources>
     <string name="app_name">onggiyonggi</string>
 
+    <string name="sign_up_title">회원가입</string>
+    <string name="sign_up_id">아이디</string>
+    <string name="sign_up_pw">비밀번호</string>
+    <string name="sign_up_nickname">닉네임</string>
+    <string name="sign_up_email">이메일</string>
+    <string name="sign_up_check">중복확인</string>
+    <string name="sign_up_done">완료</string>
+    
+    <string name="sign_up_agreement_terms_of_use">서비스 이용 약관</string>
+    <string name="sign_up_agreement_user_info_agree">개인정보 수집/이용 동의</string>
+    <string name="sign_up_agreement_user_third_party_info_agree">개인정보 제3자 정보제공 동의</string>
+    <string name="sign_up_agreement_location_agree">위치 기반 서비스 제공 동의</string>
+
     <string name="store_name">스타벅스 광교역점</string>
     <string name="store_address">광교역 123-1</string>
     <string name="store_time">09:00 ~ 21:00</string>
@@ -42,6 +55,10 @@
     <string name="store_register_where">어느 가게를 등록하나요?</string>
     <string name="store_register_ban_complete">제보가 완료되었습니다!</string>
     
+    <string name="store_ban_text"> 아직 다회용기 사용이 어려운 가게입니다. \n혹시 해당 가게에서 다회용기 사용을 하셨나요? </string>
+    <string name="store_ban_double">경험치 2배!</string>
+    <string name="store_ban_btn">첫 리뷰 등록하러 가기</string>
+
     <!-- mock data -->
 
     <string name="write_food_name_mock">스타벅스 프렌치 바닐라 라떼</string>

@@ -3,12 +3,14 @@ package com.bravepeople.onggiyonggi.presentation
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import com.bravepeople.onggiyonggi.databinding.ActivityMainBinding
 import androidx.fragment.app.Fragment
 import com.bravepeople.onggiyonggi.R
 import com.bravepeople.onggiyonggi.data.StoreOrReceipt
-import com.bravepeople.onggiyonggi.presentation.home.HomeFragment
-import com.bravepeople.onggiyonggi.presentation.review.ReviewFragment
+import com.bravepeople.onggiyonggi.presentation.main.home.HomeFragment
+import com.bravepeople.onggiyonggi.presentation.main.review.ReviewFragment
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 
@@ -28,6 +30,12 @@ class MainActivity : AppCompatActivity() {
 
     private fun setting() {
         setFirstFragment()
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+
+        WindowInsetsControllerCompat(window, window.decorView).apply {
+            isAppearanceLightStatusBars = true  // 아이콘을 어둡게 (밝은 배경일 때)
+            isAppearanceLightNavigationBars = true  // 네비게이션 바 아이콘도 어둡게
+        }
     }
 
     private fun setFirstFragment() {

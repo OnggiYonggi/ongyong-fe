@@ -10,6 +10,7 @@ data class Search (
     val name:String,
     val addressName:String,
     val address:LatLng,
+    val isBan:Boolean,
 ):Parcelable
 
 fun Search.toStore(): StoreOrReceipt.Store {

@@ -13,7 +13,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.bravepeople.onggiyonggi.databinding.ActivityLoginBinding
 import com.bravepeople.onggiyonggi.presentation.MainActivity
-import com.bravepeople.onggiyonggi.presentation.signup.SignUpActivity
+import com.bravepeople.onggiyonggi.presentation.login.signup.SignUpActivity
 
 class LoginActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLoginBinding
