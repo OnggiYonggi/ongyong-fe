@@ -62,27 +62,23 @@ class MainActivity : AppCompatActivity() {
 
     private fun replaceFragment(fragment: Fragment) {
         val fragmentTag = fragment::class.java.simpleName
-
-        // FragmentManager에서 이미 해당 fragment가 있는지 확인
         val existingFragment = supportFragmentManager.findFragmentByTag(fragmentTag)
 
-        // 현재 화면에 있는 Fragment들을 숨깁니다.
         val homeFragment = supportFragmentManager.findFragmentByTag(HomeFragment::class.java.simpleName)
         val characterFragment = supportFragmentManager.findFragmentByTag(CharacterFragment::class.java.simpleName)
         val myFragment = supportFragmentManager.findFragmentByTag(MyFragment::class.java.simpleName)
 
         supportFragmentManager.beginTransaction().apply {
-            // Home, Character, My를 각각 숨깁니다.
             homeFragment?.let { hide(it) }
             characterFragment?.let { hide(it) }
             myFragment?.let { hide(it) }
 
-            // 새로운 Fragment를 추가하거나 기존 것을 보여줍니다.
+            // 해당 Fragment가 스택에 없으면 새로 추가
             if (existingFragment == null) {
-                // 해당 Fragment가 스택에 없으면 새로 추가
+
                 add(R.id.fcv_main, fragment, fragmentTag)
             } else {
-                // 이미 존재하면 그 Fragment를 보여줍니다.
+                // 이미 존재하면 그 Fragment를 보여줌
                 show(existingFragment)
             }
 

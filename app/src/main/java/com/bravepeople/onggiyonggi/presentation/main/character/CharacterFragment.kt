@@ -47,9 +47,10 @@ class CharacterFragment : Fragment() {
     private fun setting() {
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, insets ->
             val statusBarHeight = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
+            val marginTop = statusBarHeight + 20
 
             binding.btnCollection.updateLayoutParams<ConstraintLayout.LayoutParams> {
-                topMargin = statusBarHeight
+                topMargin = marginTop
             }
 
             insets
@@ -200,7 +201,6 @@ class CharacterFragment : Fragment() {
             val characterDescription = data.getStringExtra("character_description")
             val characterImage = data.getIntExtra("character_image", R.drawable.ic_flying_squirrel)
 
-            // 데이터를 업데이트
             updateCharacterData(characterImage, characterName, characterDescription)
         }
     }
