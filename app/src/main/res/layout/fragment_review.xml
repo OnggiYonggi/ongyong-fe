@@ -1,36 +1,147 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:padding="5dp"
+    android:layout_height="match_parent"
     android:background="@color/white"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:padding="5dp">
 
     <View
         android:id="@+id/bar"
         android:layout_width="0dp"
         android:layout_height="2dp"
-        android:background="@color/store_bar_gray"
         android:layout_marginTop="20dp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        android:background="@color/store_bar_gray"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintWidth_percent="0.3"/>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintWidth_percent="0.3" />
 
     <View
         android:id="@+id/v_background"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="@id/bar"
-        app:layout_constraintStart_toStartOf="parent"/>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/bar" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_review"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layout_constraintTop_toBottomOf="@id/bar"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"/>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/bar" />
 
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cl_ban"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/bar">
+
+        <ImageView
+            android:id="@+id/iv_store"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="40dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/img_store"
+            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintEnd_toStartOf="@id/tv_store_name"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintWidth_percent="0.3" />
+
+        <TextView
+            android:id="@+id/tv_store_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:text="@string/store_name"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toEndOf="@id/iv_store"
+            app:layout_constraintTop_toTopOf="@id/iv_store" />
+
+        <TextView
+            android:id="@+id/tv_store_address"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="3dp"
+            android:text="@string/store_address"
+            android:textColor="@color/store_address_gray"
+            android:textSize="14sp"
+            app:layout_constraintStart_toStartOf="@id/tv_store_name"
+            app:layout_constraintTop_toBottomOf="@id/tv_store_name" />
+
+        <TextView
+            android:id="@+id/tv_store_hours"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="3dp"
+            android:text="@string/store_time"
+            android:textColor="@color/store_address_gray"
+            android:textSize="14sp"
+            app:layout_constraintStart_toStartOf="@id/tv_store_name"
+            app:layout_constraintTop_toBottomOf="@id/tv_store_address" />
+
+        <ImageView
+            android:id="@+id/iv_pin"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_gravity="top"
+            android:layout_marginBottom="5dp"
+            android:src="@drawable/ic_pin_green"
+            app:layout_constraintBottom_toBottomOf="@id/iv_store"
+            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintStart_toStartOf="@id/tv_store_name"
+            app:layout_constraintWidth_percent="0.06" />
+
+        <View
+            android:id="@+id/v_line"
+            android:layout_width="0dp"
+            android:layout_height="2dp"
+            android:layout_marginTop="20dp"
+            android:background="@color/store_line_gray"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/iv_store"
+            app:layout_constraintWidth_percent="1" />
+
+        <TextView
+            android:id="@+id/tv_ban"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/store_ban_text"
+            android:textSize="15sp"
+            android:textAlignment="center"
+            app:layout_constraintBottom_toTopOf="@id/btn_register"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/v_line" />
+
+        <TextView
+            android:id="@+id/tv_double"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
+            android:text="@string/store_ban_double"
+            app:layout_constraintBottom_toTopOf="@id/btn_register"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btn_register"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:background="@color/black"
+            android:text="@string/store_ban_btn"
+            android:textColor="@color/white"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintHeight_percent="0.07"
+            app:layout_constraintStart_toStartOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

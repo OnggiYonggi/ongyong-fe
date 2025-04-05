@@ -149,13 +149,12 @@
         android:id="@+id/btn_back"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="15dp"
         android:layout_marginStart="5dp"
         android:background="@drawable/btn_back"
         android:visibility="invisible"
         app:layout_constraintDimensionRatio="1:1"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toTopOf="@id/cv_search"
         app:layout_constraintWidth_percent="0.12" />
 
     <EditText
