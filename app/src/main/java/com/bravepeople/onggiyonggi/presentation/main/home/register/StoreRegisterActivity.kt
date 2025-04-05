@@ -19,7 +19,7 @@ import androidx.lifecycle.lifecycleScope
 import com.bravepeople.onggiyonggi.R
 import com.bravepeople.onggiyonggi.databinding.ActivityStoreRegisterBinding
 import com.bravepeople.onggiyonggi.extension.SearchState
-import com.bravepeople.onggiyonggi.presentation.main.review_register.ReviewRegisterActivity
+import com.bravepeople.onggiyonggi.presentation.main.home.review_register.ReviewRegisterActivity
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.CameraUpdate
 import com.naver.maps.map.MapView

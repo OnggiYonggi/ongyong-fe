@@ -49,15 +49,19 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".presentation.main.review_register.ReviewRegisterActivity"
+        <activity android:name=".presentation.main.home.review_register.ReviewRegisterActivity"
             android:exported="false">
         </activity>
 
-        <activity android:name=".presentation.main.review.review_detail.ReviewDetailActivity"
+        <activity android:name=".presentation.main.home.review.review_detail.ReviewDetailActivity"
             android:exported="false">
         </activity>
 
         <activity android:name=".presentation.main.home.register.StoreRegisterActivity"
+            android:exported="false">
+        </activity>
+
+        <activity android:name=".presentation.main.character.CharacterGachaActivity"
             android:exported="false">
         </activity>
 

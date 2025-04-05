@@ -27,10 +27,10 @@ import com.bravepeople.onggiyonggi.data.Search
 import com.bravepeople.onggiyonggi.databinding.FragmentHomeBinding
 import com.bravepeople.onggiyonggi.extension.SearchState
 import com.bravepeople.onggiyonggi.presentation.main.home.register.StoreRegisterActivity
+import com.bravepeople.onggiyonggi.presentation.main.home.review.ReviewFragment
 import com.bravepeople.onggiyonggi.presentation.main.home.search.SearchRecentAdapter
 import com.bravepeople.onggiyonggi.presentation.main.home.search.SearchResultAdapter
 import com.bravepeople.onggiyonggi.presentation.main.home.search.SearchViewModel
-import com.bravepeople.onggiyonggi.presentation.main.review.ReviewFragment
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest

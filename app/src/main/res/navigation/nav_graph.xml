@@ -5,12 +5,12 @@
 
     <fragment
         android:id="@+id/photoFragment"
-        android:name="com.bravepeople.onggiyonggi.presentation.main.review_register.PhotoCaptureFragment"
+        android:name="com.bravepeople.onggiyonggi.presentation.main.home.review_register.PhotoCaptureFragment"
         android:label="take a photo">
 
         <argument
             android:name="photoType"
-            app:argType="com.bravepeople.onggiyonggi.presentation.main.review_register.PhotoType"
+            app:argType="com.bravepeople.onggiyonggi.presentation.main.home.review_register.PhotoType"
             android:defaultValue="RECEIPT"
             app:nullable="false" />
 
@@ -22,12 +22,12 @@
 
     <fragment
         android:id="@+id/loadingFragment"
-        android:name="com.bravepeople.onggiyonggi.presentation.main.review_register.PhotoLoadingFragment"
+        android:name="com.bravepeople.onggiyonggi.presentation.main.home.review_register.PhotoLoadingFragment"
         android:label="checking the photo" >
 
         <argument
             android:name="photoType"
-            app:argType="com.bravepeople.onggiyonggi.presentation.main.review_register.PhotoType"
+            app:argType="com.bravepeople.onggiyonggi.presentation.main.home.review_register.PhotoType"
             app:nullable="false" />
 
         <action
@@ -42,7 +42,7 @@
 
     <fragment
         android:id="@+id/writeReviewFragment"
-        android:name="com.bravepeople.onggiyonggi.presentation.main.review_register.WriteReviewFragment"
+        android:name="com.bravepeople.onggiyonggi.presentation.main.home.review_register.WriteReviewFragment"
         android:label="write a review">
 
         <action
@@ -56,7 +56,7 @@
 
     <fragment
         android:id="@+id/reviewCompleteFragment"
-        android:name="com.bravepeople.onggiyonggi.presentation.main.review_register.ReviewCompleteFragment"
+        android:name="com.bravepeople.onggiyonggi.presentation.main.home.review_register.ReviewCompleteFragment"
         android:label="review complete">
     </fragment>
 
