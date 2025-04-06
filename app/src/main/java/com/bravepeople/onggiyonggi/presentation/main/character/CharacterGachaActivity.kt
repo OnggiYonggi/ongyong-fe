@@ -48,7 +48,7 @@ class CharacterGachaActivity : AppCompatActivity() {
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, insets ->
             val statusBarHeight = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
 
-            binding.btnBack.updateLayoutParams<ConstraintLayout.LayoutParams> {
+            binding.tvName.updateLayoutParams<ConstraintLayout.LayoutParams> {
                 topMargin = statusBarHeight
             }
 
@@ -56,7 +56,6 @@ class CharacterGachaActivity : AppCompatActivity() {
         }
 
         startRollingBall()
-        clickBackButton()
         clickNextButton()
     }
 
@@ -150,7 +149,6 @@ class CharacterGachaActivity : AppCompatActivity() {
 
 
                     tvName.text = "하늘 다람쥥"
-                    btnBack.visibility = View.VISIBLE
                     btnNext.visibility=View.VISIBLE
 
                     clCardFront.setOnClickListener {
@@ -201,12 +199,6 @@ class CharacterGachaActivity : AppCompatActivity() {
         AnimatorSet().apply {
             playSequentially(outAnimator, inAnimator)
             start()
-        }
-    }
-
-    private fun clickBackButton() {
-        binding.btnBack.setOnClickListener{
-            finish()
         }
     }
 
