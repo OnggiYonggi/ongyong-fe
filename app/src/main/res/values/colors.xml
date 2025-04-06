@@ -34,4 +34,5 @@
 
     <color name="character_tap_pink">#DC6766</color>
     <color name="character_tap_darkpink">#B05A59</color>
+    <color name="character_affection">#FF5757</color>
 </resources>
