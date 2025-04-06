@@ -110,7 +110,6 @@
         android:layout_marginEnd="30dp"
         android:layout_marginTop="15dp"
         android:background="@drawable/ic_collection_gray_91"
-        android:visibility="gone"
         app:layout_constraintDimensionRatio="1:1"
         app:layout_constraintWidth_percent="0.13"
         app:layout_constraintTop_toTopOf="parent"
@@ -165,5 +164,53 @@
             app:layout_constraintEnd_toEndOf="@id/cl_card_back"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <TextView
+        android:id="@+id/tv_affection_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:text="@string/character_affection_title"
+        android:textColor="@color/character_affection"
+        android:textSize="16sp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/pb_affection"
+        app:layout_constraintStart_toStartOf="@id/pb_affection"/>
+
+    <TextView
+        android:id="@+id/tv_affection_percent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="end"
+        android:textColor="@color/character_affection"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@id/tv_affection_title"
+        app:layout_constraintEnd_toEndOf="@id/pb_affection"/>
+
+    <ProgressBar
+        android:id="@+id/pb_affection"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="0dp"
+        android:layout_height="5dp"
+        android:progress="0"
+        android:max="100"
+        android:progressDrawable="@drawable/progress_affection"
+        android:layout_marginBottom="50dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintWidth_percent="0.8" />
+
+    <Button
+        android:id="@+id/btn_increase"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="100dp"
+        android:text="+"
+        android:textSize="25sp"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

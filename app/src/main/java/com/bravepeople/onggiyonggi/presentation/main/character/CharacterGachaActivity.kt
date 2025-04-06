@@ -219,6 +219,7 @@ class CharacterGachaActivity : AppCompatActivity() {
 
             setResult(RESULT_OK, intent)
             finish()
+            overridePendingTransition(0, R.anim.slide_out_left)
         }
     }
 }

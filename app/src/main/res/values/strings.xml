@@ -59,6 +59,10 @@
     <string name="store_ban_double">경험치 2배!</string>
     <string name="store_ban_btn">첫 리뷰 등록하러 가기</string>
 
+    <!-- character -->
+    <string name="character_affection_title">호감도</string>
+    <string name="character_affection_percent">%d%%</string>
+
     <!-- mock data -->
 
     <string name="write_food_name_mock">스타벅스 프렌치 바닐라 라떼</string>
