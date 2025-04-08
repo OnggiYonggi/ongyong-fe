@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment
 import com.bravepeople.onggiyonggi.R
 import com.bravepeople.onggiyonggi.data.StoreOrReceipt
 import com.bravepeople.onggiyonggi.presentation.home.HomeFragment
+import com.bravepeople.onggiyonggi.presentation.mypage.MyPageFragment
 import com.bravepeople.onggiyonggi.presentation.review.ReviewFragment
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
@@ -28,6 +29,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun setting() {
         setFirstFragment()
+        clickBottomNavigation()
     }
 
     private fun setFirstFragment() {
@@ -55,19 +57,19 @@ class MainActivity : AppCompatActivity() {
             .commit()
     }
 
-    /*private fun clickBottomNavigation(){
+    private fun clickBottomNavigation(){
         binding.bnvMain.setOnItemSelectedListener {
             when(it.itemId){
                 R.id.menu_home->{
-                    replaceFragment(HomeFragment(())
+                    replaceFragment(HomeFragment())
                     true
                 }
-                R.id.menu_character->{
+                /*R.id.menu_character->{
                     replaceFragment(CharacterFragment())
                     true
-                }
+                }*/
                 R.id.menu_my->{
-                    replaceFragment(MyFragment())
+                    replaceFragment(MyPageFragment())
                     true
                 }
                 else->{
@@ -75,7 +77,7 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
-    }*/
+    }
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
@@ -90,6 +92,4 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
-
-
 }
