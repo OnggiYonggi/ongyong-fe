@@ -56,7 +56,6 @@ android {
             gradleLocalProperties(rootDir, providers).getProperty("naver.map.url")
         )
 
-        buildConfigField("String", "NAVER_CLIENT_ID", "${naverClientId}")
         manifestPlaceholders["NAVER_CLIENT_ID",] = naverClientId
 
     }
@@ -155,6 +154,11 @@ dependencies {
 
     //fab (floating action button)
     implementation ("com.google.android.material:material:1.11.0")
+
+    // Glide (이미지 로딩 라이브러리)
+    implementation("com.github.bumptech.glide:glide:4.16.0")
+    kapt("com.github.bumptech.glide:compiler:4.16.0")
+
 
 }
 

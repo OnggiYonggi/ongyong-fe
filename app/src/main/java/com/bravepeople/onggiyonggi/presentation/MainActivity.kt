@@ -14,6 +14,7 @@ import com.bravepeople.onggiyonggi.databinding.ActivityMainBinding
 import androidx.fragment.app.Fragment
 import com.bravepeople.onggiyonggi.R
 import com.bravepeople.onggiyonggi.data.StoreOrReceipt
+import com.bravepeople.onggiyonggi.presentation.mypage.MyPageFragment
 import com.bravepeople.onggiyonggi.presentation.main.character.CharacterFragment
 import com.bravepeople.onggiyonggi.presentation.main.character.CharacterGachaActivity
 import com.bravepeople.onggiyonggi.presentation.main.home.HomeFragment
@@ -38,6 +39,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun setting() {
         setFirstFragment()
+        clickBottomNavigation()
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
         WindowInsetsControllerCompat(window, window.decorView).apply {
@@ -85,8 +87,7 @@ class MainActivity : AppCompatActivity() {
             commit()
         }
     }
-
-
+    
     private fun clickBottomNavigation(){
         binding.bnvMain.setOnItemSelectedListener {
             when(it.itemId){
@@ -94,12 +95,12 @@ class MainActivity : AppCompatActivity() {
                     replaceFragment(HomeFragment())
                     true
                 }
-                R.id.menu_character->{
+                /*R.id.menu_character->{
                     replaceFragment(CharacterFragment())
                     true
-                }
+                }*/
                 R.id.menu_my->{
-                    replaceFragment(MyFragment())
+                    replaceFragment(MyPageFragment())
                     true
                 }
                 else->{
