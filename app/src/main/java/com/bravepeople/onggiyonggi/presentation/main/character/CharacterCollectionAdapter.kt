@@ -13,6 +13,7 @@ import coil3.load
 import coil3.request.transformations
 import coil3.size.Size
 import coil3.transform.Transformation
+import com.bravepeople.onggiyonggi.R
 import com.bravepeople.onggiyonggi.data.Character
 import com.bravepeople.onggiyonggi.databinding.ItemCollectionBinding
 import timber.log.Timber
@@ -66,7 +67,9 @@ class CharacterCollectionAdapter(
                         Timber.d("adapter에서 캐릭터 클릭")
                         clickCharacter(character)
                     }
-                }else ivBackground.colorFilter = ColorMatrixColorFilter(ColorMatrix().apply { setSaturation(0f) })
+                }else ivBackground.load(R.drawable.ic_card_front){
+                    transformations(GrayscaleTransformation())
+                }
             }
         }
     }
