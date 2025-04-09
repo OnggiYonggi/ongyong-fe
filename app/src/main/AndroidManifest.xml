@@ -29,31 +29,47 @@
         android:theme="@style/Theme.Onggiyonggi"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
-        <activity
-            android:name=".presentation.MainActivity"
+
+        <activity android:name=".presentation.login.LoginActivity"
             android:exported="false">
 
         </activity>
 
-        <activity android:name=".presentation.login.LoginActivity"
+        <activity android:name=".presentation.login.signup.SignUpActivity"
+            android:exported="false">
+        </activity>
+
+        <activity
+            android:name=".presentation.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
         </activity>
 
-        <activity android:name=".presentation.review_register.ReviewRegisterActivity"
+        <activity android:name=".presentation.main.home.review_register.ReviewRegisterActivity"
             android:exported="false">
         </activity>
 
-        <activity android:name=".presentation.review.review_detail.ReviewDetailActivity"
+        <activity android:name=".presentation.main.home.review.review_detail.ReviewDetailActivity"
             android:exported="false">
         </activity>
 
-        <activity android:name=".presentation.home.register.StoreRegisterActivity"
+        <activity android:name=".presentation.main.home.register.StoreRegisterActivity"
+            android:exported="false">
+        </activity>
+
+        <activity android:name=".presentation.main.character.CharacterGachaActivity"
+            android:exported="false">
+        </activity>
+
+        <activity android:name=".presentation.main.character.CharacterMaxActivity"
+            android:exported="false">
+        </activity>
+
+        <activity android:name=".presentation.main.character.CharacterCollectionActivity"
             android:exported="false">
         </activity>
 
