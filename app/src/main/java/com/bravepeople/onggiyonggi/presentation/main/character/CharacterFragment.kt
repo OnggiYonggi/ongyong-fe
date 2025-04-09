@@ -12,15 +12,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
-import android.view.animation.AccelerateInterpolator
-import android.widget.ImageView
-import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.Fragment
-import coil.load
+import coil3.load
 import com.bravepeople.onggiyonggi.R
 import com.bravepeople.onggiyonggi.databinding.FragmentCharacterBinding
 import timber.log.Timber
@@ -303,7 +300,7 @@ class CharacterFragment : Fragment() {
         if (resultCode == Activity.RESULT_OK && requestCode == REQUEST_CODE_GACHA && data != null) {
             val characterName = data.getStringExtra("character_name")
             val characterDescription = data.getStringExtra("character_description")
-            val characterImage = data.getIntExtra("character_image", R.drawable.ic_flying_squirrel)
+            val characterImage = data.getIntExtra("character_image", R.drawable.character_flying_squirrel)
 
             updateCharacterData(characterImage, characterName, characterDescription)
         } else if (resultCode == Activity.RESULT_OK && requestCode == REQUEST_CODE_MAX) {

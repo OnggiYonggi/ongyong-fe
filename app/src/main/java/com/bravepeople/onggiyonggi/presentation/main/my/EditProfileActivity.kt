@@ -1,4 +1,4 @@
-package com.bravepeople.onggiyonggi.presentation.mypage
+package com.bravepeople.onggiyonggi.presentation.main.my
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity

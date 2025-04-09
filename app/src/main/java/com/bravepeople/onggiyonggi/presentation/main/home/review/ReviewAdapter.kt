@@ -6,7 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import coil.load
+import coil3.load
 import com.bravepeople.onggiyonggi.R
 import com.bravepeople.onggiyonggi.data.Review
 import com.bravepeople.onggiyonggi.data.StoreOrReceipt

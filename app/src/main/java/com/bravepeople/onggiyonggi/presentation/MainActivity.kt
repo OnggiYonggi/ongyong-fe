@@ -9,19 +9,13 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.core.view.updateLayoutParams
-import androidx.core.view.updatePadding
 import com.bravepeople.onggiyonggi.databinding.ActivityMainBinding
 import androidx.fragment.app.Fragment
 import com.bravepeople.onggiyonggi.R
-import com.bravepeople.onggiyonggi.data.StoreOrReceipt
-import com.bravepeople.onggiyonggi.presentation.mypage.MyPageFragment
-import com.bravepeople.onggiyonggi.presentation.main.character.CharacterFragment
-import com.bravepeople.onggiyonggi.presentation.main.character.CharacterGachaActivity
-import com.bravepeople.onggiyonggi.presentation.main.home.HomeFragment
-import com.bravepeople.onggiyonggi.presentation.main.home.review.ReviewFragment
 import com.bravepeople.onggiyonggi.presentation.main.my.MyFragment
+import com.bravepeople.onggiyonggi.presentation.main.character.CharacterFragment
+import com.bravepeople.onggiyonggi.presentation.main.home.HomeFragment
 import dagger.hilt.android.AndroidEntryPoint
-import timber.log.Timber
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -75,12 +69,9 @@ class MainActivity : AppCompatActivity() {
             characterFragment?.let { hide(it) }
             myFragment?.let { hide(it) }
 
-            // 해당 Fragment가 스택에 없으면 새로 추가
             if (existingFragment == null) {
-
                 add(R.id.fcv_main, fragment, fragmentTag)
             } else {
-                // 이미 존재하면 그 Fragment를 보여줌
                 show(existingFragment)
             }
 
@@ -95,12 +86,12 @@ class MainActivity : AppCompatActivity() {
                     replaceFragment(HomeFragment())
                     true
                 }
-                /*R.id.menu_character->{
+                R.id.menu_character->{
                     replaceFragment(CharacterFragment())
                     true
-                }*/
+                }
                 R.id.menu_my->{
-                    replaceFragment(MyPageFragment())
+                    replaceFragment(MyFragment())
                     true
                 }
                 else->{

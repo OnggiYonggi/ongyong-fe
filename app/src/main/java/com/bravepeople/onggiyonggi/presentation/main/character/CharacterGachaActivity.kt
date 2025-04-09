@@ -4,13 +4,11 @@ import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
-import android.animation.TimeInterpolator
 import android.animation.ValueAnimator
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.view.animation.DecelerateInterpolator
-import android.view.animation.LinearInterpolator
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.ViewCompat
@@ -207,7 +205,7 @@ class CharacterGachaActivity : AppCompatActivity() {
             val intent = Intent()
             intent.putExtra("character_name", "하늘 다람쥥")
             intent.putExtra("character_description", "환경을 지키는 귀여운 다람쥐 🌳")
-            intent.putExtra("character_image", R.drawable.ic_flying_squirrel)
+            intent.putExtra("character_image", R.drawable.character_flying_squirrel)
 
             setResult(RESULT_OK, intent)
             finish()

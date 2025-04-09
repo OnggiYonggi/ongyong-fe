@@ -19,7 +19,7 @@
         android:id="@+id/iv_character"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:background="@drawable/olive_turtle"
+        android:background="@drawable/character_olive_turtle"
         app:layout_constraintWidth_percent="0.4"
         app:layout_constraintDimensionRatio="1:1"
         app:layout_constraintStart_toStartOf="parent"

@@ -1,10 +1,16 @@
 package com.bravepeople.onggiyonggi.presentation.main.home.review.review_detail
 
+import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.view.ViewTreeObserver
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
-import coil.load
+import coil3.Image
+import coil3.ImageLoader
+import coil3.load
+import coil3.target.Target
+import coil3.request.ImageRequest
 import com.bravepeople.onggiyonggi.R
 import com.bravepeople.onggiyonggi.data.Review
 import com.bravepeople.onggiyonggi.data.Search
@@ -59,7 +65,30 @@ class ReviewDetailActivity:AppCompatActivity() {
             tvLikeCount.text=reviewDetailViewModel.countLike.toString()
 
             //가로는 parent만큼, 세로는 화면 비율에 맞춰서
-            ivReview.load(review.food){
+            ivReview.load(review.food) {
+                listener(
+                    onSuccess = { _, _ ->
+                        ivReview.viewTreeObserver.addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener {
+                            override fun onPreDraw(): Boolean {
+                                ivReview.viewTreeObserver.removeOnPreDrawListener(this)
+
+                                val width = ivReview.drawable?.intrinsicWidth ?: return true
+                                val height = ivReview.drawable?.intrinsicHeight ?: return true
+                                val ratio = "$width:$height"
+
+                                ivReview.layoutParams = (ivReview.layoutParams as ConstraintLayout.LayoutParams).apply {
+                                    dimensionRatio = ratio
+                                }
+                                ivReview.requestLayout()
+
+                                return true
+                            }
+                        })
+                    }
+                )
+            }
+
+            /*ivReview.load(review.food){
                 listener(
                     onSuccess = {_, result->
                         val width=result.drawable.intrinsicWidth
@@ -74,7 +103,7 @@ class ReviewDetailActivity:AppCompatActivity() {
                         }
                     }
                 )
-            }
+            }*/
             tvWhat.text=reviewDetailViewModel.select[0]
             tvSize.text=reviewDetailViewModel.select[1]
             tvAmount.text=reviewDetailViewModel.select[2]

@@ -28,7 +28,8 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import coil.load
+import coil3.load
+import coil3.request.placeholder
 import com.bravepeople.onggiyonggi.R
 import com.bravepeople.onggiyonggi.databinding.FragmentPhotoBinding
 import timber.log.Timber
