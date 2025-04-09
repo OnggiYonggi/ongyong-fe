@@ -46,7 +46,7 @@ class CharacterCollectionActivity:AppCompatActivity() {
     private fun clickCharacter(character: Character){
         val json = Json.encodeToString(character)
         val intent=Intent(this, CharacterCollectionDetailActivity::class.java)
-        intent.putExtra("character", json)
+        intent.putExtra("character_json", json)
         startActivity(intent)
         this.overridePendingTransition(
             R.anim.slide_in_right,
