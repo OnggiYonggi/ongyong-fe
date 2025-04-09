@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/item_collection"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <ImageView
+        android:id="@+id/iv_background"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@drawable/ic_card_front"
+        app:layout_constraintDimensionRatio="1:1.6"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <ImageView
+        android:id="@+id/iv_character"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:src="@drawable/character_flying_squirrel"
+        app:layout_constraintWidth_percent="0.7"
+        app:layout_constraintTop_toTopOf="@id/iv_background"
+        app:layout_constraintStart_toStartOf="@id/iv_background"
+        app:layout_constraintEnd_toEndOf="@id/iv_background"
+        app:layout_constraintBottom_toBottomOf="@id/iv_background"/>
+
+    <TextView
+        android:id="@+id/tv_character_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/character_collection_name_mock"
+        android:textSize="14sp"
+        android:layout_marginTop="-20dp"
+        android:visibility="invisible"
+        app:layout_constraintTop_toBottomOf="@id/iv_background"
+        app:layout_constraintStart_toStartOf="@id/iv_background"
+        app:layout_constraintEnd_toEndOf="@id/iv_background"/>
+
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

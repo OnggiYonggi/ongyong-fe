@@ -1,12 +1,20 @@
 package com.bravepeople.onggiyonggi.presentation.main.character
 
+import android.content.Intent
 import android.os.Bundle
+import androidx.activity.addCallback
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.bravepeople.onggiyonggi.R
+import com.bravepeople.onggiyonggi.data.Character
 import com.bravepeople.onggiyonggi.databinding.ActivityCharacterCollectionBinding
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import timber.log.Timber
 
 class CharacterCollectionActivity:AppCompatActivity() {
     private lateinit var binding:ActivityCharacterCollectionBinding
+    private val characterCollectionViewModel:CharacterCollectionViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -20,13 +28,41 @@ class CharacterCollectionActivity:AppCompatActivity() {
     }
 
     private fun setting(){
+        showCollections()
         clickBackButton()
+    }
+
+    private fun showCollections(){
+        val collectionAdapter= CharacterCollectionAdapter(
+            clickCharacter = {character ->
+                Timber.d("activity에서 캐릭터 데이터 받음")
+                clickCharacter(character)
+            }
+        )
+        binding.rvCollection.adapter=collectionAdapter
+        collectionAdapter.getList(characterCollectionViewModel.getCollectionList())
+    }
+
+    private fun clickCharacter(character: Character){
+        val json = Json.encodeToString(character)
+        val intent=Intent(this, CharacterCollectionDetailActivity::class.java)
+        intent.putExtra("character", json)
+        startActivity(intent)
+        this.overridePendingTransition(
+            R.anim.slide_in_right,
+            R.anim.stay_still
+        )
     }
 
     private fun clickBackButton(){
         binding.btnBack.setOnClickListener{
             finish()
             overridePendingTransition( R.anim.stay_still, R.anim.slide_out_right)
+        }
+
+        onBackPressedDispatcher.addCallback(this) {
+            finish()
+            overridePendingTransition(R.anim.stay_still, R.anim.slide_out_right)
         }
     }
 }

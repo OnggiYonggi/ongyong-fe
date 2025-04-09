@@ -73,8 +73,12 @@
             android:exported="false">
         </activity>
 
-        <activity android:name=".presentation.mypage.EditProfileActivity" />
-        <activity android:name=".presentation.mypage.SettingActivity" />
+        <activity android:name=".presentation.main.character.CharacterCollectionDetailActivity"
+            android:exported="false">
+        </activity>
+
+        <activity android:name=".presentation.main.my.EditProfileActivity" android:exported="false" />
+        <activity android:name=".presentation.main.my.SettingActivity" android:exported="false" />
 
         <meta-data
             android:name="com.naver.maps.map.NCP_KEY_ID"

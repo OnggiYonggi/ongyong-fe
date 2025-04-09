@@ -2,7 +2,7 @@ package com.bravepeople.onggiyonggi.presentation.main.home.review_register.write
 
 import android.content.Context
 import androidx.recyclerview.widget.RecyclerView
-import coil.load
+import coil3.load
 import com.bravepeople.onggiyonggi.data.StoreAndDateAndPhoto
 import com.bravepeople.onggiyonggi.data.StoreOrReceipt
 import com.bravepeople.onggiyonggi.databinding.ItemWriteStoreDateBinding

@@ -4,7 +4,7 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import coil.load
+import coil3.load
 import com.bravepeople.onggiyonggi.data.Search
 import com.bravepeople.onggiyonggi.databinding.ItemSearchBinding
 import timber.log.Timber

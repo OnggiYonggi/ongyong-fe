@@ -62,6 +62,7 @@
     <!-- character -->
     <string name="character_affection_title">호감도</string>
     <string name="character_affection_percent">%d%%</string>
+    <string name="character_collection">컬렉션</string>
 
     <!-- mock data -->
 
@@ -106,4 +107,6 @@
     <string name="search_address_mock3">경기 수원시 영통구 대학1로54번길 14</string>
     <string name="search_name_mock4">완미족발 수원경기대점</string>
     <string name="search_address_mock4">경기 수원시 영통구 대학1로50번길 8 1층</string>
+
+    <string name="character_collection_name_mock">하늘다람쥐</string>
 </resources>
