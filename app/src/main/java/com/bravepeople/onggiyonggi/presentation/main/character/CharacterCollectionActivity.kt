@@ -34,19 +34,19 @@ class CharacterCollectionActivity:AppCompatActivity() {
 
     private fun showCollections(){
         val collectionAdapter= CharacterCollectionAdapter(
-            clickCharacter = {character ->
-                Timber.d("activity에서 캐릭터 데이터 받음")
-                clickCharacter(character)
+            clickCharacterIndex = {index ->
+                Timber.d("activity에서 캐릭터 데이터 받음: ${index}")
+                clickCharacter(index)
             }
         )
         binding.rvCollection.adapter=collectionAdapter
         collectionAdapter.getList(characterCollectionViewModel.getCollectionList())
     }
 
-    private fun clickCharacter(character: Character){
-        val json = Json.encodeToString(character)
+    private fun clickCharacter(index: Int){
         val intent=Intent(this, CharacterCollectionDetailActivity::class.java)
-        intent.putExtra("character_json", json)
+        intent.putExtra("startIndex", index)
+        intent.putExtra("characterList", ArrayList(characterCollectionViewModel.getCollectionList()))
         startActivity(intent)
         this.overridePendingTransition(
             R.anim.slide_in_right,

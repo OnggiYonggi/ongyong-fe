@@ -9,6 +9,7 @@ import android.os.PersistableBundle
 import android.view.View
 import androidx.activity.addCallback
 import androidx.appcompat.app.AppCompatActivity
+import androidx.viewpager2.widget.ViewPager2
 import coil3.load
 import com.bravepeople.onggiyonggi.R
 import com.bravepeople.onggiyonggi.data.Character
@@ -16,88 +17,50 @@ import com.bravepeople.onggiyonggi.databinding.ActivityCharacterCollectionDetail
 import kotlinx.serialization.json.Json
 import timber.log.Timber
 
-class CharacterCollectionDetailActivity:AppCompatActivity() {
-    private lateinit var binding:ActivityCharacterCollectionDetailBinding
+class CharacterCollectionDetailActivity : AppCompatActivity() {
+    private lateinit var binding: ActivityCharacterCollectionDetailBinding
+    private lateinit var viewPager: ViewPager2
+    private lateinit var characterList: List<Character>
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         initBinds()
         setting()
     }
 
-    private fun initBinds(){
-        binding=ActivityCharacterCollectionDetailBinding.inflate(layoutInflater)
+    private fun initBinds() {
+        binding = ActivityCharacterCollectionDetailBinding.inflate(layoutInflater)
         setContentView(binding.root)
     }
 
-    private fun setting(){
-        val json = intent.getStringExtra("character_json")
-        val character = json?.let { Json.decodeFromString<Character>(it) }
-        if (character != null) {
-            setCards(character)
-        }
+    private fun setting() {
+        val index = intent.getIntExtra("index", -1)
+        setLists(index)
         clickBackButton()
     }
 
-    private fun setCards(character:com.bravepeople.onggiyonggi.data.Character){
-        with(binding){
-            tvName.text=character.name
-            ivCharacter.load(character.image)
-            tvDescription.text=character.description
+    private fun setLists(index: Int) {
+        characterList = intent.getSerializableExtra("characterList") as List<Character>
+        val startIndex = intent.getIntExtra("startIndex", index)
 
-            clCardFront.setOnClickListener{
-                Timber.d("click front")
-                flipToBack()
-            }
-            clCardBack.setOnClickListener{
-                Timber.d("click back")
-                flipToFront()
-            }
-        }
+        val collectedCharacters = characterList.filter { it.collected }
+        val startCharacter = characterList.getOrNull(startIndex)
+        val collectedIndex = collectedCharacters.indexOfFirst { it == startCharacter }.coerceAtLeast(0)
+
+        val characterCollectionDetailAdapter = CharacterCollectionDetailAdapter(this)
+        viewPager = binding.vpCollection
+        viewPager.adapter = characterCollectionDetailAdapter
+
+        characterCollectionDetailAdapter.getList(collectedCharacters)
+
+        // 필터링된 리스트 기준으로 index 설정
+        viewPager.setCurrentItem(collectedIndex, false)
     }
 
-    private fun flipToBack() {
-        val outAnimator = ObjectAnimator.ofFloat(binding.clCardFront, "rotationY", 0f, 90f)
-        val inAnimator = ObjectAnimator.ofFloat(binding.clCardBack, "rotationY", -90f, 0f)
-        outAnimator.duration = 300
-        inAnimator.duration = 300
-
-        outAnimator.addListener(object : AnimatorListenerAdapter() {
-            override fun onAnimationEnd(animation: Animator) {
-                binding.clCardFront.visibility = View.GONE
-                binding.clCardBack.visibility = View.VISIBLE
-            }
-        })
-
-        AnimatorSet().apply {
-            playSequentially(outAnimator, inAnimator)
-            start()
-        }
-    }
-
-    private fun flipToFront() {
-        val outAnimator = ObjectAnimator.ofFloat(binding.clCardBack, "rotationY", 0f, 90f)
-        val inAnimator = ObjectAnimator.ofFloat(binding.clCardFront, "rotationY", -90f, 0f)
-        outAnimator.duration = 300
-        inAnimator.duration = 300
-
-        outAnimator.addListener(object : AnimatorListenerAdapter() {
-            override fun onAnimationEnd(animation: Animator) {
-                binding.clCardBack.visibility = View.GONE
-                binding.clCardFront.visibility = View.VISIBLE
-
-            }
-        })
-
-        AnimatorSet().apply {
-            playSequentially(outAnimator, inAnimator)
-            start()
-        }
-    }
-
-    private fun clickBackButton(){
-        binding.btnBack.setOnClickListener{
+    private fun clickBackButton() {
+        binding.btnBack.setOnClickListener {
             finish()
-            overridePendingTransition( R.anim.stay_still, R.anim.slide_out_right)
+            overridePendingTransition(R.anim.stay_still, R.anim.slide_out_right)
         }
 
         onBackPressedDispatcher.addCallback(this) {

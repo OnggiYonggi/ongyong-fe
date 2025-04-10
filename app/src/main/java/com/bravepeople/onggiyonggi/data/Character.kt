@@ -8,4 +8,4 @@ data class Character (
     val name:String,
     val description:String,
     val collected:Boolean,
-)
+):java.io.Serializable

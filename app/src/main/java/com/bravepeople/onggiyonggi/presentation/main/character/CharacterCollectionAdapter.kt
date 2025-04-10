@@ -19,7 +19,7 @@ import com.bravepeople.onggiyonggi.databinding.ItemCollectionBinding
 import timber.log.Timber
 
 class CharacterCollectionAdapter(
-    private val clickCharacter:(Character) -> Unit,
+    private val clickCharacterIndex:(Int) -> Unit,
 ):
     RecyclerView.Adapter<CharacterCollectionAdapter.CharacterCollectionViewHolder>() {
     private val collectionList = mutableListOf<Character>()
@@ -49,26 +49,29 @@ class CharacterCollectionAdapter(
     inner class CharacterCollectionViewHolder(private val binding:ItemCollectionBinding)
         :RecyclerView.ViewHolder(binding.root){
         fun bind(character: Character){
-            with(binding){
-                ivCharacter.load(character.image) {
-                    if (!character.collected) {
-                        transformations(GrayscaleTransformation())
-                    }
+            with(binding) {
+                val isCollected = character.collected
+
+                ivCharacter.load(
+                    if (isCollected) character.image else R.drawable.ic_hidden_gray_48
+                ) {
+                    if (!isCollected) transformations(GrayscaleTransformation())
                 }
 
+                ivBackground.load(R.drawable.ic_card_front) {
+                    if (!isCollected) transformations(GrayscaleTransformation())
+                }
+
+                itemCollection.setOnClickListener {
+                    if (isCollected) {
+                        Timber.d("adapter에서 캐릭터 클릭")
+                        clickCharacterIndex(bindingAdapterPosition)
+                    }
+                }
 
                 tvCharacterName.apply {
                     text = character.name
-                    visibility = if (character.collected) View.VISIBLE else View.INVISIBLE
-                }
-
-                if(character.collected){
-                    itemCollection.setOnClickListener{
-                        Timber.d("adapter에서 캐릭터 클릭")
-                        clickCharacter(character)
-                    }
-                }else ivBackground.load(R.drawable.ic_card_front){
-                    transformations(GrayscaleTransformation())
+                    visibility = if (isCollected) View.VISIBLE else View.INVISIBLE
                 }
             }
         }
