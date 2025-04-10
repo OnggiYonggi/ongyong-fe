@@ -20,7 +20,7 @@
         android:id="@+id/iv_character"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:src="@drawable/character_flying_squirrel"
+        android:src="@drawable/ic_hidden_gray_48"
         app:layout_constraintWidth_percent="0.7"
         app:layout_constraintTop_toTopOf="@id/iv_background"
         app:layout_constraintStart_toStartOf="@id/iv_background"
