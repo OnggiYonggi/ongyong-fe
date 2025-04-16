@@ -37,7 +37,7 @@
         android:textSize="14sp" />
 
     <ImageView
-        android:id="@+id/btn_detail"
+        android:id="@+id/tv_view"
         android:layout_width="20dp"
         android:layout_height="20dp"
         android:src="@drawable/btn_right" />

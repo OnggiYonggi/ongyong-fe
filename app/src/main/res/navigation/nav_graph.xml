@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph">
 
     <fragment
@@ -58,6 +59,34 @@
         android:id="@+id/reviewCompleteFragment"
         android:name="com.bravepeople.onggiyonggi.presentation.main.home.review_register.ReviewCompleteFragment"
         android:label="review complete">
+    </fragment>
+
+    <fragment
+        android:id="@+id/signUpAgreementFragment"
+        android:name="com.bravepeople.onggiyonggi.presentation.login.signup.SignUpAgreementFragment"
+        android:label="약관 동의"
+        tools:layout="@layout/fragment_signup_agreement">
+
+        <action
+            android:id="@+id/action_signUpAgreementFragment_to_termsFragment"
+            app:destination="@id/termsFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/termsFragment"
+        android:name="com.bravepeople.onggiyonggi.presentation.signup.TermsFragment"
+        android:label="약관 보기"
+        tools:layout="@layout/fragment_terms" />
+
+    <fragment
+        android:id="@+id/signUpFormFragment"
+        android:name="com.bravepeople.onggiyonggi.presentation.login.signup.SignUpFormFragment"
+        android:label="정보 입력"
+        tools:layout="@layout/fragment_signup_form">
+
+    <action
+        android:id="@+id/action_signUpAgreementFragment_to_signUpFormFragment"
+        app:destination="@id/signUpFormFragment" />
     </fragment>
 
 
