@@ -142,6 +142,19 @@
                 app:layout_constraintWidth_percent="0.06" />
 
             <ImageView
+                android:id="@+id/iv_food"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+            android:layout_marginTop="20dp"
+            android:scaleType="centerCrop"
+            android:clickable="true"
+            android:focusable="true"
+            app:layout_constraintTop_toBottomOf="@id/tv_date"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+
+            <ImageView
                 android:id="@+id/iv_review"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
