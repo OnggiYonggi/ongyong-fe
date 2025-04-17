@@ -1,70 +1,65 @@
 package com.bravepeople.onggiyonggi.presentation.main.home.review.review_detail
 
-import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.ViewTreeObserver
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
-import coil3.Image
-import coil3.ImageLoader
 import coil3.load
-import coil3.target.Target
-import coil3.request.ImageRequest
 import com.bravepeople.onggiyonggi.R
 import com.bravepeople.onggiyonggi.data.Review
-import com.bravepeople.onggiyonggi.data.Search
 import com.bravepeople.onggiyonggi.databinding.ActivityReviewDetailBinding
+import com.bravepeople.onggiyonggi.presentation.main.home.review.ReviewViewModel
 
-class ReviewDetailActivity:AppCompatActivity() {
-    private lateinit var binding:ActivityReviewDetailBinding
-    private val reviewDetailViewModel: ReviewDetailViewModel by viewModels()
+class ReviewDetailActivity : AppCompatActivity() {
+    private lateinit var binding: ActivityReviewDetailBinding
+    private val viewModel: ReviewViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         initBinds()
+
+        val reviewId = intent.getIntExtra("reviewId", -1)
+        viewModel.loadReviewById(reviewId)
+
+        viewModel.reviewLiveData.observe(this) { review ->
+            displayReviewDetails(review)
+        }
+
     }
 
-    private fun initBinds(){
-        binding= ActivityReviewDetailBinding.inflate(layoutInflater)
+    private fun initBinds() {
+        binding = ActivityReviewDetailBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setting()
     }
 
-    private fun setting(){
+    private fun setting() {
         clickBackButton()
         setStore()
-        getUserInfo()
-
     }
 
-    private fun clickBackButton(){
-        binding.btnBack.setOnClickListener{
+    private fun clickBackButton() {
+        binding.btnBack.setOnClickListener {
             finish()
             overridePendingTransition(R.anim.stay_still, R.anim.slide_out_right)
         }
     }
 
-    private fun setStore(){
-        with(binding){
-            tvStoreName.text=reviewDetailViewModel.getStore().name
-            tvStoreAddress.text=reviewDetailViewModel.getStore().address
+    private fun setStore() {
+        with(binding) {
+            tvStoreName.text = viewModel.getStore().name
+            tvStoreAddress.text = viewModel.getStore().address
         }
     }
 
-    private fun getUserInfo(){
-        val review=intent.getParcelableExtra<Review>("review")
+    private fun getUserInfo(review: Review) {
+        with(binding) {
+            tvName.text = review.userName
+            tvDate.text = review.reviewDate
+            ivProfile.load(review.profile)
+            tvLikeCount.text = viewModel.countLike.toString()
 
-        with(binding){
-            if(review!=null){
-                tvName.text=review.userName
-                tvDate.text=review.reviewDate
-            }
-            ivProfile.load(review!!.profile)
-
-            tvLikeCount.text=reviewDetailViewModel.countLike.toString()
-
-            //가로는 parent만큼, 세로는 화면 비율에 맞춰서
             ivReview.load(review.food) {
                 listener(
                     onSuccess = { _, _ ->
@@ -88,39 +83,32 @@ class ReviewDetailActivity:AppCompatActivity() {
                 )
             }
 
-            /*ivReview.load(review.food){
-                listener(
-                    onSuccess = {_, result->
-                        val width=result.drawable.intrinsicWidth
-                        val height=result.drawable.intrinsicHeight
-                        val ratio="$width:$height"
+            tvWhat.text = viewModel.select[0]
+            tvSize.text = viewModel.select[1]
+            tvAmount.text = viewModel.select[2]
+            tvTaste.text = viewModel.select[3]
+            tvReview.text = viewModel.review
 
-                        ivReview.post{
-                            ivReview.layoutParams = (ivReview.layoutParams as ConstraintLayout.LayoutParams).apply {
-                                dimensionRatio=ratio
-                            }
-                            ivReview.requestLayout()
-                        }
-                    }
-                )
-            }*/
-            tvWhat.text=reviewDetailViewModel.select[0]
-            tvSize.text=reviewDetailViewModel.select[1]
-            tvAmount.text=reviewDetailViewModel.select[2]
-            tvTaste.text=reviewDetailViewModel.select[3]
-            tvReview.text=reviewDetailViewModel.review
+            btnLike.setOnClickListener {
+                btnLike.isSelected = !btnLike.isSelected
 
-            btnLike.setOnClickListener{
-                btnLike.isSelected=!btnLike.isSelected
-                if(btnLike.isSelected){
-                    tvLikeCount.text=(reviewDetailViewModel.countLike+1).toString()
-                    reviewDetailViewModel.countLike+=1
-                }else{
-                    tvLikeCount.text=(reviewDetailViewModel.countLike-1).toString()
-                    reviewDetailViewModel.countLike-=1
+                if (btnLike.isSelected) {
+                    viewModel.countLike += 1
+                } else {
+                    viewModel.countLike -= 1
                 }
+
+                tvLikeCount.text = viewModel.countLike.toString()
             }
         }
+    }
+
+    private fun displayReviewDetails(review: Review) {
+        binding.tvName.text = review.userName
+        binding.tvDate.text = review.reviewDate
+        binding.ivProfile.load(review.profile)
+        binding.ivFood.load(review.food)
+        binding.tvLikeCount.text = "${review.likeCount}개"
     }
 
     override fun onBackPressed() {

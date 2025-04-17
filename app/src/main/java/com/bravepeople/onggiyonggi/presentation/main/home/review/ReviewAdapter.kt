@@ -13,6 +13,7 @@ import com.bravepeople.onggiyonggi.data.StoreOrReceipt
 import com.bravepeople.onggiyonggi.databinding.ItemBanDetailBinding
 import com.bravepeople.onggiyonggi.databinding.ItemReviewBinding
 import com.bravepeople.onggiyonggi.databinding.ItemStoreBinding
+import com.bravepeople.onggiyonggi.presentation.main.home.review.review_detail.ReviewDetailActivity
 import com.bravepeople.onggiyonggi.presentation.main.home.review_register.ReviewRegisterActivity
 
 class ReviewAdapter(
@@ -45,7 +46,7 @@ class ReviewAdapter(
         when (holder) {
             is com.bravepeople.onggiyonggi.presentation.main.home.review.ReviewAdapter.StoreViewHolder -> holder.bind(storeData)
             is com.bravepeople.onggiyonggi.presentation.main.home.review.ReviewAdapter.ReviewViewHolder -> {
-                if (!isBan) {
+                if (!isBan && position > 0 && position - 1 < reviewList.size) {
                     holder.bind(reviewList[position - 1])
                 }
             }
@@ -109,18 +110,14 @@ class ReviewAdapter(
 
         fun bind(data: Review) {
             with(binding) {
-                ivProfile.load(data.profile)
-                tvUserName.text = data.userName
-                tvReviewDate.text = data.reviewDate
-                ivFood.load(data.food)
-                btnLike.setOnClickListener {
-                    btnLike.isSelected = !btnLike.isSelected
-                }
-
                 ivFood.setOnClickListener {
-                    reviewClickListener.onReviewClick(data)
+                    val context = it.context
+                    val intent = Intent(context, ReviewDetailActivity::class.java)
+                    intent.putExtra("reviewId", data.id)
+                    context.startActivity(intent)
                 }
             }
         }
     }
+
 }

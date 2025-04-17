@@ -4,15 +4,30 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import coil3.load
+import com.bravepeople.onggiyonggi.data.Review
 import com.bravepeople.onggiyonggi.databinding.ItemReviewImageBinding
 
-class MyReviewAdapter() : RecyclerView.Adapter<MyReviewAdapter.MyReviewViewHolder>() {
+class MyReviewAdapter(
+    private val onItemClick: (Review) -> Unit
+) : RecyclerView.Adapter<MyReviewAdapter.MyReviewViewHolder>() {
 
-    private val reviewImageResIds = mutableListOf<Int>()
-    
-    inner class MyReviewViewHolder(val binding: ItemReviewImageBinding) : RecyclerView.ViewHolder(binding.root){
-        fun bind(image:Int){
-            binding.ivReviewImage.load(image)
+    private val reviewList = mutableListOf<Review>()
+
+    fun setReviewList(list: List<Review>) {
+        reviewList.clear()
+        reviewList.addAll(list)
+        notifyDataSetChanged()
+    }
+
+    inner class MyReviewViewHolder(private val binding: ItemReviewImageBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+
+        fun bind(review: Review) {
+            binding.ivReviewImage.load(review.food)
+
+            binding.root.setOnClickListener {
+                onItemClick(review)
+            }
         }
     }
 
@@ -22,15 +37,9 @@ class MyReviewAdapter() : RecyclerView.Adapter<MyReviewAdapter.MyReviewViewHolde
     }
 
     override fun onBindViewHolder(holder: MyReviewViewHolder, position: Int) {
-        holder.bind(reviewImageResIds[position])
+        holder.bind(reviewList[position])
     }
 
-    override fun getItemCount(): Int = reviewImageResIds.size
-    
-    fun getImageList(list:List<Int>){
-        reviewImageResIds.clear()
-        reviewImageResIds.addAll(list)
-        notifyDataSetChanged()
-    }
+    override fun getItemCount(): Int = reviewList.size
 }
 
