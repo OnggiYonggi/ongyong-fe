@@ -15,8 +15,9 @@ class SignUpActivity : AppCompatActivity() {
     }
 
     private fun setting(){
-            supportFragmentManager.beginTransaction()
-                .add(R.id.fcv_sign_up, SignUpAgreementFragment())
-                .commit()
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.fcv_sign_up, SignUpAgreementFragment())
+            .commit()
+
     }
 }
