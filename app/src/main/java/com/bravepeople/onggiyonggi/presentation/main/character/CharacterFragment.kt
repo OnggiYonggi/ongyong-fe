@@ -45,11 +45,11 @@ class CharacterFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        setupSkeletonUI()
+       setupSkeletonUI()
         setting()
     }
 
-    private fun setupSkeletonUI() {
+   private fun setupSkeletonUI() {
         with(binding) {
             // 처음에는 가챠 머신만
             ivGachaMachine.visibility = View.VISIBLE
@@ -118,22 +118,28 @@ class CharacterFragment : Fragment() {
             val rangeX = (8..20).random().toFloat()
             val rangeY = (5..15).random().toFloat()
 
+            val delay = (0..150).random().toLong()
+            val duration = (80..130).random().toLong()
+            val repeatCount = (3..6).random()
+
             val shakeX = ObjectAnimator.ofFloat(
                 egg, "translationX",
                 egg.translationX - rangeX, egg.translationX + rangeX
             ).apply {
-                duration = 100
-                repeatCount = 5
-                repeatMode = ValueAnimator.REVERSE
+                this.duration = duration
+                this.startDelay = delay
+                this.repeatCount = repeatCount
+                this.repeatMode = ValueAnimator.REVERSE
             }
 
             val shakeY = ObjectAnimator.ofFloat(
                 egg, "translationY",
                 egg.translationY - rangeY, egg.translationY + rangeY
             ).apply {
-                duration = 100
-                repeatCount = 5
-                repeatMode = ValueAnimator.REVERSE
+                this.duration = duration
+                this.startDelay = delay
+                this.repeatCount = repeatCount
+                this.repeatMode = ValueAnimator.REVERSE
             }
 
             AnimatorSet().apply {
@@ -141,10 +147,22 @@ class CharacterFragment : Fragment() {
             }
         }
 
-        return AnimatorSet().apply {
+        val animatorSet = AnimatorSet().apply {
             playTogether(eggAnimations)
         }
+
+        // 모든 애니메이션이 끝난 후
+        animatorSet.addListener(object : AnimatorListenerAdapter() {
+            override fun onAnimationEnd(animation: Animator) {
+                Timber.d("addlistener end")
+                val intent = Intent(requireContext(), CharacterGachaActivity::class.java)
+                startActivityForResult(intent, REQUEST_CODE_GACHA)
+            }
+        })
+
+        return animatorSet
     }
+
 
     private fun startGachaAnimation() {
         binding.btnGacha.setOnClickListener {
