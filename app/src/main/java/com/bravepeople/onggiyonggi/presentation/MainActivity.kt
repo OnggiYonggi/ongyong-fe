@@ -20,6 +20,11 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
+
+    private val homeFragment = HomeFragment()
+    private val characterFragment = CharacterFragment()
+    private val myFragment = MyFragment()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         initBinds()
@@ -52,7 +57,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun setFirstFragment() {
         binding.bnvMain.selectedItemId = binding.bnvMain.menu.getItem(0).itemId
-        replaceFragment(HomeFragment())
+        replaceFragment(homeFragment)
         clickBottomNavigation()
     }
 
@@ -78,25 +83,23 @@ class MainActivity : AppCompatActivity() {
             commit()
         }
     }
-    
-    private fun clickBottomNavigation(){
+
+    private fun clickBottomNavigation() {
         binding.bnvMain.setOnItemSelectedListener {
             when(it.itemId){
-                R.id.menu_home->{
-                    replaceFragment(HomeFragment())
+                R.id.menu_home -> {
+                    replaceFragment(homeFragment)
                     true
                 }
-                R.id.menu_character->{
-                    replaceFragment(CharacterFragment())
+                R.id.menu_character -> {
+                    replaceFragment(characterFragment)
                     true
                 }
-                R.id.menu_my->{
-                    replaceFragment(MyFragment())
+                R.id.menu_my -> {
+                    replaceFragment(myFragment)
                     true
                 }
-                else->{
-                    false
-                }
+                else -> false
             }
         }
     }

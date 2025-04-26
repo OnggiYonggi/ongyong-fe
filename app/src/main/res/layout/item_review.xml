@@ -2,10 +2,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="5dp"
-    app:cardBackgroundColor="@color/store_reviews_background_gray"
+    android:layout_margin="2dp"
+    app:cardBackgroundColor="@color/white"
     app:cardCornerRadius="8dp"
-    app:cardElevation="8dp"
+    app:cardElevation="2dp"
     android:clickable="true">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -13,12 +13,10 @@
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="5dp"
-        android:padding="6dp"
         android:clickable="true">
 
         <!-- 유저 프로필 -->
-        <ImageView
+       <!-- <ImageView
             android:id="@+id/iv_profile"
             android:layout_width="32dp"
             android:layout_height="32dp"
@@ -33,7 +31,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:text="닉네임"
-            android:textSize="14sp"
+            android:textSize="10sp"
             android:textStyle="bold"
             app:layout_constraintBottom_toTopOf="@id/tv_review_date"
             app:layout_constraintStart_toEndOf="@id/iv_profile"
@@ -45,12 +43,12 @@
             android:layout_height="wrap_content"
             android:text="2025.03.23"
             android:textColor="@color/store_review_date_gray"
-            android:textSize="12sp"
+            android:textSize="8sp"
             app:layout_constraintBottom_toBottomOf="@id/iv_profile"
             app:layout_constraintStart_toStartOf="@id/tv_user_name"
-            app:layout_constraintTop_toBottomOf="@id/tv_user_name" />
+            app:layout_constraintTop_toBottomOf="@id/tv_user_name" />-->
 
-        <!-- 하트 아이콘 -->
+        <!-- 하트 아이콘 --><!--
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btn_like"
             android:layout_width="20dp"
@@ -59,23 +57,23 @@
             android:background="@drawable/btn_like"
             app:layout_constraintBottom_toBottomOf="@id/iv_profile"
             app:layout_constraintEnd_toEndOf="@id/iv_food"
-            app:layout_constraintTop_toTopOf="@id/iv_profile" />
+            app:layout_constraintTop_toTopOf="@id/iv_profile" />-->
 
         <!-- 리뷰 이미지 -->
         <ImageView
             android:id="@+id/iv_food"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_marginTop="10dp"
             android:scaleType="centerCrop"
             android:src="@drawable/img_review1"
             android:clickable="true"
             android:focusable="true"
-            app:layout_constraintBottom_toBottomOf="@id/gl_h98"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintDimensionRatio="1:1"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/iv_profile" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBaseline_toBottomOf="parent"/>
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/gl_h98"

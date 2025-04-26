@@ -7,11 +7,11 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.navigation.findNavController
 import com.bravepeople.onggiyonggi.R
-import com.bravepeople.onggiyonggi.databinding.ActivityReviewBinding
+import com.bravepeople.onggiyonggi.databinding.ActivityReviewRegisterBinding
 import timber.log.Timber
 
 class ReviewRegisterActivity:AppCompatActivity() {
-    private  lateinit var binding: ActivityReviewBinding
+    private  lateinit var binding: ActivityReviewRegisterBinding
     private val reviewRegisterViewModel: ReviewRegisterViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,7 +36,7 @@ class ReviewRegisterActivity:AppCompatActivity() {
 
 
     private fun init(){
-        binding = ActivityReviewBinding.inflate(layoutInflater)
+        binding = ActivityReviewRegisterBinding.inflate(layoutInflater)
         setContentView(binding.root)
     }
 
@@ -51,5 +51,4 @@ class ReviewRegisterActivity:AppCompatActivity() {
         val registerActivity=intent.getStringExtra("registerActivity")
         if(registerActivity!=null) reviewRegisterViewModel.setBeforeActivity(registerActivity)
     }
-
 }

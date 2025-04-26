@@ -5,28 +5,33 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.MotionEvent
+import android.view.VelocityTracker
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.recyclerview.widget.GridLayoutManager
 import com.bravepeople.onggiyonggi.R
 import com.bravepeople.onggiyonggi.data.Review
 import com.bravepeople.onggiyonggi.data.Search
 import com.bravepeople.onggiyonggi.data.toStore
 import com.bravepeople.onggiyonggi.databinding.FragmentReviewBinding
-import com.bravepeople.onggiyonggi.presentation.main.home.register.StoreRegisterActivity
+import com.bravepeople.onggiyonggi.presentation.main.home.store_register.StoreRegisterActivity
 import com.bravepeople.onggiyonggi.presentation.main.home.review.review_detail.ReviewDetailActivity
+import com.bravepeople.onggiyonggi.presentation.main.home.review_register.ReviewRegisterActivity
 import timber.log.Timber
 
-class ReviewFragment : Fragment(), ReviewClickListener {
+class ReviewFragment : Fragment() {
     private var _binding: FragmentReviewBinding? = null
     private val binding: FragmentReviewBinding
         get() = requireNotNull(_binding) { "review fragment is null" }
 
     private val reviewViewModel: ReviewViewModel by activityViewModels()
-    private lateinit var reviewAdapter: com.bravepeople.onggiyonggi.presentation.main.home.review.ReviewAdapter
+    private lateinit var reviewAdapter: ReviewAdapter
     private var isExpanded = false
+
+    private var initialY = 0f
+    private var downY = 0f
+    private val minHeightToShow = 300f
 
     companion object {
         fun newInstance(search: Search): ReviewFragment {
@@ -60,10 +65,140 @@ class ReviewFragment : Fragment(), ReviewClickListener {
 
     private fun setupBottomSheetBehavior() {
         val parent = view?.parent as? View
+        val velocityTracker = VelocityTracker.obtain()
+
         binding.root.post {
-            parent?.layoutParams?.height = (resources.displayMetrics.heightPixels * 0.22).toInt()
+            val visibleHeight = binding.vLine.bottom + binding.vLine.marginBottomPx()
+            parent?.layoutParams?.height = visibleHeight
             parent?.requestLayout()
         }
+
+        binding.root.setOnTouchListener { v, event ->
+            val parentView = v.parent as? View ?: return@setOnTouchListener false
+
+            velocityTracker.addMovement(event)
+
+            when (event.actionMasked) {
+                MotionEvent.ACTION_DOWN -> {
+                    velocityTracker.clear()
+                    velocityTracker.addMovement(event)
+                }
+
+                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                    velocityTracker.computeCurrentVelocity(1000) // px/sec
+                    val velocityY = velocityTracker.yVelocity
+
+                    val screenHeight = resources.displayMetrics.heightPixels
+                    val statusBarHeight = getStatusBarHeight()
+                    val fullHeight = screenHeight - statusBarHeight - 30.dpToPx()
+                    val minHeight = visibleContentMinHeight()
+
+                    val thresholdVelocity = 200f // px/sec
+
+                    if (velocityY < -thresholdVelocity) {
+                        // 위로 스와이프 → 확장
+                        animateHeight(parentView, fullHeight)
+                        isExpanded = true
+                    } else if (velocityY > thresholdVelocity) {
+                        // 아래로 스와이프 → 축소
+                        animateHeight(parentView, minHeight)
+                        isExpanded = false
+                    }
+                }
+            }
+            true
+        }
+    }
+
+
+    /* private fun setupBottomSheetBehavior() {
+         val parent = view?.parent as? View
+         val velocityTracker = VelocityTracker.obtain()
+
+         binding.root.post {
+             val visibleHeight = binding.vLine.bottom + binding.vLine.marginBottomPx()
+             parent?.layoutParams?.height = visibleHeight
+             parent?.requestLayout()
+         }
+
+         binding.root.setOnTouchListener(object : View.OnTouchListener {
+             private var downY = 0f
+             private var dragging = false
+             private var initialHeight = 0
+
+             override fun onTouch(v: View, event: MotionEvent): Boolean {
+                 val parentView = v.parent as? View ?: return false
+
+                 velocityTracker.addMovement(event)
+
+                 when (event.actionMasked) {
+                     MotionEvent.ACTION_DOWN -> {
+                         downY = event.rawY
+                         dragging = false
+                         initialHeight = parentView.height
+                         velocityTracker.clear()
+                         velocityTracker.addMovement(event)
+                     }
+
+                     MotionEvent.ACTION_MOVE -> {
+                         val dy = event.rawY - downY
+                         if (dy > 30 || dy < -30) dragging = true
+
+                         if (dragging) {
+                             val newHeight = (initialHeight + (-dy)).toInt().coerceAtLeast(visibleContentMinHeight())
+                             parentView.layoutParams.height = newHeight
+                             parentView.requestLayout()
+                         }
+                     }
+
+                     MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                         velocityTracker.computeCurrentVelocity(1000) // px/sec
+                         val velocityY = velocityTracker.yVelocity
+
+                         val screenHeight = resources.displayMetrics.heightPixels
+                         val statusBarHeight = getStatusBarHeight()
+                         val fullHeight = screenHeight - statusBarHeight - 30.dpToPx()
+                         val thresholdVelocity = 200f // 조절 가능
+
+                         if (velocityY < -thresholdVelocity) {
+                             // 빠르게 위로 → 전체 화면
+                             animateHeight(parentView, fullHeight)
+                             isExpanded = true
+                         } else if (velocityY > thresholdVelocity) {
+                             // 빠르게 아래로 → 최소화
+                             animateHeight(parentView, visibleContentMinHeight())
+                             isExpanded = false
+                         } else {
+                             // 느릴 경우 → 현재 높이 기준으로 판단
+                             if (parentView.height > screenHeight * 0.6f) {
+                                 animateHeight(parentView, fullHeight)
+                                 isExpanded = true
+                             } else {
+                                 animateHeight(parentView, visibleContentMinHeight())
+                                 isExpanded = false
+                             }
+                         }
+
+                         dragging = false
+                     }
+                 }
+                 return true
+             }
+         })
+     }*/
+
+
+
+    /*private fun setupBottomSheetBehavior() {
+        val parent = view?.parent as? View
+        binding.root.post {
+            // ✅ v_line의 bottom까지 높이를 측정해서 parent height로 설정
+            val visibleHeight = binding.vLine.bottom + binding.vLine.marginBottomPx()
+            parent?.layoutParams?.height = visibleHeight
+            parent?.requestLayout()
+        }
+
+        //binding.rvReview.setOnTouchListener { _, _ -> !isExpanded }
 
         binding.root.setOnTouchListener(object : View.OnTouchListener {
             private var downY = 0f
@@ -81,13 +216,15 @@ class ReviewFragment : Fragment(), ReviewClickListener {
                         if (dy > 30 || dy < -30) dragging = true
                         if (dragging) {
                             v.translationY = dy.coerceAtLeast(0f)
+                            Timber.d("onTouch UP: translationY=${v.translationY}, height=${v.height}, 기준=${v.height * 0.22f}")
+
                         }
                     }
 
                     MotionEvent.ACTION_UP -> {
                         v.animate().translationY(0f).start()
                         val parent = v.parent as? View ?: return true
-                        if (v.translationY > v.height * 0.22f) {
+                        if (v.translationY > v.height * 0.1f) {
                             // 아래로 드래그 → 원래 높이로 되돌아감 (30%)
                             val targetHeight =
                                 (resources.displayMetrics.heightPixels * 0.22).toInt()
@@ -103,13 +240,12 @@ class ReviewFragment : Fragment(), ReviewClickListener {
                             // 위로 드래그 → 전체화면 확장
                             val screenHeight = resources.displayMetrics.heightPixels
                             val statusBarHeight = getStatusBarHeight()
-                            val availableHeight = screenHeight - statusBarHeight
-                            animateHeight(parent, availableHeight)
+                            animateHeight(parent, visibleContentMinHeight())
 
-                            v/*al layoutParams =
+                            *//*val layoutParams =
                                 binding.bar.layoutParams as ViewGroup.MarginLayoutParams
                             layoutParams.topMargin =
-                                statusBarHeight */
+                                statusBarHeight *//*
                             //binding.bar.layoutParams = layoutParams
                             isExpanded = true
                         }
@@ -119,6 +255,15 @@ class ReviewFragment : Fragment(), ReviewClickListener {
                 return true
             }
         })
+    }*/
+
+    private fun View.marginBottomPx(): Int {
+        val params = layoutParams as? ViewGroup.MarginLayoutParams
+        return params?.bottomMargin ?: 0
+    }
+
+    private fun visibleContentMinHeight(): Int {
+        return binding.vLine.bottom + binding.vLine.marginBottomPx()
     }
 
     private fun animateHeight(view: View, targetHeight: Int, duration: Long = 300) {
@@ -148,7 +293,7 @@ class ReviewFragment : Fragment(), ReviewClickListener {
 
         with(binding) {
             clBan.visibility = if (isBan) View.VISIBLE else View.GONE
-            rvReview.visibility = if (isBan) View.GONE else View.VISIBLE
+            clReviews.visibility = if (isBan) View.GONE else View.VISIBLE
 
             if (isBan) {
                 clBan.minHeight = (resources.displayMetrics.heightPixels * 0.6).toInt()
@@ -157,26 +302,20 @@ class ReviewFragment : Fragment(), ReviewClickListener {
                 }
             } else {
                 setupRecyclerView(data)
+                btnAdd.setOnClickListener{
+                    writeReview()
+                }
             }
         }
     }
 
 
     private fun setupRecyclerView(getData: Search) {
-        reviewAdapter = com.bravepeople.onggiyonggi.presentation.main.home.review.ReviewAdapter(
-            getData.isBan,
-            this
+        reviewAdapter = ReviewAdapter(
+            clickReview = {review -> clickReview(review)},
         )
-        val gridLayoutManager = GridLayoutManager(requireContext(), 2)
-        gridLayoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
-            override fun getSpanSize(position: Int): Int {
-                return if (reviewAdapter.isGridItem(position)) 1 else 2
-            }
-        }
-
-        binding.rvReview.layoutManager = gridLayoutManager
-        binding.rvReview.adapter = reviewAdapter
-        binding.rvReview.setOnTouchListener { _, event ->
+        binding.rvReviews.adapter = reviewAdapter
+        binding.rvReviews.setOnTouchListener { _, event ->
             !isExpanded  // isExpanded가 false면 true를 반환해서 터치 막음
         }
         loadStoreAndReviews(getData)
@@ -185,21 +324,29 @@ class ReviewFragment : Fragment(), ReviewClickListener {
     private fun loadStoreAndReviews(getData: Search) {
         val store = getData.toStore()
         store?.let {
-            reviewAdapter.setStore(it)
             reviewAdapter.setReviewList(reviewViewModel.getReviewList())
         } ?: Timber.e("Store is null")
     }
 
     private fun clickNewRegister() {
+        Timber.d("clicknemregister")
         val intent = Intent(requireContext(), StoreRegisterActivity::class.java)
         intent.putExtra("type", "new")
         startActivity(intent)
         requireActivity().overridePendingTransition(R.anim.slide_in_right, R.anim.stay_still)
     }
 
-    override fun onReviewClick(review: Review) {
+    private fun clickReview(review: Review) {
         val intent = Intent(requireContext(), ReviewDetailActivity::class.java)
         intent.putExtra("review", review)
+        startActivity(intent)
+        requireActivity().overridePendingTransition(R.anim.slide_in_right, R.anim.stay_still)
+    }
+
+    private fun writeReview(){
+        Timber.d("writeReview")
+        val intent = Intent(requireContext(), ReviewRegisterActivity::class.java)
+        intent.putExtra("type", "registerActivity")
         startActivity(intent)
         requireActivity().overridePendingTransition(R.anim.slide_in_right, R.anim.stay_still)
     }

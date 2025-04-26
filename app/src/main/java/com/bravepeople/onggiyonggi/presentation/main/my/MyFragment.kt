@@ -67,11 +67,6 @@ class MyFragment : Fragment(R.layout.fragment_my) {
         return binding.root
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -89,7 +84,7 @@ class MyFragment : Fragment(R.layout.fragment_my) {
 
         myReviewAdapter = MyReviewAdapter { review ->
             val intent = Intent(requireContext(), ReviewDetailActivity::class.java)
-            intent.putExtra("reviewId", review.id)
+            intent.putExtra("review", review)
             startActivity(intent)
         }
         binding.rvReviewImages.adapter = myReviewAdapter
@@ -119,8 +114,17 @@ class MyFragment : Fragment(R.layout.fragment_my) {
             popupMenu.show()
         }
 
-        updateReviewList()
-        binding.tvReviewTitle.text = "내 리뷰 ${dummyReviews.size}개"
+        binding.root.post {
+            myReviewAdapter = MyReviewAdapter { review ->
+                val intent = Intent(requireContext(), ReviewDetailActivity::class.java)
+                intent.putExtra("review", review)
+                startActivity(intent)
+            }
+            binding.rvReviewImages.adapter = myReviewAdapter
+            binding.rvReviewImages.layoutManager = GridLayoutManager(requireContext(), 3)
+            updateReviewList()
+            binding.tvReviewTitle.text = "내 리뷰 ${dummyReviews.size}개"
+        }
     }
 
     private fun updateReviewList() {
@@ -129,5 +133,10 @@ class MyFragment : Fragment(R.layout.fragment_my) {
             SortType.LIKE -> dummyReviews.sortedByDescending { it.likeCount }
         }
         myReviewAdapter.setReviewList(sortedList)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        _binding=null
     }
 }

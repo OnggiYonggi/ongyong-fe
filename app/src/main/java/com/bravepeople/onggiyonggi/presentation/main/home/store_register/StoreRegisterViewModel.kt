@@ -1,4 +1,4 @@
-package com.bravepeople.onggiyonggi.presentation.main.home.register
+package com.bravepeople.onggiyonggi.presentation.main.home.store_register
 
 import android.util.Log
 import androidx.lifecycle.ViewModel

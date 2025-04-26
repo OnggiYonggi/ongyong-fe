@@ -33,6 +33,7 @@
         <activity android:name=".presentation.login.LoginActivity"
             android:exported="false">
 
+
         </activity>
 
         <activity android:name=".presentation.login.signup.SignUpActivity"
@@ -47,6 +48,7 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
         </activity>
 
         <activity android:name=".presentation.main.home.review_register.ReviewRegisterActivity"
@@ -57,7 +59,7 @@
             android:exported="false">
         </activity>
 
-        <activity android:name=".presentation.main.home.register.StoreRegisterActivity"
+        <activity android:name=".presentation.main.home.store_register.StoreRegisterActivity"
             android:exported="false">
         </activity>
 

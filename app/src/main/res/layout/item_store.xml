@@ -86,25 +86,32 @@
         app:layout_constraintTop_toBottomOf="@id/v_line"
         app:layout_constraintStart_toStartOf="@id/iv_store" />
 
-    <Button
-        android:id="@+id/btn_sort"
+    <TextView
+        android:id="@+id/tv_sort"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="최신순"
         android:textSize="12sp"
-        android:layout_marginStart="10dp"
+        android:layout_marginStart="20dp"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
         app:layout_constraintTop_toTopOf="@id/tv_review_title"
         app:layout_constraintBottom_toBottomOf="@id/tv_review_title"
         app:layout_constraintStart_toEndOf="@id/tv_review_title"/>
 
-    <Button
+    <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/btn_add"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:text="+"
         android:textSize="16sp"
-        android:layout_marginEnd="10dp"
+        android:textColor="@color/white"
+        android:background="@drawable/btn_add_green"
+        android:layout_marginEnd="20dp"
+        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintWidth_percent="0.1"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/btn_sort"/>
+        app:layout_constraintTop_toTopOf="@id/tv_sort"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
