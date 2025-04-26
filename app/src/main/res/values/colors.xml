@@ -32,6 +32,8 @@
     <color name="search_bar_gray">#AEAEB3</color>
     <color name="search_list_bar_gray">#DFDFDF</color>
 
+    <color name="review_add_green">#BDE1C4</color>
+
     <color name="character_tap_pink">#DC6766</color>
     <color name="character_tap_darkpink">#B05A59</color>
     <color name="character_affection">#FF5757</color>

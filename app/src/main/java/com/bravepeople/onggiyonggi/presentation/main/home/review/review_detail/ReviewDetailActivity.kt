@@ -1,6 +1,8 @@
 package com.bravepeople.onggiyonggi.presentation.main.home.review.review_detail
 
+import android.graphics.Color
 import android.os.Bundle
+import android.view.View
 import android.view.ViewTreeObserver
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -13,19 +15,11 @@ import com.bravepeople.onggiyonggi.presentation.main.home.review.ReviewViewModel
 
 class ReviewDetailActivity : AppCompatActivity() {
     private lateinit var binding: ActivityReviewDetailBinding
-    private val viewModel: ReviewViewModel by viewModels()
+    private val reviewDetailViewModel: ReviewDetailViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         initBinds()
-
-        val reviewId = intent.getIntExtra("reviewId", -1)
-        viewModel.loadReviewById(reviewId)
-
-        viewModel.reviewLiveData.observe(this) { review ->
-            displayReviewDetails(review)
-        }
-
     }
 
     private fun initBinds() {
@@ -35,8 +29,18 @@ class ReviewDetailActivity : AppCompatActivity() {
     }
 
     private fun setting() {
+
+        window.statusBarColor = Color.WHITE
+        window.navigationBarColor = Color.WHITE
+
+        window.decorView.systemUiVisibility = (
+                View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR or
+                        View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
+                )
+
         clickBackButton()
         setStore()
+        getUserInfo()
     }
 
     private fun clickBackButton() {
@@ -48,57 +52,38 @@ class ReviewDetailActivity : AppCompatActivity() {
 
     private fun setStore() {
         with(binding) {
-            tvStoreName.text = viewModel.getStore().name
-            tvStoreAddress.text = viewModel.getStore().address
+            tvStoreName.text = reviewDetailViewModel.getStore().name
+            tvStoreAddress.text = reviewDetailViewModel.getStore().address
         }
     }
 
-    private fun getUserInfo(review: Review) {
-        with(binding) {
-            tvName.text = review.userName
-            tvDate.text = review.reviewDate
-            ivProfile.load(review.profile)
-            tvLikeCount.text = viewModel.countLike.toString()
+    private fun getUserInfo() {
+        val review=intent.getParcelableExtra<Review>("review")
 
-            ivReview.load(review.food) {
-                listener(
-                    onSuccess = { _, _ ->
-                        ivReview.viewTreeObserver.addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener {
-                            override fun onPreDraw(): Boolean {
-                                ivReview.viewTreeObserver.removeOnPreDrawListener(this)
-
-                                val width = ivReview.drawable?.intrinsicWidth ?: return true
-                                val height = ivReview.drawable?.intrinsicHeight ?: return true
-                                val ratio = "$width:$height"
-
-                                ivReview.layoutParams = (ivReview.layoutParams as ConstraintLayout.LayoutParams).apply {
-                                    dimensionRatio = ratio
-                                }
-                                ivReview.requestLayout()
-
-                                return true
-                            }
-                        })
-                    }
-                )
+        with(binding){
+            if(review!=null){
+                tvName.text=review.userName
+                tvDate.text=review.reviewDate
             }
+            ivProfile.load(review!!.profile)
+            tvLikeCount.text=reviewDetailViewModel.countLike.toString()
+            ivReview.load(review.food)
 
-            tvWhat.text = viewModel.select[0]
-            tvSize.text = viewModel.select[1]
-            tvAmount.text = viewModel.select[2]
-            tvTaste.text = viewModel.select[3]
-            tvReview.text = viewModel.review
+            tvWhat.text=reviewDetailViewModel.select[0]
+            tvSize.text=reviewDetailViewModel.select[1]
+            tvAmount.text=reviewDetailViewModel.select[2]
+            tvTaste.text=reviewDetailViewModel.select[3]
+            tvReview.text=reviewDetailViewModel.review
 
-            btnLike.setOnClickListener {
-                btnLike.isSelected = !btnLike.isSelected
-
-                if (btnLike.isSelected) {
-                    viewModel.countLike += 1
-                } else {
-                    viewModel.countLike -= 1
+            btnLike.setOnClickListener{
+                btnLike.isSelected=!btnLike.isSelected
+                if(btnLike.isSelected){
+                    tvLikeCount.text=(reviewDetailViewModel.countLike+1).toString()
+                    reviewDetailViewModel.countLike+=1
+                }else{
+                    tvLikeCount.text=(reviewDetailViewModel.countLike-1).toString()
+                    reviewDetailViewModel.countLike-=1
                 }
-
-                tvLikeCount.text = viewModel.countLike.toString()
             }
         }
     }

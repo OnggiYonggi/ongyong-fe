@@ -3,6 +3,7 @@ package com.bravepeople.onggiyonggi.presentation.main.home.review_register
 import android.Manifest
 import android.app.Activity
 import android.content.ContentUris
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Resources
@@ -29,6 +30,7 @@ import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import coil3.load
+import coil3.request.error
 import coil3.request.placeholder
 import com.bravepeople.onggiyonggi.R
 import com.bravepeople.onggiyonggi.databinding.FragmentPhotoBinding
@@ -51,19 +53,43 @@ class PhotoCaptureFragment:Fragment() {
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
+        if (requestCode == GALLERY_PERMISSION_CODE) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Timber.d("갤러리 권한 허용됨 → 카메라 권한 요청")
+                checkCameraPermissionAndLoad()  // 갤러리 허용되면 바로 카메라 요청
+            } else {
+                Timber.e("갤러리 권한 거부됨")
+                Toast.makeText(requireContext(), "갤러리 권한이 필요합니다.", Toast.LENGTH_SHORT).show()
+            }
+        }
+
         if (requestCode == CAMERA_PERMISSION_CODE) {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 startCamera(currentType)
             } else {
-                Toast.makeText(requireContext(), "카메라 권한이 필요합니다", Toast.LENGTH_SHORT).show()
+                Timber.e("카메라 권한 거부됨")
+                Toast.makeText(requireContext(), "카메라 권한이 필요합니다.", Toast.LENGTH_SHORT).show()
             }
         }
+    }
 
-        if (requestCode == GALLERY_PERMISSION_CODE && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            Timber.d("권한 허용됨, 갤러리 이미지 로딩 시작")
-            loadLatestGalleryImage(currentType) // 🔥 권한 허용된 후 다시 호출
-        } else {
-            Timber.e("갤러리 접근 권한 거부됨")
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        // galleryLauncher 초기화
+        galleryLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val selectedImageUri = result.data?.data
+                selectedImageUri?.let { uri ->
+                    Timber.d("갤러리에서 선택된 URI: $uri")
+
+                    reviewViewModel.saveReceipt(uri)
+
+                    val action = PhotoCaptureFragmentDirections.actionPhotoToLoading(currentType)
+                    findNavController().navigate(action)
+                }
+            }
         }
     }
 
@@ -84,7 +110,15 @@ class PhotoCaptureFragment:Fragment() {
     private fun setting(){
         currentType = args.photoType
 
-        // 갤러리 권한 설정
+        checkGalleryPermissionAndThenCamera()
+
+        binding.btnCancel.setOnClickListener {
+            requireActivity().finish()
+        }
+    }
+
+    // 갤러리 권한 설정
+    private fun checkGalleryPermissionAndThenCamera(){
         val permission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             Manifest.permission.READ_MEDIA_IMAGES
         } else {
@@ -92,10 +126,14 @@ class PhotoCaptureFragment:Fragment() {
         }
 
         if (ContextCompat.checkSelfPermission(requireContext(), permission) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(arrayOf(permission), 101)
+            requestPermissions(arrayOf(permission), GALLERY_PERMISSION_CODE)
+        } else {
+            checkCameraPermissionAndLoad()
         }
+    }
 
-        // 카메라 권한 설정
+    // 카메라 권한 설정
+    private fun checkCameraPermissionAndLoad(){
         if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA)
             == PackageManager.PERMISSION_GRANTED) {
             startCamera(currentType)
@@ -104,57 +142,7 @@ class PhotoCaptureFragment:Fragment() {
                 CAMERA_PERMISSION_CODE
             )
         }
-
-        loadLatestGalleryImage(currentType)
-
-        binding.btnCancel.setOnClickListener {
-            requireActivity().finish()
-        }
     }
-
-    private fun loadLatestGalleryImage(currentType: PhotoType) {
-        galleryLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == Activity.RESULT_OK) {
-                val selectedImageUri = result.data?.data
-                selectedImageUri?.let { uri ->
-                    Timber.d("갤러리에서 선택된 URI: $uri")
-
-                    reviewViewModel.saveReceipt(uri)
-
-                    val action = PhotoCaptureFragmentDirections.actionPhotoToLoading(currentType)
-                    findNavController().navigate(action)
-                }
-            }
-        }
-
-        val cursor = context?.contentResolver?.query(
-            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-            arrayOf(MediaStore.Images.Media._ID),
-            null,
-            null,
-            "${MediaStore.Images.Media.DATE_ADDED} DESC"
-        )
-
-        cursor?.use {
-            if (it.moveToFirst()) {
-                val id = it.getLong(it.getColumnIndexOrThrow(MediaStore.Images.Media._ID))
-                val uri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id)
-                Timber.d("불러온 이미지 URI: $uri")
-
-                binding.ivGalary.load(uri) {
-                    placeholder(R.drawable.placeholder)
-                    error(R.drawable.error)
-                }
-
-                binding.ivGalary.setOnClickListener {
-                    val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-                    intent.type = "image/*"
-                    galleryLauncher.launch(intent)
-                }
-            }
-        }
-    }
-
 
     private fun startCamera(currentType: PhotoType) {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(requireContext())
@@ -188,6 +176,8 @@ class PhotoCaptureFragment:Fragment() {
                 Timber.d("btnCapture 클릭됨")
                 takePhoto(currentType)
             }
+
+            loadLatestGalleryImage(currentType)
 
         }, ContextCompat.getMainExecutor(requireContext()))
     }
@@ -233,6 +223,49 @@ class PhotoCaptureFragment:Fragment() {
             findNavController().navigate(action, navOptions)
         } catch (e: Exception) {
             Timber.e(e, "예외 발생: photoType 처리 중 오류")
+        }
+    }
+
+    private fun loadLatestGalleryImage(currentType: PhotoType) {
+        val cursor = context?.contentResolver?.query(
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+            arrayOf(MediaStore.Images.Media._ID),
+            null,
+            null,
+            "${MediaStore.Images.Media.DATE_ADDED} DESC"
+        )
+
+        cursor?.use {
+            if (it.moveToFirst()) {
+                val id = it.getLong(it.getColumnIndexOrThrow(MediaStore.Images.Media._ID))
+                val uri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id)
+                Timber.d("불러온 이미지 URI: $uri")
+
+                if (canOpenUri(requireContext(), uri)) {
+                    Timber.d("정상적인 URI: $uri")
+                    binding.ivGalary.load(uri) {
+                        placeholder(ContextCompat.getDrawable(requireContext(), R.drawable.placeholder))
+                        error(ContextCompat.getDrawable(requireContext(), R.drawable.error))
+                    }
+
+                    binding.ivGalary.setOnClickListener {
+                        val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+                        intent.type = "image/*"
+                        galleryLauncher.launch(intent)
+                    }
+                } else {
+                    Timber.e("잘못된 URI라서 로드 불가: $uri")
+                }
+            }
+        }
+    }
+
+    private fun canOpenUri(context: Context, uri: Uri): Boolean {
+        return try {
+            context.contentResolver.openInputStream(uri)?.close()
+            true
+        } catch (e: Exception) {
+            false
         }
     }
 

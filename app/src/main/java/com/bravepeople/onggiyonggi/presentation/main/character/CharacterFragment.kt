@@ -31,6 +31,8 @@ class CharacterFragment : Fragment() {
     private val REQUEST_CODE_GACHA = 1001
     private val REQUEST_CODE_MAX = 1002
 
+    private lateinit var cachedAnimatorSet: AnimatorSet
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -42,8 +44,46 @@ class CharacterFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        setupSkeletonUI()
         setting()
     }
+
+    private fun setupSkeletonUI() {
+        with(binding) {
+            // 처음에는 가챠 머신만
+            ivGachaMachine.visibility = View.VISIBLE
+            btnGacha.visibility = View.GONE
+            ivEggBlue.visibility = View.GONE
+            ivEggGreen.visibility = View.GONE
+            ivEggOrange.visibility = View.GONE
+            ivEggYellow.visibility = View.GONE
+            ivEggPurple.visibility = View.GONE
+            btnCollection.visibility = View.GONE
+            tvName.visibility = View.GONE
+            clCardFront.visibility = View.GONE
+            clCardBack.visibility = View.GONE
+            tvAffectionTitle.visibility = View.GONE
+            tvAffectionPercent.visibility = View.GONE
+            pbAffection.visibility = View.GONE
+            btnIncrease.visibility = View.GONE
+        }
+
+        // Fragment가 화면에 올라오고 나서 (1프레임 후)
+        binding.root.post {
+            with(binding) {
+                btnGacha.visibility = View.VISIBLE
+                ivEggBlue.visibility = View.VISIBLE
+                ivEggGreen.visibility = View.VISIBLE
+                ivEggOrange.visibility = View.VISIBLE
+                ivEggYellow.visibility = View.VISIBLE
+                ivEggPurple.visibility = View.VISIBLE
+                btnCollection.visibility = View.VISIBLE
+                tvName.visibility = View.VISIBLE
+            }
+        }
+    }
+
 
     private fun setting() {
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, insets ->
@@ -56,78 +96,59 @@ class CharacterFragment : Fragment() {
 
             insets
         }
-
         binding.tvAffectionPercent.text = getString(R.string.character_affection_percent, 0)
+
+        cachedAnimatorSet=createAnimatorSet()
         startGachaAnimation()
+
         increaseAffection()
         clickCollection()
     }
 
-    private fun startGachaAnimation() {
-        binding.btnGacha.setOnClickListener {
-            val eggViews = listOf(
-                binding.ivEggBlue,
-                binding.ivEggGreen,
-                binding.ivEggOrange,
-                binding.ivEggYellow,
-                binding.ivEggPurple
-            )
-            val eggAnimations = eggViews.map { egg ->
-                // X축 설정
-                val rangeX = (8..20).random().toFloat()
-                val delay = (0..150).random().toLong()
-                val duration = (80..130).random().toLong()
-                val repeatCount = (3..6).random()
+    private fun createAnimatorSet(): AnimatorSet {
+        val eggViews = listOf(
+            binding.ivEggBlue,
+            binding.ivEggGreen,
+            binding.ivEggOrange,
+            binding.ivEggYellow,
+            binding.ivEggPurple
+        )
 
-                val shakeX = ObjectAnimator.ofFloat(
-                    egg,
-                    "translationX",
-                    egg.translationX - rangeX,
-                    egg.translationX + rangeX
-                ).apply {
-                    this.duration = duration
-                    this.startDelay = delay
-                    this.repeatCount = repeatCount
-                    this.repeatMode = ValueAnimator.REVERSE
-                }
+        val eggAnimations = eggViews.map { egg ->
+            val rangeX = (8..20).random().toFloat()
+            val rangeY = (5..15).random().toFloat()
 
-                // Y축 설정
-                val rangeY = (5..15).random().toFloat()
-                val shakeY = ObjectAnimator.ofFloat(
-                    egg,
-                    "translationY",
-                    egg.translationY - rangeY,
-                    egg.translationY + rangeY
-                ).apply {
-                    this.duration = duration
-                    this.startDelay = delay
-                    this.repeatCount = repeatCount
-                    this.repeatMode = ValueAnimator.REVERSE
-                }
-
-                AnimatorSet().apply {
-                    playTogether(shakeX, shakeY)
-                }
+            val shakeX = ObjectAnimator.ofFloat(
+                egg, "translationX",
+                egg.translationX - rangeX, egg.translationX + rangeX
+            ).apply {
+                duration = 100
+                repeatCount = 5
+                repeatMode = ValueAnimator.REVERSE
             }
 
-            val latest = eggAnimations.maxByOrNull {
-                it.childAnimations.maxOf { anim ->
-                    (anim as ObjectAnimator).startDelay + anim.duration * anim.repeatCount
-                }
+            val shakeY = ObjectAnimator.ofFloat(
+                egg, "translationY",
+                egg.translationY - rangeY, egg.translationY + rangeY
+            ).apply {
+                duration = 100
+                repeatCount = 5
+                repeatMode = ValueAnimator.REVERSE
             }
-
-            latest?.addListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationEnd(animation: Animator) {
-                    Timber.d("addlistener end")
-                    val intent = Intent(requireContext(), CharacterGachaActivity::class.java)
-                    startActivityForResult(intent, REQUEST_CODE_GACHA)
-                }
-            })
 
             AnimatorSet().apply {
-                playTogether(eggAnimations)
-                start()
+                playTogether(shakeX, shakeY)
             }
+        }
+
+        return AnimatorSet().apply {
+            playTogether(eggAnimations)
+        }
+    }
+
+    private fun startGachaAnimation() {
+        binding.btnGacha.setOnClickListener {
+            cachedAnimatorSet.start()
         }
     }
 
@@ -300,7 +321,8 @@ class CharacterFragment : Fragment() {
         if (resultCode == Activity.RESULT_OK && requestCode == REQUEST_CODE_GACHA && data != null) {
             val characterName = data.getStringExtra("character_name")
             val characterDescription = data.getStringExtra("character_description")
-            val characterImage = data.getIntExtra("character_image", R.drawable.character_flying_squirrel)
+            val characterImage =
+                data.getIntExtra("character_image", R.drawable.character_flying_squirrel)
 
             updateCharacterData(characterImage, characterName, characterDescription)
         } else if (resultCode == Activity.RESULT_OK && requestCode == REQUEST_CODE_MAX) {

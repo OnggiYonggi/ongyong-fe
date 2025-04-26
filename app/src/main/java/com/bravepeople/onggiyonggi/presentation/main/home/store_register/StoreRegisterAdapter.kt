@@ -1,4 +1,4 @@
-package com.bravepeople.onggiyonggi.presentation.main.home.register
+package com.bravepeople.onggiyonggi.presentation.main.home.store_register
 
 import android.text.Html
 import android.view.LayoutInflater
@@ -7,7 +7,6 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bravepeople.onggiyonggi.data.response_dto.ResponseNaverAddressDto
 import com.bravepeople.onggiyonggi.databinding.ItemSearchBinding
-import retrofit2.Response
 
 class StoreRegisterAdapter(
     private val clickStore:(ResponseNaverAddressDto.Item)->Unit,
