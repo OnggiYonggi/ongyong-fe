@@ -1,6 +1,7 @@
 import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
 
 val naverClientId = gradleLocalProperties(rootDir, providers).getProperty("naver.client.id")
+val googleMapsAPIKey= gradleLocalProperties(rootDir, providers).getProperty("google.maps.api.key")
 
 plugins {
     alias(libs.plugins.android.application)
@@ -46,6 +47,12 @@ android {
 
         buildConfigField(
             "String",
+            "GOOGLE_MAPS_API_KEY",
+            gradleLocalProperties(rootDir, providers).getProperty("google.maps.api.key")
+        )
+
+        buildConfigField(
+            "String",
             "BASE_URL",
             gradleLocalProperties(rootDir, providers).getProperty("base.url")
         )
@@ -54,6 +61,12 @@ android {
             "String",
             "NAVER_MAP_URL",
             gradleLocalProperties(rootDir, providers).getProperty("naver.map.url")
+        )
+
+        buildConfigField(
+            "String",
+            "GOOGLE_MAPS_URL",
+            gradleLocalProperties(rootDir, providers).getProperty("google.maps.url")
         )
 
         manifestPlaceholders["NAVER_CLIENT_ID",] = naverClientId

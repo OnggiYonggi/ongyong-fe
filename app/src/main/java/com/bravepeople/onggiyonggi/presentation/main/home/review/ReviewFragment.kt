@@ -10,16 +10,21 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import com.bravepeople.onggiyonggi.R
 import com.bravepeople.onggiyonggi.data.Review
 import com.bravepeople.onggiyonggi.data.Search
 import com.bravepeople.onggiyonggi.data.toStore
 import com.bravepeople.onggiyonggi.databinding.FragmentReviewBinding
+import com.bravepeople.onggiyonggi.extension.GetStoreTimeState
 import com.bravepeople.onggiyonggi.presentation.main.home.store_register.StoreRegisterActivity
 import com.bravepeople.onggiyonggi.presentation.main.home.review.review_detail.ReviewDetailActivity
 import com.bravepeople.onggiyonggi.presentation.main.home.review_register.ReviewRegisterActivity
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import timber.log.Timber
 
+@AndroidEntryPoint
 class ReviewFragment : Fragment() {
     private var _binding: FragmentReviewBinding? = null
     private val binding: FragmentReviewBinding
@@ -59,6 +64,7 @@ class ReviewFragment : Fragment() {
     private fun setting() {
         val getData = arguments?.getParcelable<Search>("search")
         setupBottomSheetBehavior()
+        getStoreTime()
         setupUI(getData)
         Timber.d("Fragment height: ${binding.root.height}")
     }
@@ -110,153 +116,6 @@ class ReviewFragment : Fragment() {
         }
     }
 
-
-    /* private fun setupBottomSheetBehavior() {
-         val parent = view?.parent as? View
-         val velocityTracker = VelocityTracker.obtain()
-
-         binding.root.post {
-             val visibleHeight = binding.vLine.bottom + binding.vLine.marginBottomPx()
-             parent?.layoutParams?.height = visibleHeight
-             parent?.requestLayout()
-         }
-
-         binding.root.setOnTouchListener(object : View.OnTouchListener {
-             private var downY = 0f
-             private var dragging = false
-             private var initialHeight = 0
-
-             override fun onTouch(v: View, event: MotionEvent): Boolean {
-                 val parentView = v.parent as? View ?: return false
-
-                 velocityTracker.addMovement(event)
-
-                 when (event.actionMasked) {
-                     MotionEvent.ACTION_DOWN -> {
-                         downY = event.rawY
-                         dragging = false
-                         initialHeight = parentView.height
-                         velocityTracker.clear()
-                         velocityTracker.addMovement(event)
-                     }
-
-                     MotionEvent.ACTION_MOVE -> {
-                         val dy = event.rawY - downY
-                         if (dy > 30 || dy < -30) dragging = true
-
-                         if (dragging) {
-                             val newHeight = (initialHeight + (-dy)).toInt().coerceAtLeast(visibleContentMinHeight())
-                             parentView.layoutParams.height = newHeight
-                             parentView.requestLayout()
-                         }
-                     }
-
-                     MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
-                         velocityTracker.computeCurrentVelocity(1000) // px/sec
-                         val velocityY = velocityTracker.yVelocity
-
-                         val screenHeight = resources.displayMetrics.heightPixels
-                         val statusBarHeight = getStatusBarHeight()
-                         val fullHeight = screenHeight - statusBarHeight - 30.dpToPx()
-                         val thresholdVelocity = 200f // 조절 가능
-
-                         if (velocityY < -thresholdVelocity) {
-                             // 빠르게 위로 → 전체 화면
-                             animateHeight(parentView, fullHeight)
-                             isExpanded = true
-                         } else if (velocityY > thresholdVelocity) {
-                             // 빠르게 아래로 → 최소화
-                             animateHeight(parentView, visibleContentMinHeight())
-                             isExpanded = false
-                         } else {
-                             // 느릴 경우 → 현재 높이 기준으로 판단
-                             if (parentView.height > screenHeight * 0.6f) {
-                                 animateHeight(parentView, fullHeight)
-                                 isExpanded = true
-                             } else {
-                                 animateHeight(parentView, visibleContentMinHeight())
-                                 isExpanded = false
-                             }
-                         }
-
-                         dragging = false
-                     }
-                 }
-                 return true
-             }
-         })
-     }*/
-
-
-
-    /*private fun setupBottomSheetBehavior() {
-        val parent = view?.parent as? View
-        binding.root.post {
-            // ✅ v_line의 bottom까지 높이를 측정해서 parent height로 설정
-            val visibleHeight = binding.vLine.bottom + binding.vLine.marginBottomPx()
-            parent?.layoutParams?.height = visibleHeight
-            parent?.requestLayout()
-        }
-
-        //binding.rvReview.setOnTouchListener { _, _ -> !isExpanded }
-
-        binding.root.setOnTouchListener(object : View.OnTouchListener {
-            private var downY = 0f
-            private var dragging = false
-
-            override fun onTouch(v: View, event: MotionEvent): Boolean {
-                when (event.action) {
-                    MotionEvent.ACTION_DOWN -> {
-                        downY = event.rawY
-                        dragging = false
-                    }
-
-                    MotionEvent.ACTION_MOVE -> {
-                        val dy = event.rawY - downY
-                        if (dy > 30 || dy < -30) dragging = true
-                        if (dragging) {
-                            v.translationY = dy.coerceAtLeast(0f)
-                            Timber.d("onTouch UP: translationY=${v.translationY}, height=${v.height}, 기준=${v.height * 0.22f}")
-
-                        }
-                    }
-
-                    MotionEvent.ACTION_UP -> {
-                        v.animate().translationY(0f).start()
-                        val parent = v.parent as? View ?: return true
-                        if (v.translationY > v.height * 0.1f) {
-                            // 아래로 드래그 → 원래 높이로 되돌아감 (30%)
-                            val targetHeight =
-                                (resources.displayMetrics.heightPixels * 0.22).toInt()
-                            animateHeight(parent, targetHeight)
-
-                            // bar 위치도 원래대로 (기본 마진으로 복귀)
-                            val layoutParams =
-                                binding.bar.layoutParams as ViewGroup.MarginLayoutParams
-                            layoutParams.topMargin = 20.dpToPx() // 초기 마진 값
-                            binding.bar.layoutParams = layoutParams
-                            isExpanded = false
-                        } else {
-                            // 위로 드래그 → 전체화면 확장
-                            val screenHeight = resources.displayMetrics.heightPixels
-                            val statusBarHeight = getStatusBarHeight()
-                            animateHeight(parent, visibleContentMinHeight())
-
-                            *//*val layoutParams =
-                                binding.bar.layoutParams as ViewGroup.MarginLayoutParams
-                            layoutParams.topMargin =
-                                statusBarHeight *//*
-                            //binding.bar.layoutParams = layoutParams
-                            isExpanded = true
-                        }
-                        dragging = false
-                    }
-                }
-                return true
-            }
-        })
-    }*/
-
     private fun View.marginBottomPx(): Int {
         val params = layoutParams as? ViewGroup.MarginLayoutParams
         return params?.bottomMargin ?: 0
@@ -287,6 +146,46 @@ class ReviewFragment : Fragment() {
         return (this * resources.displayMetrics.density).toInt()
     }
 
+    private fun getStoreTime(){
+        val dayMap = mapOf(
+            "Monday" to "월요일",
+            "Tuesday" to "화요일",
+            "Wednesday" to "수요일",
+            "Thursday" to "목요일",
+            "Friday" to "금요일",
+            "Saturday" to "토요일",
+            "Sunday" to "일요일"
+        )
+
+        lifecycleScope.launch {
+            reviewViewModel.getStoreTimeState.collect{getStoreTimeState->
+                when(getStoreTimeState){
+                    is GetStoreTimeState.Success->{
+                        val time = getStoreTimeState.searchDto.places
+                            .firstOrNull { it.regularOpeningHours != null }
+                            ?.regularOpeningHours?.weekdayDescriptions
+
+                        val translatedTime = time?.map { line ->
+                            var newLine = line
+                            dayMap.forEach { (eng, kor) ->
+                                newLine = newLine.replace(eng, kor)
+                            }
+                            newLine
+                        }
+
+                        binding.tvStoreHours.text = translatedTime?.joinToString("\n")
+                    }
+                    is GetStoreTimeState.Error->{
+                        Timber.e("error: ${getStoreTimeState.message}")
+                    }
+                    is GetStoreTimeState.Loading->{
+                        Timber.d("get store time state loading")
+                    }
+                }
+            }
+        }
+    }
+
     private fun setupUI(data: Search?) {
         if (data == null) return
         val isBan = data.isBan
@@ -307,6 +206,8 @@ class ReviewFragment : Fragment() {
                 }
             }
         }
+
+        reviewViewModel.searchStoreTime(data.name)
     }
 
 

@@ -84,6 +84,20 @@ class RetrofitModule {
 
     @Provides
     @Singleton
+    @GoogleMapsRetrofit
+    fun provideGoogleMapsRetrofit(
+        jsonConverter: Converter.Factory,
+        client: OkHttpClient,
+    ):Retrofit{
+        return Retrofit.Builder()
+            .baseUrl(BuildConfig.GOOGLE_MAPS_URL)
+            .addConverterFactory(jsonConverter)
+            .client(client)
+            .build()
+    }
+
+    @Provides
+    @Singleton
     fun provideJsonConverterFactory(): Converter.Factory {
         return Json.asConverterFactory("application/json".toMediaType())
     }
@@ -99,3 +113,7 @@ annotation class BaseUrlRetrofit
 @Qualifier
 @Retention(RUNTIME)
 annotation class NaverMapRetrofit
+
+@Qualifier
+@Retention(RUNTIME)
+annotation class GoogleMapsRetrofit
