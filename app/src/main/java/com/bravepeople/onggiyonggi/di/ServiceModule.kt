@@ -2,6 +2,7 @@ package com.bravepeople.onggiyonggi.di
 
 import android.content.SharedPreferences
 import com.bravepeople.onggiyonggi.data.service.AuthService
+import com.bravepeople.onggiyonggi.data.service.GoogleMapsService
 import com.bravepeople.onggiyonggi.data.service.NaverMapService
 import dagger.Module
 import dagger.Provides
@@ -24,9 +25,15 @@ class ServiceModule {
 
     @Provides
     @Singleton
-    fun provideNaverMapMudule(
+    fun provideNaverMapModule(
         @NaverMapRetrofit retrofit: Retrofit
     ): NaverMapService = retrofit.create(NaverMapService::class.java)
+
+    @Provides
+    @Singleton
+    fun provideGoogleMapsModule(
+        @GoogleMapsRetrofit retrofit: Retrofit
+    ):GoogleMapsService = retrofit.create(GoogleMapsService::class.java)
 
     @Provides
     @Singleton

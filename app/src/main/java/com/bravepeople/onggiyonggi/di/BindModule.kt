@@ -1,12 +1,16 @@
 package com.bravepeople.onggiyonggi.di
 
 import com.bravepeople.onggiyonggi.data.datasource.AuthDataSource
+import com.bravepeople.onggiyonggi.data.datasource.GoogleMapsDataSource
 import com.bravepeople.onggiyonggi.data.datasource.NaverDataSource
 import com.bravepeople.onggiyonggi.data.datasourceImpl.AuthDataSourceImpl
+import com.bravepeople.onggiyonggi.data.datasourceImpl.GoogleMapsDataSourceImpl
 import com.bravepeople.onggiyonggi.data.datasourceImpl.NaverDataSourceImpl
 import com.bravepeople.onggiyonggi.data.repositoryImpl.AuthRepositoryImpl
+import com.bravepeople.onggiyonggi.data.repositoryImpl.GoogleMapsRepositoryImpl
 import com.bravepeople.onggiyonggi.data.repositoryImpl.NaverRepositoryImpl
 import com.bravepeople.onggiyonggi.domain.repository.AuthRepository
+import com.bravepeople.onggiyonggi.domain.repository.GoogleMapsRepository
 import com.bravepeople.onggiyonggi.domain.repository.NaverRepository
 import dagger.Binds
 import dagger.Module
@@ -27,9 +31,17 @@ abstract class BindModule {
 
     @Binds
     @Singleton
+    abstract fun bindGoogleMapsRepository(googleMapsRepositoryImpl: GoogleMapsRepositoryImpl):GoogleMapsRepository
+
+    @Binds
+    @Singleton
     abstract fun provideAuthDataSource(authDataSourceImpl: AuthDataSourceImpl):AuthDataSource
 
     @Binds
     @Singleton
     abstract fun provideNaverDataSource(naverDataSourceImpl: NaverDataSourceImpl):NaverDataSource
+
+    @Binds
+    @Singleton
+    abstract fun provideGoogleMapsDataSource(googleMapsDataSourceImpl: GoogleMapsDataSourceImpl):GoogleMapsDataSource
 }
