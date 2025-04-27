@@ -1,63 +1,74 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/white"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:background="@color/white">
 
     <ImageView
         android:id="@+id/iv_review"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:background="@drawable/iv_write_review"
+        android:layout_height="200dp"
         android:layout_marginTop="50dp"
+        android:background="@drawable/iv_write_review"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        app:layout_constraintBottom_toTopOf="@id/btn_register"
         app:layout_constraintDimensionRatio="16:9"
         app:layout_constraintHeight_percent="0.3"
-        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/btn_register"/>
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
 
     <EditText
         android:id="@+id/et_review"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="20dp"
         android:layout_marginStart="10dp"
+        android:layout_marginTop="10dp"
         android:layout_marginEnd="10dp"
-        android:hint="@string/write_review"
-        android:background="@null"
+        android:layout_marginBottom="20dp"
+        android:background="@android:color/transparent"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
         android:gravity="top"
+        android:hint="@string/write_review"
         android:maxLength="200"
         android:scrollbars="vertical"
-        app:layout_constraintTop_toTopOf="@id/iv_review"
+        android:textSize="12sp"
+        android:inputType="textMultiLine|textNoSuggestions"
+        android:imeOptions="flagNoExtractUi"
         app:layout_constraintBottom_toBottomOf="@id/iv_review"
+        app:layout_constraintEnd_toEndOf="@id/iv_review"
         app:layout_constraintStart_toStartOf="@id/iv_review"
-        app:layout_constraintEnd_toEndOf="@id/iv_review"/>
+        app:layout_constraintTop_toTopOf="@id/iv_review" />
 
     <TextView
         android:id="@+id/tv_number_of_characters"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/write_review_number_of_character"
-        android:textSize="13sp"
-        android:textStyle="bold"
         android:textColor="@color/store_address_gray"
+        android:textSize="11sp"
+        android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="@id/iv_review"
-        app:layout_constraintTop_toBottomOf="@id/et_review"
-        app:layout_constraintEnd_toEndOf="@id/et_review"/>
+        app:layout_constraintEnd_toEndOf="@id/et_review"
+        app:layout_constraintTop_toBottomOf="@id/et_review" />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/btn_register"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
+        android:layout_marginTop="40dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginEnd="20dp"
         android:background="@drawable/btn_register"
         android:text="@string/write_register"
         android:textColor="@color/white"
-        android:layout_marginTop="40dp"
-        app:layout_constraintHeight_percent="0.13"
-        app:layout_constraintTop_toBottomOf="@id/iv_review"
+        android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_percent="0.11"
+        app:layout_constraintTop_toBottomOf="@id/iv_review" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
