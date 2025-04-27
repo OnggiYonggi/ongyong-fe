@@ -32,7 +32,7 @@ class ReviewRegisterViewModel : ViewModel() {
     fun getStore(): StoreOrReceipt.Store = StoreOrReceipt.Store(
         R.drawable.img_store,
         "스타벅스 광교역점",
-        "광교역 123-1",
+        "경기도 수원시 영통구 이의동 대학로 47",
         "09:00 ~ 19:00"
     )
 

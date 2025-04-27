@@ -10,7 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/iv_review_bg_white"
-        android:padding="5dp">
+        android:paddingTop="5dp">
 
         <View
             android:id="@+id/bar"
@@ -45,7 +45,7 @@
             android:layout_marginStart="20dp"
             android:layout_marginEnd="10dp"
             android:text="@string/store_name"
-            android:textSize="16sp"
+            android:textSize="14sp"
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/bar"
@@ -175,7 +175,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/store_ban_text"
                 android:textAlignment="center"
-                android:textSize="15sp"
+                android:textSize="12sp"
                 app:layout_constraintBottom_toTopOf="@id/btn_register"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -188,6 +188,7 @@
                 android:layout_marginStart="20dp"
                 android:layout_marginBottom="5dp"
                 android:text="@string/store_ban_double"
+                android:textSize="12sp"
                 app:layout_constraintBottom_toTopOf="@id/btn_register"
                 app:layout_constraintStart_toStartOf="parent" />
 
@@ -198,6 +199,7 @@
                 android:background="@color/black"
                 android:text="@string/store_ban_btn"
                 android:textColor="@color/white"
+                android:textSize="13sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintHeight_percent="0.07"
                 app:layout_constraintStart_toStartOf="parent" />
