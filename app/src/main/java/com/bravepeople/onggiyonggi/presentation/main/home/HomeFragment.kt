@@ -291,9 +291,11 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
         binding.cvSearch.setOnClickListener {
             setVisibility(true)
             getEditText()
+
             with(binding) {
                 etSearch.text.clear()
             }
+
             searchRecentAdapter = SearchRecentAdapter(requireContext(),
                 clickStore = { search ->
                     showReviewFragment(search, false)
@@ -302,6 +304,18 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
                     removeRecentList(search)
                 })
             binding.rvSearch.adapter = searchRecentAdapter
+
+            val reviewFragment = parentFragmentManager.findFragmentByTag("ReviewFragment")
+            reviewFragment?.let {
+                parentFragmentManager.beginTransaction()
+                    .remove(it)
+                    .commit()
+            }
+
+            markerClick=false
+            selectedMarker!!.setCaptionText("")
+            newMarker.map = null
+
             getSearchRecentList()
             clickBackButton()
         }
@@ -646,6 +660,8 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
                 setVisibility(false)
             }
         }
+
+        clickSystemBackButton()
     }
 
     private fun clickSystemBackButton() {
