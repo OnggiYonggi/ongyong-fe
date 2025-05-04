@@ -1,6 +1,7 @@
 package com.bravepeople.onggiyonggi.presentation.main.home.store_register
 
 import android.content.Intent
+import android.content.res.Resources
 import android.os.Bundle
 import android.text.Html
 import android.view.View
@@ -42,6 +43,8 @@ class StoreRegisterActivity:AppCompatActivity(), OnMapReadyCallback {
     private var pendingLatLng: LatLng? = null
     private var pendingTitle: String? = null
 
+    private val Int.dp: Int get() = (this * Resources.getSystem().displayMetrics.density).toInt()
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -62,11 +65,27 @@ class StoreRegisterActivity:AppCompatActivity(), OnMapReadyCallback {
             isAppearanceLightNavigationBars = true  // 네비게이션 바 아이콘도 어둡게
         }
 
-        ViewCompat.setOnApplyWindowInsetsListener(binding.btnBack) { view, insets ->
-            val topInset = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
-            view.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                topMargin = topInset + 5.dpToPx()  // 원래 marginTop이 16dp였다면 이렇게 추가
+        val defaultPaddingStart = binding.root.paddingStart
+        val defaultPaddingEnd = binding.root.paddingEnd
+        val defaultPaddingBottom = binding.root.paddingBottom
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, insets ->
+            val statusBarHeight = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
+            val navBarHeight = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
+
+            // 상단 여백 적용
+            binding.root.setPadding(
+                defaultPaddingStart,
+                statusBarHeight,
+                defaultPaddingEnd,
+                defaultPaddingBottom
+            )
+
+            // 하단 버튼 위 여백 적용
+            binding.btnRegister.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                bottomMargin = navBarHeight + 10.dp  // 16dp 정도 추가 마진 권장
             }
+
             insets
         }
 
@@ -215,14 +234,9 @@ class StoreRegisterActivity:AppCompatActivity(), OnMapReadyCallback {
                     Toast.LENGTH_SHORT
                 ).show()
                 finish()
-                overridePendingTransition(R.anim.stay_still, R.anim.slide_out_right)
+                //overridePendingTransition(R.anim.stay_still, R.anim.slide_out_right)
             }
         }
-    }
-
-    override fun onBackPressed() {
-        super.onBackPressed()
-        overridePendingTransition(R.anim.stay_still, R.anim.slide_out_right)
     }
 
     override fun onStart() {
@@ -253,5 +267,6 @@ class StoreRegisterActivity:AppCompatActivity(), OnMapReadyCallback {
     override fun finish() {
         super.finish()
         mapView.onDestroy()
+        overridePendingTransition(R.anim.stay_still, R.anim.slide_out_right)
     }
 }

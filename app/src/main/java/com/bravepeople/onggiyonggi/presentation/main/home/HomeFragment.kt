@@ -63,10 +63,11 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
     private var isAutoMoveEnabled = true
     private var isFirstCameraMove = true
 
-    private lateinit var newMarker: Marker
+    private var newMarker: Marker? = null
     private var isUserTyping = true
+    private var clickSearch = false
     private var markerClick: Boolean = false
-    private var selectedMarker:Marker?=null
+    private var selectedMarker: Marker? = null
 
     private var backPressedTime: Long = 0L
     private val backPressInterval = 2000L // 2초
@@ -258,15 +259,15 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
         clickMarker(marker)
         clickMarker(markerBan)
 
-       /* naverMap.addOnCameraIdleListener {
-            if (isFirstCameraMove) {
-                isFirstCameraMove = false
-                Timber.d("최초 자동 이동 → 무시")
-            } else {
-                isAutoMoveEnabled = false
-                Timber.d("사용자 조작 감지 → 자동 이동 비활성화")
-            }
-        }*/
+        /* naverMap.addOnCameraIdleListener {
+             if (isFirstCameraMove) {
+                 isFirstCameraMove = false
+                 Timber.d("최초 자동 이동 → 무시")
+             } else {
+                 isAutoMoveEnabled = false
+                 Timber.d("사용자 조작 감지 → 자동 이동 비활성화")
+             }
+         }*/
     }
 
 
@@ -312,9 +313,10 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
                     .commit()
             }
 
-            markerClick=false
-            selectedMarker!!.setCaptionText("")
-            newMarker.map = null
+            markerClick = false
+            clickSearch = true
+            selectedMarker?.setCaptionText("")
+            newMarker?.map = null
 
             getSearchRecentList()
             clickBackButton()
@@ -333,6 +335,7 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
             }
 
             setVisibility(true)
+            clickSearch = true
 
             searchRecentAdapter.getRecentSearchList(searchViewModel.getRecentSearchList())
             with(binding) {
@@ -344,9 +347,7 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
                 fcvReview.requestLayout()
             }
 
-            if (this::newMarker.isInitialized) {
-                newMarker.map = null
-            }
+            newMarker?.map = null
 
             false
         }
@@ -492,7 +493,7 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
         searchRecentAdapter.getRecentSearchList(searchViewModel.getRecentSearchList())
     }
 
-    private fun showReviewFragment(data: Search, click:Boolean) {
+    private fun showReviewFragment(data: Search, click: Boolean) {
         hideKeyboard(binding.root)
         val fragmentManager = parentFragmentManager
 
@@ -543,7 +544,7 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
         imm.hideSoftInputFromWindow(view.windowToken, 0)
     }
 
-    private fun moveToMarker(search: Search, click:Boolean) {
+    private fun moveToMarker(search: Search, click: Boolean) {
         with(binding) {
             ivTextsBackground.visibility = View.INVISIBLE
             tvRecentSearches.visibility = View.INVISIBLE
@@ -551,20 +552,22 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
             rvSearch.visibility = View.INVISIBLE
         }
 
-        if(markerClick) {
-            newMarker.setCaptionText("")
-            markerClick=false
+        if (markerClick) {
+            newMarker?.setCaptionText("")
+            markerClick = false
         }
-        markerClick=click
+        markerClick = click
 
         naverMap?.let { map ->
-            newMarker = Marker()
-            newMarker.position = search.address
-            newMarker.map = naverMap
-            newMarker.setIconPerspectiveEnabled(true)
-            newMarker.setCaptionText(search.name)
+            val marker = Marker()
+            marker.position = search.address
+            marker.map = naverMap
+            marker.setIconPerspectiveEnabled(true)
+            marker.setCaptionText(search.name)
 
             map.moveCamera(CameraUpdate.scrollTo(search.address))
+
+            newMarker = marker
         }
     }
 
@@ -655,9 +658,10 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
                     }
                 }
                 selectedMarker!!.setCaptionText("")
-                newMarker.map = null
+                newMarker?.map = null
             } else {
                 setVisibility(false)
+                clickSearch = false
             }
         }
 
@@ -669,8 +673,42 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
             val reviewFragment = parentFragmentManager.findFragmentByTag("ReviewFragment")
 
             Timber.d("markerClick: ${markerClick}")
-            // 핀 마커 클릭한게 아니라면 (검색창으로 들어간거라면) || 초기화면이라면
-            if(!markerClick) {
+
+            when {
+                // 1. ReviewFragment가 있으면 제거
+                reviewFragment != null -> {
+                    Timber.d("back: reviewfragment is not null")
+                    parentFragmentManager.beginTransaction()
+                        .remove(reviewFragment)
+                        .commitNow()
+
+                    markerClick = false
+                    newMarker?.map = null
+
+                    if (clickSearch) setVisibility(true)
+                }
+
+                // 2. 검색창이 열려 있으면 닫기
+                isSearchUIVisible() -> {
+                    Timber.d("back: search ui is visible")
+                    setVisibility(false)
+                    clickSearch = false
+                }
+
+                // 3. 초기 화면이면 종료 물어보기
+                else -> {
+                    Timber.d("back: none is visible")
+                    val currentTime = System.currentTimeMillis()
+                    if (currentTime - backPressedTime < backPressInterval) {
+                        requireActivity().finish()
+                    } else {
+                        backPressedTime = currentTime
+                        Toast.makeText(requireContext(), "한 번 더 누르면 종료됩니다", Toast.LENGTH_SHORT)
+                            .show()
+                    }
+                }
+            }
+            /*if(!markerClick) {
                 // 검색창에서 결과 또는 최근 리스트를 클릭한 후 화면이라면
                 if (reviewFragment != null) {
                     Timber.d("ReviewFragment 제거")
@@ -678,23 +716,26 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
                         .remove(reviewFragment)
                         .commit()
 
-                    with(binding) {
-                        ivTextsBackground.visibility = View.VISIBLE
-                        tvRecentSearches.visibility = View.VISIBLE
-                        tvDeleteAll.visibility = View.VISIBLE
-                        rvSearch.visibility = View.VISIBLE
-                        isUserTyping = false
-                        etSearch.text.clear()
+                    if(clickSearch){
+                        with(binding) {
+                            ivTextsBackground.visibility = View.VISIBLE
+                            tvRecentSearches.visibility = View.VISIBLE
+                            tvDeleteAll.visibility = View.VISIBLE
+                            rvSearch.visibility = View.VISIBLE
+                            isUserTyping = false
+                            etSearch.text.clear()
 
-                        etSearch.post {
-                            isUserTyping = true
+                            etSearch.post {
+                                isUserTyping = true
+                            }
+                            newMarker?.map = null
+                            fcvReview.layoutParams.height = 0
+                            fcvReview.requestLayout()
                         }
-                        if (this@HomeFragment::newMarker.isInitialized) {
-                            newMarker.map = null
-                        }
-                        fcvReview.layoutParams.height = 0
-                        fcvReview.requestLayout()
+
+                        clickSearch=false
                     }
+
                 } else {    // 최근 리스트가 보이는 화면이라면
                     if(binding.ivTextsBackground.visibility==View.VISIBLE){
                         setVisibility(false)
@@ -716,20 +757,22 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
                         .remove(reviewFragment)
                         .commit()
                     markerClick=false
-                    newMarker.setCaptionText("")
+                    newMarker?.setCaptionText("")
                 }
             }
-
+*/
         }
     }
 
+    private fun isSearchUIVisible(): Boolean {
+        return binding.rvSearch.visibility == View.VISIBLE || binding.etSearch.visibility == View.VISIBLE
+    }
 
     fun openReviewFragment() {
         resetFabState()
         val reviewFragment = ReviewFragment()
-        childFragmentManager.beginTransaction()
-            .replace(R.id.fcv_review, reviewFragment)
-            .addToBackStack(null)
+        parentFragmentManager.beginTransaction()
+            .add(R.id.fcv_review, reviewFragment, "ReviewFragment")
             .commit()
     }
 
@@ -801,9 +844,14 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
 
         if (requestCode == PERMISSIONS_REQUEST_CODE &&
             grantResults.isNotEmpty() &&
-            grantResults.all { it == PackageManager.PERMISSION_GRANTED }) {
+            grantResults.all { it == PackageManager.PERMISSION_GRANTED }
+        ) {
 
-            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            if (ContextCompat.checkSelfPermission(
+                    requireContext(),
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                ) == PackageManager.PERMISSION_GRANTED
+            ) {
                 val locationRequest = LocationRequest.create().apply {
                     priority = Priority.PRIORITY_HIGH_ACCURACY
                     interval = 5000L
