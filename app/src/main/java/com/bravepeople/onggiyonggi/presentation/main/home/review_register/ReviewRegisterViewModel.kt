@@ -8,26 +8,27 @@ import com.bravepeople.onggiyonggi.data.SelectQuestion
 import com.bravepeople.onggiyonggi.data.StoreOrReceipt
 
 class ReviewRegisterViewModel : ViewModel() {
-    private lateinit var receipt: Uri
-    private lateinit var food: Uri
-    private lateinit var beforeActivity:String
+    private var receipt: Uri? = null
+    private var food: Uri? = null
+    private var beforeActivity: String? = null
 
-    fun setBeforeActivity(before:String){
-        beforeActivity=before
+    fun setBeforeActivity(before: String) {
+        beforeActivity = before
     }
-    fun getBeforeActivity():String =beforeActivity
+
+    fun getBeforeActivity(): String? = beforeActivity
 
     fun saveReceipt(receiptUri: Uri) {
         receipt = receiptUri
     }
 
-    fun getReceipt(): Uri = receipt
+    fun getReceipt(): Uri? = receipt
 
     fun saveFood(foodUri: Uri) {
         food = foodUri
     }
 
-    fun getFood(): Uri = food
+    fun getFood(): Uri? = food
 
     fun getStore(): StoreOrReceipt.Store = StoreOrReceipt.Store(
         R.drawable.img_store,

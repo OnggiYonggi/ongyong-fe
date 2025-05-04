@@ -1,6 +1,7 @@
 package com.bravepeople.onggiyonggi.presentation
 
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
@@ -37,9 +38,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setting() {
-        setFirstFragment()
-        clickBottomNavigation()
         WindowCompat.setDecorFitsSystemWindows(window, false)
+        window.navigationBarColor = Color.WHITE     // 하단 네비게이션 바 배경 흰색
 
         WindowInsetsControllerCompat(window, window.decorView).apply {
             isAppearanceLightStatusBars = true  // 아이콘을 어둡게 (밝은 배경일 때)
@@ -53,6 +53,9 @@ class MainActivity : AppCompatActivity() {
             }
             insets
         }
+
+        setFirstFragment()
+        clickBottomNavigation()
     }
 
     private fun setFirstFragment() {

@@ -1,6 +1,7 @@
 package com.bravepeople.onggiyonggi.presentation.main.home.review_register
 
 import android.content.Intent
+import android.content.res.Resources
 import android.graphics.Color
 import android.os.Bundle
 import android.text.Spannable
@@ -9,6 +10,10 @@ import android.text.style.ForegroundColorSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.addCallback
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
@@ -24,6 +29,8 @@ class ReviewCompleteFragment:Fragment() {
 
     private val reviewCompleteViewModel: ReviewCompleteViewModel by viewModels()
     private val reviewRegisterViewModel: ReviewRegisterViewModel by activityViewModels()
+
+    private val Int.dp: Int get() = (this * Resources.getSystem().displayMetrics.density).toInt()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -42,13 +49,34 @@ class ReviewCompleteFragment:Fragment() {
     private fun setting(){
         Timber.d("review complete fragment!")
 
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, insets ->
+            val statusBarHeight = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
+            val navBarHeight = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
+
+            // 상단 여백 적용
+            binding.root.setPadding(0, statusBarHeight, 0, 0)
+
+            // 하단 버튼 위 여백 적용
+            binding.btnEnd.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                bottomMargin = navBarHeight + 10.dp  // 16dp 정도 추가 마진 권장
+            }
+
+            insets
+        }
+
         val lottieView=binding.lavEarth
         lottieView.setAnimation(R.raw.earth)
         lottieView.playAnimation()
 
         setCharacter()
         setReview()
-        clickEndButton()
+
+        binding.btnEnd.setOnClickListener{
+            endFragment()
+        }
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
+            endFragment()
+        }
     }
 
     private fun setCharacter(){
@@ -76,8 +104,7 @@ class ReviewCompleteFragment:Fragment() {
         }
     }
 
-    private fun clickEndButton(){
-        binding.btnEnd.setOnClickListener{
+    private fun endFragment(){
             val beforeActivity = reviewRegisterViewModel.getBeforeActivity()
             val store = reviewRegisterViewModel.getStore()
 
@@ -93,7 +120,6 @@ class ReviewCompleteFragment:Fragment() {
                 startActivity(intent)
                 requireActivity().finish()
             }
-        }
     }
 
     override fun onDestroyView() {
