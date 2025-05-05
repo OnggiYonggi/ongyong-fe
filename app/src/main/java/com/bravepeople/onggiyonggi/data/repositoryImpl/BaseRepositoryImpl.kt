@@ -1,8 +1,10 @@
 package com.bravepeople.onggiyonggi.data.repositoryImpl
 
 import com.bravepeople.onggiyonggi.data.datasource.BaseDataSource
+import com.bravepeople.onggiyonggi.data.request_dto.RequestLoginDto
 import com.bravepeople.onggiyonggi.data.request_dto.RequestSignUpDto
 import com.bravepeople.onggiyonggi.data.response_dto.ResponseCheckSignUpDto
+import com.bravepeople.onggiyonggi.data.response_dto.ResponseLoginDto
 import com.bravepeople.onggiyonggi.data.response_dto.ResponseSignUpDto
 import com.bravepeople.onggiyonggi.domain.repository.BaseRepository
 import timber.log.Timber
@@ -37,6 +39,15 @@ class BaseRepositoryImpl @Inject constructor(
             baseDataSource.signUp(RequestSignUpDto(id,password,nickname))
         }.onFailure {
             Timber.e("base repository sign up fail!!: $it")
+        }
+    }
+
+    // login
+    override suspend fun login(id: String, password: String): Result<ResponseLoginDto> {
+        return runCatching {
+            baseDataSource.login(RequestLoginDto(id, password))
+        }.onFailure {
+            Timber.e("base repository login fail!!: $it")
         }
     }
 }

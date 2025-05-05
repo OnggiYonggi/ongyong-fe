@@ -1,7 +1,9 @@
 package com.bravepeople.onggiyonggi.data.service
 
+import com.bravepeople.onggiyonggi.data.request_dto.RequestLoginDto
 import com.bravepeople.onggiyonggi.data.request_dto.RequestSignUpDto
 import com.bravepeople.onggiyonggi.data.response_dto.ResponseCheckSignUpDto
+import com.bravepeople.onggiyonggi.data.response_dto.ResponseLoginDto
 import com.bravepeople.onggiyonggi.data.response_dto.ResponseSignUpDto
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -9,6 +11,7 @@ import retrofit2.http.POST
 import retrofit2.http.Query
 
 interface BaseService {
+    // sign up
     @GET("auth/check-id")
     suspend fun checkId(
         @Query("id") id:String,
@@ -23,4 +26,10 @@ interface BaseService {
     suspend fun signUp(
         @Body requestSignUpDto: RequestSignUpDto,
     ): ResponseSignUpDto
+
+    // login
+    @POST("auth/login")
+    suspend fun login(
+        @Body requestLoginDto: RequestLoginDto
+    ):ResponseLoginDto
 }

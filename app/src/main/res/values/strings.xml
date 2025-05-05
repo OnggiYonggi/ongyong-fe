@@ -24,6 +24,11 @@
     <string name="sign_up_agreement_user_third_party_info_agree">개인정보 제3자 정보제공 동의</string>
     <string name="sign_up_agreement_location_agree">위치 기반 서비스 제공 동의</string>
 
+    <string name="login_id_null">아이디를 입력해주세요.</string>
+    <string name="login_pw_null">비밀번호를 입력해주세요.</string>
+    <string name="login_id_error">회원이 존재하지 않습니다.</string>
+    <string name="login_pw_error">비밀번호가 올바르지 않습니다.</string>
+
     <string name="store_name">스타벅스 광교역점</string>
     <string name="store_address">경기도 수원시 영통구 이의동 대학로 47</string>
     <string name="store_time">정보없음</string>
