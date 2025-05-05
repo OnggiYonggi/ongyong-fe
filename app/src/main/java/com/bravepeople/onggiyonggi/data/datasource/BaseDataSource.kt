@@ -1,7 +1,9 @@
 package com.bravepeople.onggiyonggi.data.datasource
 
+import com.bravepeople.onggiyonggi.data.request_dto.RequestLoginDto
 import com.bravepeople.onggiyonggi.data.request_dto.RequestSignUpDto
 import com.bravepeople.onggiyonggi.data.response_dto.ResponseCheckSignUpDto
+import com.bravepeople.onggiyonggi.data.response_dto.ResponseLoginDto
 import com.bravepeople.onggiyonggi.data.response_dto.ResponseSignUpDto
 
 interface BaseDataSource {
@@ -17,4 +19,9 @@ interface BaseDataSource {
     suspend fun signUp(
         requestSignUpDto: RequestSignUpDto
     ): ResponseSignUpDto
+
+    // login
+    suspend fun login(
+        requestLoginDto: RequestLoginDto
+    ): ResponseLoginDto
 }
