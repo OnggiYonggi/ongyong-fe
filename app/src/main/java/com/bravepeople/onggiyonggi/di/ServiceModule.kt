@@ -1,7 +1,7 @@
 package com.bravepeople.onggiyonggi.di
 
 import android.content.SharedPreferences
-import com.bravepeople.onggiyonggi.data.service.AuthService
+import com.bravepeople.onggiyonggi.data.service.BaseService
 import com.bravepeople.onggiyonggi.data.service.GoogleMapsService
 import com.bravepeople.onggiyonggi.data.service.NaverMapService
 import dagger.Module
@@ -20,8 +20,8 @@ class ServiceModule {
     @Singleton
     fun provideService(
         @BaseUrlRetrofit retrofit: Retrofit
-    ): AuthService =
-        retrofit.create(AuthService::class.java)
+    ): BaseService =
+        retrofit.create(BaseService::class.java)
 
     @Provides
     @Singleton
