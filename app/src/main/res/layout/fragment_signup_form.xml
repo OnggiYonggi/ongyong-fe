@@ -1,172 +1,217 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:padding="20dp">
 
-    <LinearLayout
-        android:layout_width="match_parent"
+    <ImageView
+        android:id="@+id/btn_back"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:src="@drawable/btn_back"
+        android:contentDescription="back"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/tv_title"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="20dp">
+        android:text="회원가입"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toEndOf="@id/btn_back"
+        app:layout_constraintTop_toTopOf="@id/btn_back"
+        android:layout_marginStart="16dp" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
+    <EditText
+        android:id="@+id/et_id"
+        android:layout_width="0dp"
+        android:layout_height="48dp"
+        android:hint="아이디"
+        android:background="@drawable/et_rounded"
+        android:paddingHorizontal="12dp"
+        android:textSize="14sp"
+        app:layout_constraintTop_toBottomOf="@id/tv_title"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/btn_check_id"
+        android:layout_marginTop="70dp"
+        android:layout_marginEnd="8dp" />
 
-            <ImageView
-                android:id="@+id/btn_back"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/btn_back"
-                android:contentDescription="back" />
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btn_check_id"
+        android:layout_width="80dp"
+        android:layout_height="40dp"
+        android:text="중복확인"
+        android:background="@drawable/btn_gray_rounded"
+        android:textColor="#000000"
+        android:textSize="12sp"
+        app:layout_constraintTop_toTopOf="@id/et_id"
+        app:layout_constraintBottom_toBottomOf="@id/et_id"
+        app:layout_constraintEnd_toEndOf="parent" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="회원가입"
-                android:textStyle="bold"
-                android:textSize="18sp"
-                android:layout_marginStart="16dp" />
-        </LinearLayout>
+    <TextView
+        android:id="@+id/tv_id_check_result"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textColor="@color/red"
+        android:textSize="14sp"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/et_id"
+        app:layout_constraintStart_toStartOf="@id/et_id"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="8dp" />
 
-        <LinearLayout
-            android:layout_marginTop="32dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
+    <EditText
+        android:id="@+id/et_passwd"
+        android:layout_width="0dp"
+        android:layout_height="48dp"
+        android:hint="비밀번호"
+        android:inputType="textPassword"
+        android:background="@drawable/et_rounded"
+        android:paddingHorizontal="12dp"
+        android:textSize="14sp"
+        app:layout_constraintTop_toBottomOf="@id/et_id"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="50dp" />
 
-            <EditText
-                android:id="@+id/et_id"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="48dp"
-                android:hint="아이디"
-                android:background="@drawable/et_rounded"
-                android:paddingHorizontal="12dp"
-                android:textSize="14sp" />
+    <TextView
+        android:id="@+id/tv_passwd_check"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/sign_up_pw_not_ok"
+        android:textColor="@color/red"
+        android:textSize="14sp"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/et_passwd"
+        app:layout_constraintStart_toStartOf="@id/et_passwd"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="8dp" />
 
-            <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/btn_check_id"
-                android:layout_width="80dp"
-                android:layout_height="40dp"
-                android:text="중복확인"
-                android:layout_marginStart="8dp"
-                android:background="@drawable/btn_gray_rounded"
-                android:textColor="#000000"
-                android:textSize="12sp"/>
+    <EditText
+        android:id="@+id/et_passwd_check"
+        android:layout_width="0dp"
+        android:layout_height="48dp"
+        android:hint="비밀번호 확인"
+        android:inputType="textPassword"
+        android:background="@drawable/et_rounded"
+        android:paddingHorizontal="12dp"
+        android:textSize="14sp"
+        app:layout_constraintTop_toBottomOf="@id/et_passwd"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="50dp" />
 
-        </LinearLayout>
+    <TextView
+        android:id="@+id/tv_passwd_check_result"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/sign_up_pw_error"
+        android:textColor="@color/red"
+        android:textSize="14sp"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/et_passwd_check"
+        app:layout_constraintStart_toStartOf="@id/et_passwd_check"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="8dp" />
 
-        <TextView
-            android:id="@+id/tv_id_check_result"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:textSize="14sp"
-            android:visibility="gone"
-            android:textColor="@color/red"/>
+    <EditText
+        android:id="@+id/et_nickname"
+        android:layout_width="0dp"
+        android:layout_height="48dp"
+        android:hint="닉네임"
+        android:background="@drawable/et_rounded"
+        android:paddingHorizontal="12dp"
+        android:textSize="14sp"
+        app:layout_constraintTop_toBottomOf="@id/et_passwd_check"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/btn_check_nickname"
+        android:layout_marginTop="50dp"
+        android:layout_marginEnd="8dp" />
 
-        <EditText
-            android:id="@+id/et_passwd"
-            android:layout_marginTop="16dp"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:hint="비밀번호"
-            android:inputType="textPassword"
-            android:background="@drawable/et_rounded"
-            android:paddingHorizontal="12dp"
-            android:textSize="14sp" />
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btn_check_nickname"
+        android:layout_width="80dp"
+        android:layout_height="40dp"
+        android:text="중복확인"
+        android:background="@drawable/btn_gray_rounded"
+        android:textColor="#000000"
+        android:textSize="12sp"
+        app:layout_constraintTop_toTopOf="@id/et_nickname"
+        app:layout_constraintBottom_toBottomOf="@id/et_nickname"
+        app:layout_constraintEnd_toEndOf="parent" />
 
-        <LinearLayout
-            android:layout_marginTop="16dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
+    <TextView
+        android:id="@+id/tv_nickname_check_result"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textColor="@color/red"
+        android:textSize="14sp"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/et_nickname"
+        app:layout_constraintStart_toStartOf="@id/et_nickname"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="8dp" />
 
-            <EditText
-                android:id="@+id/et_nickname"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="48dp"
-                android:hint="닉네임"
-                android:background="@drawable/et_rounded"
-                android:paddingHorizontal="12dp"
-                android:textSize="14sp" />
+    <!-- 이메일 입력 (주석처리) -->
+    <!--
+    <EditText
+        android:id="@+id/et_email"
+        android:layout_width="0dp"
+        android:layout_height="48dp"
+        android:hint="이메일"
+        android:inputType="textEmailAddress"
+        android:background="@drawable/et_rounded"
+        android:paddingHorizontal="12dp"
+        android:textSize="14sp"
+        app:layout_constraintTop_toBottomOf="@id/tv_nickname_check_result"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/btn_check_email"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="8dp" />
 
-            <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/btn_check_nickname"
-                android:layout_width="80dp"
-                android:layout_height="40dp"
-                android:text="중복확인"
-                android:layout_marginStart="8dp"
-                android:background="@drawable/btn_gray_rounded"
-                android:textColor="#000000"
-                android:textSize="12sp"/>
-        </LinearLayout>
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btn_check_email"
+        android:layout_width="80dp"
+        android:layout_height="40dp"
+        android:text="중복확인"
+        android:background="@drawable/btn_gray_rounded"
+        android:textColor="#000000"
+        android:textSize="12sp"
+        app:layout_constraintTop_toTopOf="@id/et_email"
+        app:layout_constraintBottom_toBottomOf="@id/et_email"
+        app:layout_constraintEnd_toEndOf="parent" />
 
-        <TextView
-            android:id="@+id/tv_nickname_check_result"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:textSize="14sp"
-            android:visibility="gone"
-            android:textColor="@color/red"/>
+    <TextView
+        android:id="@+id/tv_email_check_result"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textColor="@color/red"
+        android:textSize="14sp"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/et_email"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="8dp" />
+    -->
 
-        <LinearLayout
-            android:layout_marginTop="16dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btn_done"
+        android:layout_width="0dp"
+        android:layout_height="48dp"
+        android:text="완료"
+        android:enabled="false"
+        android:textColor="@android:color/white"
+        android:background="@drawable/btn_black_rounded"
+        android:backgroundTint="@null"
+        android:stateListAnimator="@null"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="20dp" />
 
-            <EditText
-                android:id="@+id/et_email"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="48dp"
-                android:hint="이메일"
-                android:inputType="textEmailAddress"
-                android:background="@drawable/et_rounded"
-                android:paddingHorizontal="12dp"
-                android:textSize="14sp" />
-
-            <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/btn_check_email"
-                android:layout_width="80dp"
-                android:layout_height="40dp"
-                android:text="중복확인"
-                android:layout_marginStart="8dp"
-                android:background="@drawable/btn_gray_rounded"
-                android:textColor="#000000"
-                android:textSize="12sp"/>
-        </LinearLayout>
-
-        <TextView
-            android:id="@+id/tv_email_check_result"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:textSize="14sp"
-            android:visibility="gone"
-            android:textColor="@color/red"/>
-
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/btn_done"
-            android:layout_marginTop="32dp"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:text="완료"
-            android:enabled="false"
-            android:textColor="@android:color/white"
-            android:background="@drawable/btn_black_rounded"
-            android:backgroundTint="@null"
-            android:stateListAnimator="@null" />
-
-    </LinearLayout>
-</ScrollView>
+</androidx.constraintlayout.widget.ConstraintLayout>

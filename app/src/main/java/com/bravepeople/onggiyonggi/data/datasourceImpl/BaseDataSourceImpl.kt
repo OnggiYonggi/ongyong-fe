@@ -1,0 +1,17 @@
+package com.bravepeople.onggiyonggi.data.datasourceImpl
+
+import com.bravepeople.onggiyonggi.data.datasource.BaseDataSource
+import com.bravepeople.onggiyonggi.data.request_dto.RequestSignUpDto
+import com.bravepeople.onggiyonggi.data.response_dto.ResponseCheckSignUpDto
+import com.bravepeople.onggiyonggi.data.response_dto.ResponseSignUpDto
+import com.bravepeople.onggiyonggi.data.service.BaseService
+import javax.inject.Inject
+
+class BaseDataSourceImpl @Inject constructor(
+    private val baseService: BaseService
+):BaseDataSource {
+    // signup
+    override suspend fun checkId(id: String): ResponseCheckSignUpDto = baseService.checkId(id)
+    override suspend fun checkNickName(nickName: String): ResponseCheckSignUpDto = baseService.checkNickName(nickName)
+    override suspend fun signUp(requestSignUpDto: RequestSignUpDto): ResponseSignUpDto = baseService.signUp(requestSignUpDto)
+}
