@@ -1,11 +1,15 @@
 package com.bravepeople.onggiyonggi.presentation.main.my
 
 import android.content.Intent
+import android.graphics.Color
+import android.graphics.Typeface
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupMenu
+import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import coil3.load
@@ -90,29 +94,18 @@ class MyFragment : Fragment(R.layout.fragment_my) {
         binding.rvReviewImages.adapter = myReviewAdapter
         binding.rvReviewImages.layoutManager = GridLayoutManager(requireContext(), 3)
 
-        binding.tvSort.setOnClickListener {
-            val popupMenu = PopupMenu(requireContext(), it)
-            popupMenu.menuInflater.inflate(R.menu.menu_sort, popupMenu.menu)
-
-            popupMenu.setOnMenuItemClickListener { item ->
-                when (item.itemId) {
-                    R.id.menu_sort_latest -> {
-                        binding.tvSort.text = "최신순 ⏷"
-                        currentSort = SortType.LATEST
-                        updateReviewList()
-                        true
-                    }
-                    R.id.menu_sort_like -> {
-                        binding.tvSort.text = "좋아요순 ⏷"
-                        currentSort = SortType.LIKE
-                        updateReviewList()
-                        true
-                    }
-                    else -> false
-                }
-            }
-            popupMenu.show()
+        binding.tvSortLatest.setOnClickListener {
+            currentSort = SortType.LATEST
+            updateReviewList()
+            highlightSelected(binding.tvSortLatest, binding.tvSortLike)
         }
+
+        binding.tvSortLike.setOnClickListener {
+            currentSort = SortType.LIKE
+            updateReviewList()
+            highlightSelected(binding.tvSortLike, binding.tvSortLatest)
+        }
+
 
         binding.root.post {
             myReviewAdapter = MyReviewAdapter { review ->
@@ -124,7 +117,17 @@ class MyFragment : Fragment(R.layout.fragment_my) {
             binding.rvReviewImages.layoutManager = GridLayoutManager(requireContext(), 3)
             updateReviewList()
             binding.tvReviewTitle.text = "내 리뷰 ${dummyReviews.size}개"
+
+            highlightSelected(binding.tvSortLatest, binding.tvSortLike)
         }
+    }
+
+    private fun highlightSelected(selected: TextView, unselected: TextView) {
+        selected.setTypeface(null, Typeface.BOLD)
+        selected.setTextColor(Color.parseColor("#000000"))
+
+        unselected.setTypeface(null, Typeface.NORMAL)
+        unselected.setTextColor(Color.parseColor("#888888"))
     }
 
     private fun updateReviewList() {
