@@ -18,13 +18,6 @@
             android:orientation="horizontal"
             android:gravity="center_vertical">
 
-            <ImageView
-                android:id="@+id/btn_back"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/btn_back"
-                android:contentDescription="뒤로 가기"/>
-
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
