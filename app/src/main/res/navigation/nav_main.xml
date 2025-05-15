@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_main"
+    app:startDestination="@id/homeFragment">
+
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.bravepeople.onggiyonggi.presentation.main.home.HomeFragment"
+        android:label="home" />
+
+    <fragment
+        android:id="@+id/characterFragment"
+        android:name="com.bravepeople.onggiyonggi.presentation.main.character.CharacterFragment"
+        android:label="character" />
+
+    <fragment
+        android:id="@+id/myFragment"
+        android:name="com.bravepeople.onggiyonggi.presentation.main.my.MyFragment"
+        android:label="my" />
+</navigation>

@@ -4,6 +4,7 @@ import com.bravepeople.onggiyonggi.data.datasource.BaseDataSource
 import com.bravepeople.onggiyonggi.data.request_dto.RequestLoginDto
 import com.bravepeople.onggiyonggi.data.request_dto.RequestSignUpDto
 import com.bravepeople.onggiyonggi.data.response_dto.ResponseCheckSignUpDto
+import com.bravepeople.onggiyonggi.data.response_dto.ResponseGetPetDto
 import com.bravepeople.onggiyonggi.data.response_dto.ResponseLoginDto
 import com.bravepeople.onggiyonggi.data.response_dto.ResponseSignUpDto
 import com.bravepeople.onggiyonggi.domain.repository.BaseRepository
@@ -48,6 +49,15 @@ class BaseRepositoryImpl @Inject constructor(
             baseDataSource.login(RequestLoginDto(id, password))
         }.onFailure {
             Timber.e("base repository login fail!!: $it")
+        }
+    }
+
+    // character
+    override suspend fun getPet(token: String): Result<ResponseGetPetDto> {
+        return runCatching {
+            baseDataSource.getPet(token)
+        }.onFailure {
+            Timber.e("base repository get pet fail!!: $it")
         }
     }
 }

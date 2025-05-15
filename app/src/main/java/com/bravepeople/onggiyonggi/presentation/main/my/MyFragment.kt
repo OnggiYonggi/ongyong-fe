@@ -74,6 +74,10 @@ class MyFragment : Fragment(R.layout.fragment_my) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        setting()
+    }
+
+    private fun setting(){
         binding.ivProfile.load(R.drawable.img_user2) {
             transformations(CircleCropTransformation())
         }
@@ -136,6 +140,10 @@ class MyFragment : Fragment(R.layout.fragment_my) {
             SortType.LIKE -> dummyReviews.sortedByDescending { it.likeCount }
         }
         myReviewAdapter.setReviewList(sortedList)
+    }
+
+    fun refreshData(){
+        setting()
     }
 
     override fun onDestroy() {

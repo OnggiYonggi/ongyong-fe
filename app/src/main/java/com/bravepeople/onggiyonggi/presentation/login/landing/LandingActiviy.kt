@@ -1,4 +1,4 @@
-package com.bravepeople.onggiyonggi.presentation.landing
+package com.bravepeople.onggiyonggi.presentation.login.landing
 
 import android.content.Intent
 import android.os.Bundle
