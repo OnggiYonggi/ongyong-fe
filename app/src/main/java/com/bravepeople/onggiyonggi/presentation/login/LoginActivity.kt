@@ -71,10 +71,6 @@ class LoginActivity : AppCompatActivity() {
             }
         }
 
-        binding.btnBack.setOnClickListener {
-            finish()
-        }
-
         binding.tvGoToSignUp.setOnClickListener {
             startActivity(Intent(this, SignUpActivity::class.java))
         }
