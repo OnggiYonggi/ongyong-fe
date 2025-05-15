@@ -9,6 +9,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.view.animation.DecelerateInterpolator
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.ViewCompat
@@ -16,12 +17,22 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.core.view.updateLayoutParams
+import androidx.lifecycle.lifecycleScope
+import coil.load
 import com.bravepeople.onggiyonggi.R
 import com.bravepeople.onggiyonggi.databinding.ActivityCharacterGachaBinding
+import com.bravepeople.onggiyonggi.extension.character.GetPetState
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import timber.log.Timber
 
+@AndroidEntryPoint
 class CharacterGachaActivity : AppCompatActivity() {
     private lateinit var binding: ActivityCharacterGachaBinding
+
+    private val characterViewModel:CharacterViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,11 +64,16 @@ class CharacterGachaActivity : AppCompatActivity() {
             insets
         }
 
-        startRollingBall()
-        clickNextButton()
+        val token=intent.getStringExtra("accessToken")
+        if (token != null) {
+            characterViewModel.saveToken(token)
+            startRollingBall()
+            clickNextButton()
+        }
     }
 
     private fun startRollingBall() {
+        characterViewModel.getPet()
         binding.ivBall.post {
             val startX = -binding.ivBall.width.toFloat()
 
@@ -98,8 +114,90 @@ class CharacterGachaActivity : AppCompatActivity() {
         }
     }
 
-
     private fun showExplosionEffects() {
+        binding.ivBall.visibility = View.GONE
+
+        with(binding.lavExplode) {
+            visibility = View.VISIBLE
+            speed = 1.3f
+            playAnimation()
+        }
+
+        with(binding.lavFog) {
+            visibility = View.VISIBLE
+            speed = 2.5f
+            playAnimation()
+        }
+
+        binding.lavExplode.addAnimatorListener(object : AnimatorListenerAdapter() {
+            override fun onAnimationEnd(animation: Animator) {
+                lifecycleScope.launch {
+                    characterViewModel.getPetState.collect{state->
+                        when(state) {
+                            is GetPetState.Success -> {
+                                // 폭발 효과 숨기기
+                                with(binding) {
+                                    lavExplode.visibility = View.GONE
+                                    lavFog.visibility = View.GONE
+
+                                    // 캐릭터 정보 UI 세팅
+                                    tvName.text = state.getPetDto.data!!.naturalMonumentCharacter.name
+                                    ivCharacter.load(state.getPetDto.data!!.naturalMonumentCharacter.imageUrl)
+                                    tvDescription.text = state.getPetDto.data!!.naturalMonumentCharacter.description
+
+                                    // 카드 및 캐릭터 등장 애니메이션
+                                    with(clCardFront) {
+                                        visibility = View.VISIBLE
+                                        alpha = 0f
+                                        scaleX = 0.5f
+                                        scaleY = 0.5f
+                                    }
+                                    clCardFront.animate()
+                                        .alpha(1f)
+                                        .scaleX(1f)
+                                        .scaleY(1f)
+                                        .setDuration(500)
+                                        .start()
+                                    ivCharacter.animate()
+                                        .alpha(1f)
+                                        .scaleX(1f)
+                                        .scaleY(1f)
+                                        .setDuration(500)
+                                        .start()
+
+                                    btnNext.visibility = View.VISIBLE
+
+                                    clCardFront.setOnClickListener {
+                                        flipToBack()
+                                    }
+                                    clCardBack.setOnClickListener {
+                                        flipToFront()
+                                    }
+                                }
+                            }
+                            is GetPetState.Loading-> {
+                                // 상태가 로딩 혹은 에러면 애니메이션 계속 보여주기
+                                with(binding) {
+                                    lavExplode.visibility = View.VISIBLE
+                                    lavFog.visibility = View.VISIBLE
+                                    lavExplode.playAnimation()
+                                    lavFog.playAnimation()
+                                }
+                            }
+                            is GetPetState.Error->{
+                                Timber.e( "getPetState error")
+                            }
+                        }
+                    }
+                }
+            }
+        })
+    }
+
+
+
+    /*private fun showExplosionEffects() {
+
         binding.ivBall.visibility = View.GONE
 
         // 폭발 + 안개 보여주기
@@ -159,7 +257,7 @@ class CharacterGachaActivity : AppCompatActivity() {
                 }
             }
         })
-    }
+    }*/
 
     private fun flipToBack() {
         val outAnimator = ObjectAnimator.ofFloat(binding.clCardFront, "rotationY", 0f, 90f)
@@ -202,11 +300,6 @@ class CharacterGachaActivity : AppCompatActivity() {
 
     private fun clickNextButton(){
         binding.btnNext.setOnClickListener{
-            val intent = Intent()
-            intent.putExtra("character_name", "하늘 다람쥥")
-            intent.putExtra("character_description", "환경을 지키는 귀여운 다람쥐 🌳")
-            intent.putExtra("character_image", R.drawable.character_flying_squirrel)
-
             setResult(RESULT_OK, intent)
             finish()
             overridePendingTransition(0, R.anim.slide_out_left)

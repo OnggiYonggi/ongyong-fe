@@ -78,6 +78,7 @@
     <string name="character_affection_title">호감도</string>
     <string name="character_affection_percent">%d%%</string>
     <string name="character_collection">컬렉션</string>
+    <string name="character_max_collection">%s가 컬렉션에 추가되었습니다!</string>
 
     <!-- mock data -->
 

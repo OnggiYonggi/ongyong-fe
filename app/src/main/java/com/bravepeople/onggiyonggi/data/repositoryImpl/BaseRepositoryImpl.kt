@@ -3,9 +3,10 @@ package com.bravepeople.onggiyonggi.data.repositoryImpl
 import com.bravepeople.onggiyonggi.data.datasource.BaseDataSource
 import com.bravepeople.onggiyonggi.data.request_dto.RequestLoginDto
 import com.bravepeople.onggiyonggi.data.request_dto.RequestSignUpDto
+import com.bravepeople.onggiyonggi.data.response_dto.ResponseAddMaxDto
 import com.bravepeople.onggiyonggi.data.response_dto.ResponseCheckSignUpDto
-import com.bravepeople.onggiyonggi.data.response_dto.ResponseGetPetDto
 import com.bravepeople.onggiyonggi.data.response_dto.ResponseLoginDto
+import com.bravepeople.onggiyonggi.data.response_dto.ResponseGetPetDto
 import com.bravepeople.onggiyonggi.data.response_dto.ResponseSignUpDto
 import com.bravepeople.onggiyonggi.domain.repository.BaseRepository
 import timber.log.Timber
@@ -58,6 +59,30 @@ class BaseRepositoryImpl @Inject constructor(
             baseDataSource.getPet(token)
         }.onFailure {
             Timber.e("base repository get pet fail!!: $it")
+        }
+    }
+
+    override suspend fun randomPet(token: String): Result<ResponseGetPetDto> {
+        return runCatching {
+            baseDataSource.randomPet(token)
+        }.onFailure {
+            Timber.e("base repository random pet fail!!: $it")
+        }
+    }
+
+    override suspend fun levelUp(token: String): Result<ResponseGetPetDto> {
+        return runCatching {
+            baseDataSource.levelUp(token)
+        }.onFailure {
+            Timber.e("base repository level up fail!!: $it")
+        }
+    }
+
+    override suspend fun addMax(token: String): Result<ResponseAddMaxDto> {
+        return runCatching {
+            baseDataSource.addMax(token)
+        }.onFailure {
+            Timber.e("base repository add max fail!!: $it")
         }
     }
 }
