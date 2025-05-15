@@ -18,6 +18,7 @@ import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.widget.Toast
 import androidx.activity.addCallback
+import androidx.compose.ui.graphics.Color
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.text.HtmlCompat
@@ -48,6 +49,8 @@ import com.naver.maps.map.MapView
 import com.naver.maps.map.NaverMap
 import com.naver.maps.map.OnMapReadyCallback
 import com.naver.maps.map.overlay.Marker
+import com.naver.maps.map.overlay.OverlayImage
+import com.naver.maps.map.util.MarkerIcons
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -237,36 +240,45 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
 
         val marker = Marker()
         marker.position = LatLng(37.300536, 127.044169)
-        marker.map = naverMap
         marker.setIconPerspectiveEnabled(true)
-        marker.tag = false
+        marker.icon = MarkerIcons.BLACK
+        marker.iconTintColor = requireContext().getColor(R.color.home_bronze_green)
+        marker.map = naverMap
 
-        val markerBan = Marker()
+       /* val markerBan = Marker()
         markerBan.position = LatLng(37.300956, 127.045275)
-        markerBan.map = naverMap
         markerBan.setIconPerspectiveEnabled(true)
         markerBan.tag = true
+        markerBan.icon = MarkerIcons.BLACK
+        markerBan.iconTintColor = requireContext().getColor(R.color.red)
+        markerBan.map = naverMap*/
 
         val marker2 = Marker()
         marker2.position = LatLng(37.299176, 127.045354)
-        marker2.map = naverMap
         marker2.setIconPerspectiveEnabled(true)
         marker2.tag = false
+        marker2.icon = MarkerIcons.BLACK
+        marker2.iconTintColor = requireContext().getColor(R.color.home_silver_green)
+        marker2.map = naverMap
 
         val marker3 = Marker()
         marker3.position = LatLng(37.298992, 127.043875)
-        marker3.map = naverMap
         marker3.setIconPerspectiveEnabled(true)
         marker3.tag = false
+        marker3.icon = MarkerIcons.BLACK
+        marker3.iconTintColor = requireContext().getColor(R.color.home_gold_green)
+        marker3.map = naverMap
 
         val marker4 = Marker()
         marker4.position = LatLng(37.297731, 127.042160)
-        marker4.map = naverMap
         marker4.setIconPerspectiveEnabled(true)
         marker4.tag = false
+        marker4.icon = MarkerIcons.BLACK
+        marker4.iconTintColor = requireContext().getColor(R.color.home_rookie_yellow)
+        marker4.map = naverMap
 
         clickMarker(marker)
-        clickMarker(markerBan)
+        //clickMarker(markerBan)
 
         /* naverMap.addOnCameraIdleListener {
              if (isFirstCameraMove) {
@@ -882,6 +894,10 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
         parentFragmentManager.beginTransaction()
             .add(R.id.fcv_review, reviewFragment, "ReviewFragment")
             .commit()
+    }
+
+    fun refreshData(){
+        setting()
     }
 
     override fun onStart() {

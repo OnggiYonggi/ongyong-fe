@@ -9,6 +9,12 @@
     <color name="sign_up_ok_green">#5CB338</color>
 
     <color name="home_fab_green">#53B13E</color>
+    <color name="home_bronze_green">#9EBC8A</color>
+    <color name="home_silver_green">#73946B</color>
+    <color name="home_gold_green">#537D5D</color>
+    <color name="home_rookie_yellow">#FFC145</color>
+
+
 
     <color name="store_bar_gray">#8F8F8F</color>
     <color name="store_address_gray">#8E8E8E</color>

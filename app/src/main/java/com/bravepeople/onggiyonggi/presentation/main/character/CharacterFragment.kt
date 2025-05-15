@@ -17,15 +17,27 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import coil3.load
 import com.bravepeople.onggiyonggi.R
 import com.bravepeople.onggiyonggi.databinding.FragmentCharacterBinding
+import com.bravepeople.onggiyonggi.extension.character.GetPetState
+import com.bravepeople.onggiyonggi.presentation.MainViewModel
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import timber.log.Timber
 
+@AndroidEntryPoint
 class CharacterFragment : Fragment() {
     private var _binding: FragmentCharacterBinding? = null
     private val binding: FragmentCharacterBinding
         get() = requireNotNull(_binding) { "receipt fragment is null" }
+
+    private val mainViewModel: MainViewModel by activityViewModels()
+    private val characterViewModel:CharacterViewModel by viewModels()
 
     private var affectionLevel: Int = 0
     private val REQUEST_CODE_GACHA = 1001
@@ -45,11 +57,55 @@ class CharacterFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-       setupSkeletonUI()
+        setUpUI()
         setting()
     }
 
-   private fun setupSkeletonUI() {
+    private fun setting() {
+        cachedAnimatorSet=createAnimatorSet()
+        startGachaAnimation()
+
+        increaseAffection()
+        clickCollection()
+
+        lifecycleScope.launch {
+            mainViewModel.accessToken.observe(viewLifecycleOwner){token->
+                characterViewModel.saveToken(token)
+                characterViewModel.getPet()
+            }
+        }
+    }
+
+    private fun setUpUI(){
+        lifecycleScope.launch {
+            characterViewModel.getPetState.collect{ state->
+                when(state){
+                    is GetPetState.Success->{
+
+                    }
+                    is GetPetState.Loading->{}
+                    is GetPetState.Error->{
+                        if(state.message=="PET404"){
+                            Timber.d("pet 없음")
+                            setupSkeletonUI()
+                        }
+                    }
+                }
+            }
+        }
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, insets ->
+            val statusBarHeight = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
+            val marginTop = statusBarHeight + 50
+
+            binding.btnCollection.updateLayoutParams<ConstraintLayout.LayoutParams> {
+                topMargin = marginTop
+            }
+
+            insets
+        }
+        binding.tvAffectionPercent.text = getString(R.string.character_affection_percent, 0)
+    }
+    private fun setupSkeletonUI() {
         with(binding) {
             // 처음에는 가챠 머신만
             ivGachaMachine.visibility = View.VISIBLE
@@ -82,27 +138,6 @@ class CharacterFragment : Fragment() {
                 tvName.visibility = View.VISIBLE
             }
         }
-    }
-
-
-    private fun setting() {
-        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, insets ->
-            val statusBarHeight = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
-            val marginTop = statusBarHeight + 50
-
-            binding.btnCollection.updateLayoutParams<ConstraintLayout.LayoutParams> {
-                topMargin = marginTop
-            }
-
-            insets
-        }
-        binding.tvAffectionPercent.text = getString(R.string.character_affection_percent, 0)
-
-        cachedAnimatorSet=createAnimatorSet()
-        startGachaAnimation()
-
-        increaseAffection()
-        clickCollection()
     }
 
     private fun createAnimatorSet(): AnimatorSet {
@@ -331,6 +366,10 @@ class CharacterFragment : Fragment() {
                 R.anim.stay_still
             )
         }
+    }
+
+    fun refreshData(){
+        setting()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

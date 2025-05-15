@@ -4,6 +4,7 @@ import com.bravepeople.onggiyonggi.data.datasource.BaseDataSource
 import com.bravepeople.onggiyonggi.data.request_dto.RequestLoginDto
 import com.bravepeople.onggiyonggi.data.request_dto.RequestSignUpDto
 import com.bravepeople.onggiyonggi.data.response_dto.ResponseCheckSignUpDto
+import com.bravepeople.onggiyonggi.data.response_dto.ResponseGetPetDto
 import com.bravepeople.onggiyonggi.data.response_dto.ResponseLoginDto
 import com.bravepeople.onggiyonggi.data.response_dto.ResponseSignUpDto
 import com.bravepeople.onggiyonggi.data.service.BaseService
@@ -19,4 +20,7 @@ class BaseDataSourceImpl @Inject constructor(
 
     // login
     override suspend fun login(requestLoginDto: RequestLoginDto): ResponseLoginDto = baseService.login(requestLoginDto)
+
+    // character
+    override suspend fun getPet(token:String): ResponseGetPetDto = baseService.getPet(token)
 }
