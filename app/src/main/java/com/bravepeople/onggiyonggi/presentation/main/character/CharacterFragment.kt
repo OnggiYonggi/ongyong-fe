@@ -19,14 +19,18 @@ import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
-import coil3.load
+import androidx.lifecycle.repeatOnLifecycle
+import coil.load
 import com.bravepeople.onggiyonggi.R
+import com.bravepeople.onggiyonggi.data.response_dto.ResponseGetPetDto
 import com.bravepeople.onggiyonggi.databinding.FragmentCharacterBinding
 import com.bravepeople.onggiyonggi.extension.character.GetPetState
+import com.bravepeople.onggiyonggi.extension.character.LevelUpState
+import com.bravepeople.onggiyonggi.extension.character.RandomPetState
 import com.bravepeople.onggiyonggi.presentation.MainViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -37,7 +41,7 @@ class CharacterFragment : Fragment() {
         get() = requireNotNull(_binding) { "receipt fragment is null" }
 
     private val mainViewModel: MainViewModel by activityViewModels()
-    private val characterViewModel:CharacterViewModel by viewModels()
+    private val characterViewModel: CharacterViewModel by viewModels()
 
     private var affectionLevel: Int = 0
     private val REQUEST_CODE_GACHA = 1001
@@ -62,30 +66,30 @@ class CharacterFragment : Fragment() {
     }
 
     private fun setting() {
-        cachedAnimatorSet=createAnimatorSet()
-        startGachaAnimation()
-
-        increaseAffection()
         clickCollection()
 
         lifecycleScope.launch {
-            mainViewModel.accessToken.observe(viewLifecycleOwner){token->
+            mainViewModel.accessToken.observe(viewLifecycleOwner) { token ->
                 characterViewModel.saveToken(token)
                 characterViewModel.getPet()
+                cachedAnimatorSet = createAnimatorSet(token)
+                startGachaAnimation()
+                increaseAffection(token)
             }
         }
     }
 
-    private fun setUpUI(){
+    private fun setUpUI() {
         lifecycleScope.launch {
-            characterViewModel.getPetState.collect{ state->
-                when(state){
-                    is GetPetState.Success->{
-
+            characterViewModel.getPetState.collect { state ->
+                when (state) {
+                    is GetPetState.Success -> {
+                        Timber.d("setupui - get pet state success~")
+                        showCharacter(state.getPetDto.data!!)
                     }
-                    is GetPetState.Loading->{}
-                    is GetPetState.Error->{
-                        if(state.message=="PET404"){
+                    is GetPetState.Loading -> {}
+                    is GetPetState.Error -> {
+                        if (state.message == "PET404") {
                             Timber.d("pet 없음")
                             setupSkeletonUI()
                         }
@@ -105,6 +109,35 @@ class CharacterFragment : Fragment() {
         }
         binding.tvAffectionPercent.text = getString(R.string.character_affection_percent, 0)
     }
+
+    private fun showCharacter(pet: ResponseGetPetDto.Data) {
+        with(binding) {
+            Timber.d("imageUrl: ${pet.naturalMonumentCharacter.imageUrl}")
+            binding.ivCharacter.load(pet.naturalMonumentCharacter.imageUrl) {
+                listener(
+                    onSuccess = { _, _ -> Timber.d("이미지 로드 성공") },
+                    onError = { _, throwable -> Timber.e("이미지 로드 실패: ${throwable.toString()}") }
+                )
+            }
+
+            tvName.text = pet.naturalMonumentCharacter.name
+            tvDescription.text = pet.naturalMonumentCharacter.description
+            affectionLevel=pet.affinity.toInt()
+            setAffectionProgressWithAnimation(affectionLevel)
+            binding.tvAffectionPercent.text =
+                getString(R.string.character_affection_percent, affectionLevel)
+
+            isGacha(false)
+
+            clCardFront.setOnClickListener {
+                flipToBack()
+            }
+            clCardBack.setOnClickListener {
+                flipToFront()
+            }
+        }
+    }
+
     private fun setupSkeletonUI() {
         with(binding) {
             // 처음에는 가챠 머신만
@@ -140,7 +173,7 @@ class CharacterFragment : Fragment() {
         }
     }
 
-    private fun createAnimatorSet(): AnimatorSet {
+    private fun createAnimatorSet(token: String): AnimatorSet {
         val eggViews = listOf(
             binding.ivEggBlue,
             binding.ivEggGreen,
@@ -191,6 +224,7 @@ class CharacterFragment : Fragment() {
             override fun onAnimationEnd(animation: Animator) {
                 Timber.d("addlistener end")
                 val intent = Intent(requireContext(), CharacterGachaActivity::class.java)
+                intent.putExtra("accessToken", token)
                 startActivityForResult(intent, REQUEST_CODE_GACHA)
             }
         })
@@ -200,27 +234,42 @@ class CharacterFragment : Fragment() {
 
 
     private fun startGachaAnimation() {
+        lifecycleScope.launch {
+            characterViewModel.randomPetState.collect { state ->
+                when (state) {
+                    is RandomPetState.Success -> {
+                        cachedAnimatorSet.start()
+                    }
+
+                    is RandomPetState.Loading -> {}
+                    is RandomPetState.Error -> {
+                        Timber.e("random pet state error!")
+                    }
+                }
+            }
+        }
+
         binding.btnGacha.setOnClickListener {
-            cachedAnimatorSet.start()
+            characterViewModel.randomPet()
         }
     }
 
-    private fun updateCharacterData(image: Int?, name: String?, description: String?) {
+    private fun updateCharacterData() {
         Timber.d("update Character data")
-        with(binding) {
-            ivCharacter.load(image)
-            tvName.text = name
-            tvDescription.text = description
-
-            isGacha(false)
-
-            clCardFront.setOnClickListener {
-                flipToBack()
-            }
-            clCardBack.setOnClickListener {
-                flipToFront()
+        lifecycleScope.launch {
+            characterViewModel.getPetState.collect { state ->
+                when (state) {
+                    is GetPetState.Success -> {
+                        showCharacter(state.getPetDto.data!!)
+                    }
+                    is GetPetState.Loading -> {}
+                    is GetPetState.Error -> {
+                        Timber.e("update character data get pet state error!")
+                    }
+                }
             }
         }
+
     }
 
     private fun isGacha(isGacha: Boolean) {
@@ -300,25 +349,85 @@ class CharacterFragment : Fragment() {
         }
     }
 
-    private fun increaseAffection() {
-        binding.btnIncrease.setOnClickListener {
-            if (affectionLevel < 100) {
-                affectionLevel += 20
-                if (affectionLevel > 100) affectionLevel = 100
-                if (affectionLevel >= 100) {
-                    setAffectionProgressWithAnimation(affectionLevel) {
-                        val intent = Intent(requireContext(), CharacterMaxActivity::class.java)
-                        startActivityForResult(intent, REQUEST_CODE_MAX)
+    private fun increaseAffection(token: String) {
+        observeLevelUpState(token)
+        setupButton()
+    }
+
+    private fun observeLevelUpState(token: String) {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED){
+                characterViewModel.levelUpState.collect { state ->
+                    when (state) {
+                        is LevelUpState.Loading -> {
+                        }
+                        is LevelUpState.Success -> {
+                            if (affectionLevel < 100) {
+                                Timber.d("affinity: ${state.randomPetDto.data!!.affinity.toInt()}")
+                                affectionLevel = state.randomPetDto.data!!.affinity.toInt()
+                                if (affectionLevel > 100) affectionLevel = 100
+
+                                setAffectionProgressWithAnimation(affectionLevel) {
+                                    if (affectionLevel >= 100) {
+                                        val intent = Intent(requireContext(), CharacterMaxActivity::class.java)
+                                        intent.putExtra("character", state.randomPetDto.data)
+                                        intent.putExtra("accessToken", token)
+                                        startActivityForResult(intent, REQUEST_CODE_MAX)
+                                    }
+                                }
+                                binding.tvAffectionPercent.text =
+                                    getString(R.string.character_affection_percent, affectionLevel)
+                            }
+                        }
+                        is LevelUpState.Error -> {
+                            // 에러 UI 처리 (필요하면)
+                        }
                     }
-                } else {
-                    setAffectionProgressWithAnimation(affectionLevel)
                 }
-                setAffectionProgressWithAnimation(affectionLevel)
-                binding.tvAffectionPercent.text =
-                    getString(R.string.character_affection_percent, affectionLevel)
             }
+
         }
     }
+
+    private fun setupButton() {
+        binding.btnIncrease.setOnClickListener {
+            characterViewModel.levelUp()  // 버튼 누를 때만 호출
+        }
+    }
+
+
+    /*  private fun increaseAffection() {
+          lifecycleScope.launch {
+              characterViewModel.levelUpState.collect{state->
+                  when(state){
+                      is LevelUpState.Success->{
+
+                      }
+                      is LevelUpState.Loading->{}
+                      is LevelUpState.Error->{}
+                  }
+              }
+          }
+
+          binding.btnIncrease.setOnClickListener {
+              characterViewModel.levelUp()
+              if (affectionLevel < 100) {
+                  affectionLevel += 20
+                  if (affectionLevel > 100) affectionLevel = 100
+                  if (affectionLevel >= 100) {
+                      setAffectionProgressWithAnimation(affectionLevel) {
+                          val intent = Intent(requireContext(), CharacterMaxActivity::class.java)
+                          startActivityForResult(intent, REQUEST_CODE_MAX)
+                      }
+                  } else {
+                      setAffectionProgressWithAnimation(affectionLevel)
+                  }
+                  setAffectionProgressWithAnimation(affectionLevel)
+                  binding.tvAffectionPercent.text =
+                      getString(R.string.character_affection_percent, affectionLevel)
+              }
+          }
+      }*/
 
     private fun setAffectionProgressWithAnimation(
         targetProgress: Int,
@@ -368,7 +477,7 @@ class CharacterFragment : Fragment() {
         }
     }
 
-    fun refreshData(){
+    fun refreshData() {
         setting()
     }
 
@@ -376,12 +485,8 @@ class CharacterFragment : Fragment() {
         super.onActivityResult(requestCode, resultCode, data)
 
         if (resultCode == Activity.RESULT_OK && requestCode == REQUEST_CODE_GACHA && data != null) {
-            val characterName = data.getStringExtra("character_name")
-            val characterDescription = data.getStringExtra("character_description")
-            val characterImage =
-                data.getIntExtra("character_image", R.drawable.character_flying_squirrel)
-
-            updateCharacterData(characterImage, characterName, characterDescription)
+            characterViewModel.getPet()
+            updateCharacterData()
         } else if (resultCode == Activity.RESULT_OK && requestCode == REQUEST_CODE_MAX) {
             isGacha(true)
         }

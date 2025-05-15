@@ -2,9 +2,10 @@ package com.bravepeople.onggiyonggi.data.service
 
 import com.bravepeople.onggiyonggi.data.request_dto.RequestLoginDto
 import com.bravepeople.onggiyonggi.data.request_dto.RequestSignUpDto
+import com.bravepeople.onggiyonggi.data.response_dto.ResponseAddMaxDto
 import com.bravepeople.onggiyonggi.data.response_dto.ResponseCheckSignUpDto
-import com.bravepeople.onggiyonggi.data.response_dto.ResponseGetPetDto
 import com.bravepeople.onggiyonggi.data.response_dto.ResponseLoginDto
+import com.bravepeople.onggiyonggi.data.response_dto.ResponseGetPetDto
 import com.bravepeople.onggiyonggi.data.response_dto.ResponseSignUpDto
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -40,4 +41,19 @@ interface BaseService {
     suspend fun getPet(
         @Header ("Authorization") token:String,
     ):ResponseGetPetDto
+
+    @POST("/pet/")
+    suspend fun randomPet(
+        @Header ("Authorization") token:String,
+    ):ResponseGetPetDto
+
+    @POST("/pet/levelup")
+    suspend fun levelUp(
+        @Header ("Authorization") token:String,
+    ):ResponseGetPetDto
+
+    @POST("/collection/")
+    suspend fun addMax(
+        @Header ("Authorization") token:String,
+    ):ResponseAddMaxDto
 }

@@ -1,8 +1,9 @@
 package com.bravepeople.onggiyonggi.domain.repository
 
+import com.bravepeople.onggiyonggi.data.response_dto.ResponseAddMaxDto
 import com.bravepeople.onggiyonggi.data.response_dto.ResponseCheckSignUpDto
-import com.bravepeople.onggiyonggi.data.response_dto.ResponseGetPetDto
 import com.bravepeople.onggiyonggi.data.response_dto.ResponseLoginDto
+import com.bravepeople.onggiyonggi.data.response_dto.ResponseGetPetDto
 import com.bravepeople.onggiyonggi.data.response_dto.ResponseSignUpDto
 
 interface BaseRepository {
@@ -31,4 +32,16 @@ interface BaseRepository {
     suspend fun getPet(
         token:String,
     ):Result<ResponseGetPetDto>
+
+    suspend fun randomPet(
+        token:String,
+    ):Result<ResponseGetPetDto>
+
+    suspend fun levelUp(
+        token:String,
+    ):Result<ResponseGetPetDto>
+
+    suspend fun addMax(
+        token:String,
+    ):Result<ResponseAddMaxDto>
 }

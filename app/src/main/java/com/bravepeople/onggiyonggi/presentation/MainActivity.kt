@@ -64,7 +64,7 @@ class MainActivity : AppCompatActivity() {
         val token=intent.getStringExtra("accessToken")
         if (token != null) {
             mainViewModel.saveToken(token)
-        }else mainViewModel.saveToken("eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJxdyIsInJvbGUiOiJST0xFX0NVU1RPTUVSIiwiaWF0IjoxNzQ3MjkzNzMxLCJleHAiOjE3NDc0MTQ2OTF9.k0xHWVKuYbBknyTs6o7d5smSrq9WqSxmb0Qq3JG0P08")
+        }else mainViewModel.saveToken("Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJxdyIsInJvbGUiOiJST0xFX0NVU1RPTUVSIiwiaWF0IjoxNzQ3MjkzNzMxLCJleHAiOjE3NDc0MTQ2OTF9.k0xHWVKuYbBknyTs6o7d5smSrq9WqSxmb0Qq3JG0P08")
 
         setFirstFragment()
         clickBNV()

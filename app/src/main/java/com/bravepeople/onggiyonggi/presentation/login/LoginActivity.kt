@@ -118,7 +118,7 @@ class LoginActivity : AppCompatActivity() {
                         binding.tvIdError.visibility = View.GONE
                         binding.tvPwError.visibility = View.GONE
                         //Toast.makeText(this, "로그인 성공!", Toast.LENGTH_SHORT).show()
-                        intent.putExtra("accessToken", state.loginDto.data.accessToken)
+                        intent.putExtra("accessToken", "Bearer " + state.loginDto.data.accessToken)
                         startActivity(intent)
                         finish()
                         /*if (state.loginDto.success) {
