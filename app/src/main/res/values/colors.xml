@@ -6,6 +6,8 @@
     <color name="bnv_clicked_black">#000000</color>
     <color name="bnv_unclicked_grey">#B7B7B7</color>
 
+    <color name="sign_up_ok_green">#5CB338</color>
+
     <color name="home_fab_green">#53B13E</color>
 
     <color name="store_bar_gray">#8F8F8F</color>

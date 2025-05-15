@@ -1,15 +1,15 @@
 package com.bravepeople.onggiyonggi.di
 
-import com.bravepeople.onggiyonggi.data.datasource.AuthDataSource
+import com.bravepeople.onggiyonggi.data.datasource.BaseDataSource
 import com.bravepeople.onggiyonggi.data.datasource.GoogleMapsDataSource
 import com.bravepeople.onggiyonggi.data.datasource.NaverDataSource
-import com.bravepeople.onggiyonggi.data.datasourceImpl.AuthDataSourceImpl
+import com.bravepeople.onggiyonggi.data.datasourceImpl.BaseDataSourceImpl
 import com.bravepeople.onggiyonggi.data.datasourceImpl.GoogleMapsDataSourceImpl
 import com.bravepeople.onggiyonggi.data.datasourceImpl.NaverDataSourceImpl
-import com.bravepeople.onggiyonggi.data.repositoryImpl.AuthRepositoryImpl
+import com.bravepeople.onggiyonggi.data.repositoryImpl.BaseRepositoryImpl
 import com.bravepeople.onggiyonggi.data.repositoryImpl.GoogleMapsRepositoryImpl
 import com.bravepeople.onggiyonggi.data.repositoryImpl.NaverRepositoryImpl
-import com.bravepeople.onggiyonggi.domain.repository.AuthRepository
+import com.bravepeople.onggiyonggi.domain.repository.BaseRepository
 import com.bravepeople.onggiyonggi.domain.repository.GoogleMapsRepository
 import com.bravepeople.onggiyonggi.domain.repository.NaverRepository
 import dagger.Binds
@@ -23,7 +23,7 @@ import javax.inject.Singleton
 abstract class BindModule {
     @Binds
     @Singleton
-    abstract fun bindAuthRepository(authRepositoryImpl: AuthRepositoryImpl):AuthRepository
+    abstract fun bindBaseRepository(baseRepositoryImpl: BaseRepositoryImpl):BaseRepository
 
     @Binds
     @Singleton
@@ -35,7 +35,7 @@ abstract class BindModule {
 
     @Binds
     @Singleton
-    abstract fun provideAuthDataSource(authDataSourceImpl: AuthDataSourceImpl):AuthDataSource
+    abstract fun provideBaseDataSource(baseDataSourceImpl: BaseDataSourceImpl):BaseDataSource
 
     @Binds
     @Singleton

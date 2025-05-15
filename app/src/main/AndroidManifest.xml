@@ -17,6 +17,14 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <uses-permission android:name="android.permission.INTERNET" />
 
+    <!--음성인식-->
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+    <queries>
+        <intent>
+            <action android:name="android.speech.RecognitionService"/>
+        </intent>
+    </queries>
+
     <application
         android:name=".presentation.MyApp"
         android:allowBackup="true"
@@ -39,8 +47,13 @@
         </activity>
 
         <activity android:name=".presentation.login.LoginActivity"
-            android:exported="false">
+            android:exported="true"
+            android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
 
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
 
         </activity>
 
@@ -52,12 +65,6 @@
             android:name=".presentation.MainActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize">
-           <!-- <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>-->
-
         </activity>
 
         <activity android:name=".presentation.main.home.review_register.ReviewRegisterActivity"

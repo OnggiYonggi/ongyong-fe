@@ -1,10 +1,14 @@
 package com.bravepeople.onggiyonggi.presentation.main.home
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Looper
+import android.speech.RecognitionListener
+import android.speech.RecognizerIntent
+import android.speech.SpeechRecognizer
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
@@ -14,6 +18,7 @@ import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.widget.Toast
 import androidx.activity.addCallback
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.text.HtmlCompat
 import androidx.core.view.ViewCompat
@@ -44,6 +49,8 @@ import com.naver.maps.map.NaverMap
 import com.naver.maps.map.OnMapReadyCallback
 import com.naver.maps.map.overlay.Marker
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -55,7 +62,6 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
 
     private val searchViewModel: SearchViewModel by viewModels()
     private lateinit var searchRecentAdapter: SearchRecentAdapter
-    private lateinit var searchResultAdapter: SearchResultAdapter
 
     private lateinit var mapView: MapView
     private var naverMap: NaverMap? = null
@@ -63,10 +69,14 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
     private var isAutoMoveEnabled = true
     private var isFirstCameraMove = true
 
-    private lateinit var newMarker: Marker
+    private var newMarker: Marker? = null
     private var isUserTyping = true
+    private var clickSearch = false
     private var markerClick: Boolean = false
-    private var selectedMarker:Marker?=null
+    private var selectedMarker: Marker? = null
+
+    private lateinit var speechRecognizer: SpeechRecognizer
+    private lateinit var recognizerIntent: Intent
 
     private var backPressedTime: Long = 0L
     private val backPressInterval = 2000L // 2초
@@ -258,15 +268,15 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
         clickMarker(marker)
         clickMarker(markerBan)
 
-       /* naverMap.addOnCameraIdleListener {
-            if (isFirstCameraMove) {
-                isFirstCameraMove = false
-                Timber.d("최초 자동 이동 → 무시")
-            } else {
-                isAutoMoveEnabled = false
-                Timber.d("사용자 조작 감지 → 자동 이동 비활성화")
-            }
-        }*/
+        /* naverMap.addOnCameraIdleListener {
+             if (isFirstCameraMove) {
+                 isFirstCameraMove = false
+                 Timber.d("최초 자동 이동 → 무시")
+             } else {
+                 isAutoMoveEnabled = false
+                 Timber.d("사용자 조작 감지 → 자동 이동 비활성화")
+             }
+         }*/
     }
 
 
@@ -291,9 +301,11 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
         binding.cvSearch.setOnClickListener {
             setVisibility(true)
             getEditText()
+
             with(binding) {
                 etSearch.text.clear()
             }
+
             searchRecentAdapter = SearchRecentAdapter(requireContext(),
                 clickStore = { search ->
                     showReviewFragment(search, false)
@@ -302,11 +314,27 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
                     removeRecentList(search)
                 })
             binding.rvSearch.adapter = searchRecentAdapter
+
+            val reviewFragment = parentFragmentManager.findFragmentByTag("ReviewFragment")
+            reviewFragment?.let {
+                parentFragmentManager.beginTransaction()
+                    .remove(it)
+                    .commit()
+            }
+
+            markerClick = false
+            clickSearch = true
+            selectedMarker?.setCaptionText("")
+            newMarker?.map = null
+
+            requestPermission()
             getSearchRecentList()
+            clickMicButton()
             clickBackButton()
         }
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     private fun clickEditText() {
         binding.etSearch.setOnTouchListener { v, event ->
             Timber.d("etSearch 터치됨 → review fragment 제거 & 검색창 모드 전환")
@@ -319,6 +347,7 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
             }
 
             setVisibility(true)
+            clickSearch = true
 
             searchRecentAdapter.getRecentSearchList(searchViewModel.getRecentSearchList())
             with(binding) {
@@ -330,9 +359,7 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
                 fcvReview.requestLayout()
             }
 
-            if (this::newMarker.isInitialized) {
-                newMarker.map = null
-            }
+            newMarker?.map = null
 
             false
         }
@@ -478,7 +505,7 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
         searchRecentAdapter.getRecentSearchList(searchViewModel.getRecentSearchList())
     }
 
-    private fun showReviewFragment(data: Search, click:Boolean) {
+    private fun showReviewFragment(data: Search, click: Boolean) {
         hideKeyboard(binding.root)
         val fragmentManager = parentFragmentManager
 
@@ -529,7 +556,7 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
         imm.hideSoftInputFromWindow(view.windowToken, 0)
     }
 
-    private fun moveToMarker(search: Search, click:Boolean) {
+    private fun moveToMarker(search: Search, click: Boolean) {
         with(binding) {
             ivTextsBackground.visibility = View.INVISIBLE
             tvRecentSearches.visibility = View.INVISIBLE
@@ -537,20 +564,22 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
             rvSearch.visibility = View.INVISIBLE
         }
 
-        if(markerClick) {
-            newMarker.setCaptionText("")
-            markerClick=false
+        if (markerClick) {
+            newMarker?.setCaptionText("")
+            markerClick = false
         }
-        markerClick=click
+        markerClick = click
 
         naverMap?.let { map ->
-            newMarker = Marker()
-            newMarker.position = search.address
-            newMarker.map = naverMap
-            newMarker.setIconPerspectiveEnabled(true)
-            newMarker.setCaptionText(search.name)
+            val marker = Marker()
+            marker.position = search.address
+            marker.map = naverMap
+            marker.setIconPerspectiveEnabled(true)
+            marker.setCaptionText(search.name)
 
             map.moveCamera(CameraUpdate.scrollTo(search.address))
+
+            newMarker = marker
         }
     }
 
@@ -602,8 +631,6 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
                     }
                 }
                 isFabOpen = true
-
-
             }
         }
     }
@@ -641,11 +668,14 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
                     }
                 }
                 selectedMarker!!.setCaptionText("")
-                newMarker.map = null
+                newMarker?.map = null
             } else {
                 setVisibility(false)
+                clickSearch = false
             }
         }
+
+        clickSystemBackButton()
     }
 
     private fun clickSystemBackButton() {
@@ -653,8 +683,42 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
             val reviewFragment = parentFragmentManager.findFragmentByTag("ReviewFragment")
 
             Timber.d("markerClick: ${markerClick}")
-            // 핀 마커 클릭한게 아니라면 (검색창으로 들어간거라면) || 초기화면이라면
-            if(!markerClick) {
+
+            when {
+                // 1. ReviewFragment가 있으면 제거
+                reviewFragment != null -> {
+                    Timber.d("back: reviewfragment is not null")
+                    parentFragmentManager.beginTransaction()
+                        .remove(reviewFragment)
+                        .commitNow()
+
+                    markerClick = false
+                    newMarker?.map = null
+
+                    if (clickSearch) setVisibility(true)
+                }
+
+                // 2. 검색창이 열려 있으면 닫기
+                isSearchUIVisible() -> {
+                    Timber.d("back: search ui is visible")
+                    setVisibility(false)
+                    clickSearch = false
+                }
+
+                // 3. 초기 화면이면 종료 물어보기
+                else -> {
+                    Timber.d("back: none is visible")
+                    val currentTime = System.currentTimeMillis()
+                    if (currentTime - backPressedTime < backPressInterval) {
+                        requireActivity().finish()
+                    } else {
+                        backPressedTime = currentTime
+                        Toast.makeText(requireContext(), "한 번 더 누르면 종료됩니다", Toast.LENGTH_SHORT)
+                            .show()
+                    }
+                }
+            }
+            /*if(!markerClick) {
                 // 검색창에서 결과 또는 최근 리스트를 클릭한 후 화면이라면
                 if (reviewFragment != null) {
                     Timber.d("ReviewFragment 제거")
@@ -662,23 +726,26 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
                         .remove(reviewFragment)
                         .commit()
 
-                    with(binding) {
-                        ivTextsBackground.visibility = View.VISIBLE
-                        tvRecentSearches.visibility = View.VISIBLE
-                        tvDeleteAll.visibility = View.VISIBLE
-                        rvSearch.visibility = View.VISIBLE
-                        isUserTyping = false
-                        etSearch.text.clear()
+                    if(clickSearch){
+                        with(binding) {
+                            ivTextsBackground.visibility = View.VISIBLE
+                            tvRecentSearches.visibility = View.VISIBLE
+                            tvDeleteAll.visibility = View.VISIBLE
+                            rvSearch.visibility = View.VISIBLE
+                            isUserTyping = false
+                            etSearch.text.clear()
 
-                        etSearch.post {
-                            isUserTyping = true
+                            etSearch.post {
+                                isUserTyping = true
+                            }
+                            newMarker?.map = null
+                            fcvReview.layoutParams.height = 0
+                            fcvReview.requestLayout()
                         }
-                        if (this@HomeFragment::newMarker.isInitialized) {
-                            newMarker.map = null
-                        }
-                        fcvReview.layoutParams.height = 0
-                        fcvReview.requestLayout()
+
+                        clickSearch=false
                     }
+
                 } else {    // 최근 리스트가 보이는 화면이라면
                     if(binding.ivTextsBackground.visibility==View.VISIBLE){
                         setVisibility(false)
@@ -700,20 +767,120 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
                         .remove(reviewFragment)
                         .commit()
                     markerClick=false
-                    newMarker.setCaptionText("")
+                    newMarker?.setCaptionText("")
                 }
             }
-
+*/
         }
     }
 
+    private fun isSearchUIVisible(): Boolean {
+        return binding.rvSearch.visibility == View.VISIBLE || binding.etSearch.visibility == View.VISIBLE
+    }
+
+    private fun requestPermission() {
+        // 버전 체크, 권한 허용했는지 체크
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.RECORD_AUDIO)
+            != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                requireActivity(),
+                arrayOf(Manifest.permission.RECORD_AUDIO), 0
+            )
+        }
+    }
+
+    // 말하기 버튼 클릭
+    private fun clickMicButton() {
+        binding.btnMic.setOnClickListener{
+            speechRecognizer = SpeechRecognizer.createSpeechRecognizer(context).apply {
+                setRecognitionListener(recognitionListener)
+                // RecognizerIntent 생성
+                val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+                    putExtra(
+                        RecognizerIntent.EXTRA_CALLING_PACKAGE,
+                        requireActivity().packageName
+                    ) //여분의 키
+                    putExtra(RecognizerIntent.EXTRA_LANGUAGE, "ko-KR")
+                }
+                // 여기에 startListening 호출 추가
+                startListening(intent)
+            }
+        }
+    }
+
+    // 음성 듣는 listener
+    private val recognitionListener: RecognitionListener = object : RecognitionListener {
+        override fun onReadyForSpeech(params: Bundle) {
+            Toast.makeText(context, "이제 말씀하세요!", Toast.LENGTH_SHORT).show()
+            //binding.tvState.text = "이제 말씀하세요!"
+        }
+
+        override fun onBeginningOfSpeech() {
+            //binding.tvState.text = "잘 듣고 있어요."
+        }
+
+        // 입력받는 소리의 크기를 알려줌
+        override fun onRmsChanged(rmsdB: Float) {}
+
+        // 말을 시작하고 인식이 된 단어를 buffer에 담음
+        override fun onBufferReceived(buffer: ByteArray) {}
+
+        // 말하기를 중지하면 호출
+        override fun onEndOfSpeech() {
+            //binding.tvState.text = "끝!"
+            CoroutineScope(Dispatchers.Main).launch {
+                /*delay(500)
+                addChatItem(
+                    requireContext().getString(R.string.ai_explain),
+                    MessageType.AI_CHAT
+                )*/
+
+                //binding.tvState.text = "상태체크"
+            }
+        }
+
+        // 오류 발생했을 때 호출
+        override fun onError(error: Int) {
+            val message = when (error) {
+                SpeechRecognizer.ERROR_AUDIO -> "오디오 에러"
+                SpeechRecognizer.ERROR_CLIENT -> "클라이언트 에러"
+                SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS -> "퍼미션 없음"
+                SpeechRecognizer.ERROR_NETWORK -> "네트워크 에러"
+                SpeechRecognizer.ERROR_NETWORK_TIMEOUT -> "네트워크 타임아웃"
+                SpeechRecognizer.ERROR_NO_MATCH -> "찾을 수 없음"
+                SpeechRecognizer.ERROR_RECOGNIZER_BUSY -> "RECOGNIZER 가 바쁨"
+                SpeechRecognizer.ERROR_SERVER -> "서버가 이상함"
+                SpeechRecognizer.ERROR_SPEECH_TIMEOUT -> "말하는 시간초과"
+                else -> "알 수 없는 오류임"
+            }
+            Timber.e("$message")
+        }
+
+        override fun onResults(results: Bundle) {
+            val matches = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+            if (!matches.isNullOrEmpty()) {
+                val text = matches[0] // 첫 번째 인식 결과를 사용
+                // text를 adapter에 넣으면 됨
+                isUserTyping = true
+                binding.etSearch.setText(text.toString())
+
+                Timber.d( "인식된 메시지: $text")
+            }
+        }
+
+        // 부분 인식 결과를 사용할 수 있을 때 호출
+        override fun onPartialResults(partialResults: Bundle) {}
+
+        // 향후 이벤트를 추가하기 위해 예약
+        override fun onEvent(eventType: Int, params: Bundle) {}
+    }
 
     fun openReviewFragment() {
         resetFabState()
         val reviewFragment = ReviewFragment()
-        childFragmentManager.beginTransaction()
-            .replace(R.id.fcv_review, reviewFragment)
-            .addToBackStack(null)
+        parentFragmentManager.beginTransaction()
+            .add(R.id.fcv_review, reviewFragment, "ReviewFragment")
             .commit()
     }
 
@@ -785,9 +952,14 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
 
         if (requestCode == PERMISSIONS_REQUEST_CODE &&
             grantResults.isNotEmpty() &&
-            grantResults.all { it == PackageManager.PERMISSION_GRANTED }) {
+            grantResults.all { it == PackageManager.PERMISSION_GRANTED }
+        ) {
 
-            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            if (ContextCompat.checkSelfPermission(
+                    requireContext(),
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                ) == PackageManager.PERMISSION_GRANTED
+            ) {
                 val locationRequest = LocationRequest.create().apply {
                     priority = Priority.PRIORITY_HIGH_ACCURACY
                     interval = 5000L
