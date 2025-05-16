@@ -9,8 +9,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import coil3.load
+import coil.load
 import com.bravepeople.onggiyonggi.data.Character
+import com.bravepeople.onggiyonggi.data.response_dto.ResponseCollectionDto
 import com.bravepeople.onggiyonggi.databinding.FragmentCharacterCollectionDetailBinding
 import timber.log.Timber
 
@@ -20,20 +21,20 @@ class CharacterCollectionDetailFragment : Fragment() {
         get() = requireNotNull(_binding) {"character collection detail framgent is null"}
 
     companion object {
-        fun newInstance(character: Character): CharacterCollectionDetailFragment {
+        fun newInstance(character: ResponseCollectionDto.Data.CharacterResponseDto): CharacterCollectionDetailFragment {
             val fragment = CharacterCollectionDetailFragment()
             val bundle = Bundle()
-            bundle.putSerializable("character", character)
+            bundle.putParcelable("character", character)
             fragment.arguments = bundle
             return fragment
         }
     }
 
-    private lateinit var character: Character
+    private lateinit var character: ResponseCollectionDto.Data.CharacterResponseDto
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        character = arguments?.getSerializable("character") as Character
+        character = arguments?.getParcelable<ResponseCollectionDto.Data.CharacterResponseDto>("character")!!
     }
 
     override fun onCreateView(
@@ -57,7 +58,7 @@ class CharacterCollectionDetailFragment : Fragment() {
     private fun setCards() {
         with(binding) {
             tvName.text = character.name
-            ivCharacter.load(character.image)
+            ivCharacter.load(character.imageURL)
             tvDescription.text = character.description
 
             clCardFront.setOnClickListener {

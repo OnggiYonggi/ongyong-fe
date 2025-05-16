@@ -13,6 +13,7 @@ import androidx.viewpager2.widget.ViewPager2
 import coil3.load
 import com.bravepeople.onggiyonggi.R
 import com.bravepeople.onggiyonggi.data.Character
+import com.bravepeople.onggiyonggi.data.response_dto.ResponseCollectionDto
 import com.bravepeople.onggiyonggi.databinding.ActivityCharacterCollectionDetailBinding
 import kotlinx.serialization.json.Json
 import timber.log.Timber
@@ -20,7 +21,7 @@ import timber.log.Timber
 class CharacterCollectionDetailActivity : AppCompatActivity() {
     private lateinit var binding: ActivityCharacterCollectionDetailBinding
     private lateinit var viewPager: ViewPager2
-    private lateinit var characterList: List<Character>
+    private lateinit var characterList: List<ResponseCollectionDto.Data.CharacterResponseDto>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,10 +41,10 @@ class CharacterCollectionDetailActivity : AppCompatActivity() {
     }
 
     private fun setLists(index: Int) {
-        characterList = intent.getSerializableExtra("characterList") as List<Character>
+        characterList = intent.getParcelableArrayListExtra<ResponseCollectionDto.Data.CharacterResponseDto>("collectionList")!!
         val startIndex = intent.getIntExtra("startIndex", index)
 
-        val collectedCharacters = characterList.filter { it.collected }
+        val collectedCharacters = characterList.filter { it.imageURL.isNotEmpty() }
         val startCharacter = characterList.getOrNull(startIndex)
         val collectedIndex = collectedCharacters.indexOfFirst { it == startCharacter }.coerceAtLeast(0)
 

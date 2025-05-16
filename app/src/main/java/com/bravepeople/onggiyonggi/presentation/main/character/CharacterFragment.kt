@@ -49,6 +49,8 @@ class CharacterFragment : Fragment() {
 
     private lateinit var cachedAnimatorSet: AnimatorSet
 
+    private var isLaunchingMaxActivity = false
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -66,8 +68,6 @@ class CharacterFragment : Fragment() {
     }
 
     private fun setting() {
-        clickCollection()
-
         lifecycleScope.launch {
             mainViewModel.accessToken.observe(viewLifecycleOwner) { token ->
                 characterViewModel.saveToken(token)
@@ -75,6 +75,7 @@ class CharacterFragment : Fragment() {
                 cachedAnimatorSet = createAnimatorSet(token)
                 startGachaAnimation()
                 increaseAffection(token)
+                clickCollection(token)
             }
         }
     }
@@ -87,6 +88,7 @@ class CharacterFragment : Fragment() {
                         Timber.d("setupui - get pet state success~")
                         showCharacter(state.getPetDto.data!!)
                     }
+
                     is GetPetState.Loading -> {}
                     is GetPetState.Error -> {
                         if (state.message == "PET404") {
@@ -122,7 +124,7 @@ class CharacterFragment : Fragment() {
 
             tvName.text = pet.naturalMonumentCharacter.name
             tvDescription.text = pet.naturalMonumentCharacter.description
-            affectionLevel=pet.affinity.toInt()
+            affectionLevel = pet.affinity.toInt()
             setAffectionProgressWithAnimation(affectionLevel)
             binding.tvAffectionPercent.text =
                 getString(R.string.character_affection_percent, affectionLevel)
@@ -148,7 +150,6 @@ class CharacterFragment : Fragment() {
             ivEggOrange.visibility = View.GONE
             ivEggYellow.visibility = View.GONE
             ivEggPurple.visibility = View.GONE
-            btnCollection.visibility = View.GONE
             tvName.visibility = View.GONE
             clCardFront.visibility = View.GONE
             clCardBack.visibility = View.GONE
@@ -167,7 +168,6 @@ class CharacterFragment : Fragment() {
                 ivEggOrange.visibility = View.VISIBLE
                 ivEggYellow.visibility = View.VISIBLE
                 ivEggPurple.visibility = View.VISIBLE
-                btnCollection.visibility = View.VISIBLE
                 tvName.visibility = View.VISIBLE
             }
         }
@@ -262,6 +262,7 @@ class CharacterFragment : Fragment() {
                     is GetPetState.Success -> {
                         showCharacter(state.getPetDto.data!!)
                     }
+
                     is GetPetState.Loading -> {}
                     is GetPetState.Error -> {
                         Timber.e("update character data get pet state error!")
@@ -285,7 +286,6 @@ class CharacterFragment : Fragment() {
 
                 tvName.visibility = View.INVISIBLE
                 clCardFront.visibility = View.INVISIBLE
-                btnCollection.visibility = View.INVISIBLE
                 tvAffectionTitle.visibility = View.INVISIBLE
                 tvAffectionPercent.visibility = View.INVISIBLE
                 pbAffection.visibility = View.INVISIBLE
@@ -301,7 +301,6 @@ class CharacterFragment : Fragment() {
 
                 tvName.visibility = View.VISIBLE
                 clCardFront.visibility = View.VISIBLE
-                btnCollection.visibility = View.VISIBLE
                 tvAffectionTitle.visibility = View.VISIBLE
                 tvAffectionPercent.visibility = View.VISIBLE
                 pbAffection.visibility = View.VISIBLE
@@ -356,20 +355,23 @@ class CharacterFragment : Fragment() {
 
     private fun observeLevelUpState(token: String) {
         lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED){
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
                 characterViewModel.levelUpState.collect { state ->
                     when (state) {
                         is LevelUpState.Loading -> {
                         }
+
                         is LevelUpState.Success -> {
                             if (affectionLevel < 100) {
                                 Timber.d("affinity: ${state.randomPetDto.data!!.affinity.toInt()}")
                                 affectionLevel = state.randomPetDto.data!!.affinity.toInt()
-                                if (affectionLevel > 100) affectionLevel = 100
 
                                 setAffectionProgressWithAnimation(affectionLevel) {
-                                    if (affectionLevel >= 100) {
-                                        val intent = Intent(requireContext(), CharacterMaxActivity::class.java)
+                                    if (affectionLevel >= 100 && !isLaunchingMaxActivity) {
+                                        val intent = Intent(
+                                            requireContext(),
+                                            CharacterMaxActivity::class.java
+                                        )
                                         intent.putExtra("character", state.randomPetDto.data)
                                         intent.putExtra("accessToken", token)
                                         startActivityForResult(intent, REQUEST_CODE_MAX)
@@ -379,8 +381,9 @@ class CharacterFragment : Fragment() {
                                     getString(R.string.character_affection_percent, affectionLevel)
                             }
                         }
+
                         is LevelUpState.Error -> {
-                            // 에러 UI 처리 (필요하면)
+                            Timber.e("level up state error!!")
                         }
                     }
                 }
@@ -467,9 +470,11 @@ class CharacterFragment : Fragment() {
         }
     }
 
-    private fun clickCollection() {
+    private fun clickCollection(token: String) {
         binding.btnCollection.setOnClickListener {
-            startActivity(Intent(requireActivity(), CharacterCollectionActivity::class.java))
+            val intent = Intent(requireActivity(), CharacterCollectionActivity::class.java)
+            intent.putExtra("accessToken", token)
+            startActivity(intent)
             requireActivity().overridePendingTransition(
                 R.anim.slide_in_right,
                 R.anim.stay_still
@@ -488,6 +493,7 @@ class CharacterFragment : Fragment() {
             characterViewModel.getPet()
             updateCharacterData()
         } else if (resultCode == Activity.RESULT_OK && requestCode == REQUEST_CODE_MAX) {
+            isLaunchingMaxActivity = false
             isGacha(true)
         }
     }
