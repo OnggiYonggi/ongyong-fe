@@ -9,20 +9,19 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import coil3.Canvas
-import coil3.load
-import coil3.request.transformations
-import coil3.size.Size
-import coil3.transform.Transformation
+import coil.load
+import coil.transform.Transformation
 import com.bravepeople.onggiyonggi.R
 import com.bravepeople.onggiyonggi.data.Character
+import com.bravepeople.onggiyonggi.data.response_dto.ResponseCollectionDto
 import com.bravepeople.onggiyonggi.databinding.ItemCollectionBinding
 import timber.log.Timber
 
 class CharacterCollectionAdapter(
-    private val clickCharacterIndex:(Int) -> Unit,
+    private val clickCharacterIndex:(Int, List<ResponseCollectionDto.Data.CharacterResponseDto>) -> Unit,
 ):
     RecyclerView.Adapter<CharacterCollectionAdapter.CharacterCollectionViewHolder>() {
-    private val collectionList = mutableListOf<Character>()
+    private val collectionList = mutableListOf<ResponseCollectionDto.Data.CharacterResponseDto>()
 
     override fun onCreateViewHolder(
         parent: ViewGroup,
@@ -40,20 +39,32 @@ class CharacterCollectionAdapter(
         holder.bind(collectionList[position])
     }
 
-    fun getList(list:List<Character>){
+    fun getList(list:List<ResponseCollectionDto.Data>){
+        val collectedMap=list.associateBy {it.id }
+
+        val fullList=(1..9).map{id->
+            collectedMap[id]?.characterResponseDto ?:ResponseCollectionDto.Data.CharacterResponseDto(
+                id = id,
+                name = "",
+                description = "",
+                story = "",
+                imageURL = ""
+            )
+        }
+
         collectionList.clear()
-        collectionList.addAll(list)
+        collectionList.addAll(fullList)
         notifyDataSetChanged()
     }
 
     inner class CharacterCollectionViewHolder(private val binding:ItemCollectionBinding)
         :RecyclerView.ViewHolder(binding.root){
-        fun bind(character: Character){
+        fun bind(character: ResponseCollectionDto.Data.CharacterResponseDto){
             with(binding) {
-                val isCollected = character.collected
+                val isCollected = character.imageURL.isNotEmpty()
 
                 ivCharacter.load(
-                    if (isCollected) character.image else R.drawable.ic_hidden_gray_48
+                    if (isCollected) character.imageURL else R.drawable.ic_hidden_gray_48
                 ) {
                     if (!isCollected) transformations(GrayscaleTransformation())
                 }
@@ -65,7 +76,7 @@ class CharacterCollectionAdapter(
                 itemCollection.setOnClickListener {
                     if (isCollected) {
                         Timber.d("adapter에서 캐릭터 클릭")
-                        clickCharacterIndex(bindingAdapterPosition)
+                        clickCharacterIndex(bindingAdapterPosition, collectionList)
                     }
                 }
 
@@ -77,12 +88,12 @@ class CharacterCollectionAdapter(
         }
     }
 
-    inner class GrayscaleTransformation : Transformation() {
+    inner class GrayscaleTransformation : Transformation {
 
         override val cacheKey: String
             get() = "GrayscaleTransformation"
 
-        override suspend fun transform(input: Bitmap, size: Size): Bitmap {
+        override suspend fun transform(input: Bitmap, size: coil.size.Size): Bitmap {
             val output = Bitmap.createBitmap(input.width, input.height, input.config ?: Bitmap.Config.ARGB_8888)
             val canvas = Canvas(output)
             val paint = Paint()

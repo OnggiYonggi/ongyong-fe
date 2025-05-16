@@ -1,10 +1,61 @@
 package com.bravepeople.onggiyonggi.presentation.main.character
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.bravepeople.onggiyonggi.R
 import com.bravepeople.onggiyonggi.data.Character
+import com.bravepeople.onggiyonggi.data.repositoryImpl.BaseRepositoryImpl
+import com.bravepeople.onggiyonggi.extension.character.CollectionState
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+import okhttp3.ResponseBody
+import org.json.JSONObject
+import retrofit2.HttpException
+import timber.log.Timber
+import javax.inject.Inject
 
-class CharacterCollectionViewModel:ViewModel() {
+@HiltViewModel
+class CharacterCollectionViewModel @Inject constructor(
+    private val baseRepositoryImpl: BaseRepositoryImpl
+) :ViewModel() {
+    private val _collectionState = MutableStateFlow<CollectionState>(CollectionState.Loading)
+    val collectionState:StateFlow<CollectionState> = _collectionState.asStateFlow()
+
+    fun collection(token:String){
+        viewModelScope.launch {
+            baseRepositoryImpl.collection(token).onSuccess { response->
+                _collectionState.value=CollectionState.Success(response)
+            }.onFailure {
+                _collectionState.value=CollectionState.Error("collection error")
+                if (it is HttpException) {
+                    try {
+                        val errorBody: ResponseBody? = it.response()?.errorBody()
+                        val errorBodyString = errorBody?.string() ?: ""
+                        httpError(errorBodyString)
+                    } catch (e: Exception) {
+                        // JSON 파싱 실패 시 로깅
+                        Timber.e("Error parsing error body: ${e}")
+                    }
+                }
+            }
+        }
+    }
+
+    private fun httpError(errorBody: String) {
+        // 전체 에러 바디를 로깅하여 디버깅
+        Timber.e("Full error body: $errorBody")
+
+        // JSONObject를 사용하여 메시지 추출
+        val jsonObject = JSONObject(errorBody)
+        val errorMessage = jsonObject.optString("message", "Unknown error")
+
+        // 추출된 에러 메시지 로깅
+        Timber.e("Error message: $errorMessage")
+    }
+
     private val collectionList = listOf(
         Character(R.drawable.character_flying_squirrel, "하늘다람쥐", "밤하늘을 날아다니는 숲속의 요정! 커다란 눈과 활강막이 매력적인 야행성 동물이에요.",false),
         Character(R.drawable.character_dooroomi, "두루미", "고고한 자태로 강과 습지를 지키는 수호자. 오래도록 장수와 평화를 상징해왔어요.",false),
