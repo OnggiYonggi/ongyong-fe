@@ -1,6 +1,5 @@
-package com.bravepeople.onggiyonggi.data.response_dto
+package com.bravepeople.onggiyonggi.data.response_dto.character
 
-import com.bravepeople.onggiyonggi.data.response_dto.ResponseGetPetDto.Data
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 

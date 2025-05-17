@@ -1,9 +1,13 @@
 package com.bravepeople.onggiyonggi.presentation.main.home
 
 import android.Manifest
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
+import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.location.Location.distanceBetween
 import android.os.Bundle
 import android.os.Looper
 import android.speech.RecognitionListener
@@ -18,7 +22,7 @@ import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.widget.Toast
 import androidx.activity.addCallback
-import androidx.compose.ui.graphics.Color
+import androidx.core.animation.doOnEnd
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.text.HtmlCompat
@@ -26,12 +30,16 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.bravepeople.onggiyonggi.R
 import com.bravepeople.onggiyonggi.data.Search
+import com.bravepeople.onggiyonggi.data.response_dto.ResponseGetStoreDto
 import com.bravepeople.onggiyonggi.databinding.FragmentHomeBinding
 import com.bravepeople.onggiyonggi.extension.SearchState
+import com.bravepeople.onggiyonggi.extension.home.GetStoreState
+import com.bravepeople.onggiyonggi.presentation.MainViewModel
 import com.bravepeople.onggiyonggi.presentation.main.home.store_register.StoreRegisterActivity
 import com.bravepeople.onggiyonggi.presentation.main.home.review.ReviewFragment
 import com.bravepeople.onggiyonggi.presentation.main.home.search.SearchRecentAdapter
@@ -49,7 +57,6 @@ import com.naver.maps.map.MapView
 import com.naver.maps.map.NaverMap
 import com.naver.maps.map.OnMapReadyCallback
 import com.naver.maps.map.overlay.Marker
-import com.naver.maps.map.overlay.OverlayImage
 import com.naver.maps.map.util.MarkerIcons
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -66,6 +73,9 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
     private val searchViewModel: SearchViewModel by viewModels()
     private lateinit var searchRecentAdapter: SearchRecentAdapter
 
+    private val mainViewModel:MainViewModel by activityViewModels()
+    private val homeViewModel:HomeViewModel by viewModels()
+
     private lateinit var mapView: MapView
     private var naverMap: NaverMap? = null
     private var currentPosition: LatLng? = null
@@ -77,6 +87,12 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
     private var clickSearch = false
     private var markerClick: Boolean = false
     private var selectedMarker: Marker? = null
+
+    private var lastRequestedPosition: LatLng? = null
+    private val serverFetchThreshold = 500.0 // 500m 이상 이동 시 다시 서버 요청
+    private val storeDataList = mutableListOf<ResponseGetStoreDto.StoreData>()
+    private val displayedMarkers = mutableMapOf<String, Marker>()  // key = "lat:lng"
+    private var lastZoomLevel = -1.0  // 기존 줌 저장용
 
     private lateinit var speechRecognizer: SpeechRecognizer
     private lateinit var recognizerIntent: Intent
@@ -107,14 +123,202 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
                     map.moveCamera(CameraUpdate.scrollTo(position))
                     isFirstCameraMove = false
 
-                    map.addOnCameraIdleListener {   // 이후엔 버튼으로만 이동
-                        isAutoMoveEnabled = false
-                        Timber.d("사용자 조작 감지 → 자동 이동 비활성화")
+                    map.addOnCameraIdleListener {
+                        val center = naverMap?.cameraPosition?.target ?: return@addOnCameraIdleListener
+                        val zoom = naverMap?.cameraPosition?.zoom ?: return@addOnCameraIdleListener
+                        Timber.d("zoom: $zoom")
+
+                        if (isAutoMoveEnabled) {
+                            isAutoMoveEnabled = false
+                            Timber.d("사용자 조작 감지 → 자동 이동 비활성화")
+                        }
+
+                        // 서버 요청 및 마커 필터링
+                        val radius = getRadiusFromZoom(zoom)
+                        Timber.d("radius: $radius")
+                        val shouldUpdateZoom = (zoom != lastZoomLevel)
+
+                        if (zoom >= 17) {
+                            if (shouldFetchFromServer(center)) {
+                                lastRequestedPosition = center
+                                lastZoomLevel = zoom
+                                requestStoreFromServer(center, 1)
+                            } else if (shouldUpdateZoom) {
+                                lastZoomLevel = zoom
+                                filterMarkers(center, radius)  // 🔥 줌 변경 시에도 마커 다시 그리기
+                            }
+                        } else {
+                            if (shouldFetchFromServer(center)) {
+                                lastRequestedPosition = center
+                                lastZoomLevel = zoom
+                                requestStoreFromServer(center, radius)
+                            } else if (shouldUpdateZoom) {
+                                lastZoomLevel = zoom
+                                filterMarkers(center, radius)  // 🔥 줌 변경 시에도 마커 다시 그리기
+                            }
+                        }
                     }
                 }
             }
         }
     }
+
+    private fun getRadiusFromZoom(zoom: Double): Int = when {
+        zoom >= 17 -> 1    // 1km
+        zoom >= 16 -> 2    // 2km
+        zoom >= 15 -> 5    // 5km
+        zoom >= 13 -> 10   // 10km
+        zoom >= 11 -> 20  // 20km
+        else -> 50         // 50km
+    }
+
+    private fun shouldFetchFromServer(current: LatLng): Boolean {
+        val last = lastRequestedPosition ?: return true
+        val result = FloatArray(1)
+        distanceBetween(last.latitude, last.longitude, current.latitude, current.longitude, result)
+        return result[0] > serverFetchThreshold
+    }
+
+    private fun requestStoreFromServer(center: LatLng, radius: Int) {
+        lifecycleScope.launch {
+            homeViewModel.getStoreState.collect{state->
+                when(state){
+                    is GetStoreState.Success->{
+                        storeDataList.clear()
+                        storeDataList.addAll(state.storeDto.data)
+                        Timber.d("storedatalist: $storeDataList")
+                        filterMarkers(center, getRadiusFromZoom(naverMap?.cameraPosition?.zoom ?: 17.0))
+                    }
+                    is GetStoreState.Loading->{}
+                    is GetStoreState.Error->{
+                        Timber.e("get store state error!")
+                    }
+                }
+            }
+        }
+
+        homeViewModel.getStore(center.latitude, center.longitude, radius)
+    }
+
+    private fun filterMarkers(center: LatLng, radius: Int) {
+        val filterRadiusMeter = radius * 1000
+
+        val storesInRange = storeDataList.filter {
+            val result = FloatArray(1)
+            distanceBetween(center.latitude, center.longitude, it.latitude, it.longitude, result)
+            result[0] <= filterRadiusMeter
+        }
+
+        val zoom = naverMap?.cameraPosition?.zoom ?: 17.0
+        val clusterDistanceMeter = when {
+            zoom >= 17.9 -> 0
+            zoom >= 16.6 -> 20
+            zoom >= 15.6 -> 50
+            zoom >= 14.6 -> 100
+            zoom >= 13.3 -> 200
+            else -> 500
+        }
+
+        val finalStores = clusterStores(storesInRange, clusterDistanceMeter)
+
+        val newMarkers = mutableListOf<Marker>()
+        val existingPositions = displayedMarkers.values.map { it.position }.toSet()
+
+        val finalPositions = finalStores.map { LatLng(it.latitude, it.longitude) }.toSet()
+
+        // 새로운 마커 추가 (fade-in)
+        for (store in finalStores) {
+            val pos = LatLng(store.latitude, store.longitude)
+            if (!existingPositions.contains(pos)) {
+                val marker = Marker().apply {
+                    position = pos
+                    icon = MarkerIcons.BLACK
+                    iconTintColor = getColorByRank(store.storeRank)
+                    alpha = 0f
+                    map = naverMap
+                    setOnClickListener {
+                        clickMarker(this, store)
+                        true
+                    }
+                }
+                ValueAnimator.ofFloat(0f, 1f).apply {
+                    duration = 300
+                    addUpdateListener {
+                        marker.alpha = it.animatedValue as Float // 여기서 marker는 위에서 만든 Marker 인스턴스여야 함
+                    }
+                    start()
+                }
+                newMarkers.add(marker)
+            }
+        }
+
+        // 기존 마커 중 필요 없는 것 제거 (fade-out)
+        // 제거 대상 필터링 (key + marker 함께 보존)
+        val markersToRemove = displayedMarkers.filter { (_, marker) ->
+            marker.position !in finalPositions
+        }
+
+        // fade-out 애니메이션 + 지도에서 제거 + Map에서 제거
+        for ((key, marker) in markersToRemove) {
+            val animator = ValueAnimator.ofFloat(1f, 0f).apply {
+                duration = 300
+                addUpdateListener { animation ->
+                    marker.alpha = animation.animatedValue as Float
+                }
+                doOnEnd {
+                    marker.map = null
+                    displayedMarkers.remove(key)
+                }
+            }
+            animator.start()
+        }
+    }
+
+    private fun clusterStores(
+        stores: List<ResponseGetStoreDto.StoreData>,
+        clusterDistanceMeter: Int
+    ): List<ResponseGetStoreDto.StoreData> {
+        if (clusterDistanceMeter <= 20) return stores
+
+        val clustered = mutableMapOf<String, ResponseGetStoreDto.StoreData>()
+        for (store in stores) {
+            val key = makeClusterKey(store.latitude, store.longitude, clusterDistanceMeter)
+            val existing = clustered[key]
+            if (existing == null ||
+                rankToPriority(store.storeRank) > rankToPriority(existing.storeRank)) {
+                clustered[key] = store
+            }
+        }
+        return clustered.values.toList()
+    }
+
+    private fun makeClusterKey(lat: Double, lng: Double, meterUnit: Int): String {
+        val scale = meterUnit / 111.0 / 1000.0 // 위도 1도 ≈ 111km
+        val latKey = (lat / scale).toInt()
+        val lngKey = (lng / scale).toInt()
+        return "$latKey:$lngKey"
+    }
+
+    private fun rankToPriority(rank: String): Int {
+        return when (rank) {
+            "GOLD" -> 4
+            "SILVER" -> 3
+            "BRONZE" -> 2
+            "ROOKIE" -> 1
+            else -> 0
+        }
+    }
+
+    private fun getColorByRank(rank: String): Int {
+        return when (rank) {
+            "ROOKIE" -> requireContext().getColor(R.color.home_rookie_yellow)
+            "BRONZE" -> requireContext().getColor(R.color.home_bronze_green)
+            "SILVER" -> requireContext().getColor(R.color.home_silver_green)
+            "GOLD" -> requireContext().getColor(R.color.home_gold_green)
+            else -> requireContext().getColor(R.color.red)
+        }
+    }
+
 
     val PERMISSIONS_REQUEST_CODE = 100
     var REQUIRED_PERMISSIONS = arrayOf(
@@ -134,6 +338,7 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         Timber.d("viewcreated")
+        mapReset(savedInstanceState)
 
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
             if (binding.btnBack.visibility == View.VISIBLE) {
@@ -144,8 +349,12 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
             }
         }
 
-        mapReset(savedInstanceState)
-        setting()
+        lifecycleScope.launch {
+            mainViewModel.accessToken.observe(viewLifecycleOwner){token->
+                homeViewModel.saveToken(token)
+                setting()
+            }
+        }
     }
 
     private fun mapReset(savedInstanceState: Bundle?) {
@@ -194,6 +403,8 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
                     val position = LatLng(location.latitude, location.longitude)
                     currentPosition = position
 
+                    Timber.d("latitude: ${location.latitude}, longitude: ${location.longitude}")
+
                     naverMap?.let { map ->
                         map.moveCamera(CameraUpdate.scrollTo(position))
                         map.locationOverlay.position = position
@@ -238,20 +449,20 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
         this.naverMap = naverMap
         naverMap.locationOverlay.isVisible = true
 
-        val marker = Marker()
+        /*val marker = Marker()
         marker.position = LatLng(37.300536, 127.044169)
         marker.setIconPerspectiveEnabled(true)
         marker.icon = MarkerIcons.BLACK
         marker.iconTintColor = requireContext().getColor(R.color.home_bronze_green)
         marker.map = naverMap
 
-       /* val markerBan = Marker()
+       *//* val markerBan = Marker()
         markerBan.position = LatLng(37.300956, 127.045275)
         markerBan.setIconPerspectiveEnabled(true)
         markerBan.tag = true
         markerBan.icon = MarkerIcons.BLACK
         markerBan.iconTintColor = requireContext().getColor(R.color.red)
-        markerBan.map = naverMap*/
+        markerBan.map = naverMap*//*
 
         val marker2 = Marker()
         marker2.position = LatLng(37.299176, 127.045354)
@@ -277,7 +488,7 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
         marker4.iconTintColor = requireContext().getColor(R.color.home_rookie_yellow)
         marker4.map = naverMap
 
-        clickMarker(marker)
+        clickMarker(marker)*/
         //clickMarker(markerBan)
 
         /* naverMap.addOnCameraIdleListener {
@@ -291,9 +502,26 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
          }*/
     }
 
+    private fun clickMarker(marker: Marker, store: ResponseGetStoreDto.StoreData) {
+        selectedMarker = marker
+        selectedMarker?.let{
+            it.tag="marker"
+        }
 
-    private fun clickMarker(marker: Marker) {
-        marker.setOnClickListener {
+        // 클릭해도 색상 유지되도록 다시 설정
+        marker.iconTintColor = getColorByRank(store.storeRank)
+
+        val isBan = marker.tag as? Boolean ?: false
+        showReviewFragment(
+            Search(
+                R.drawable.img_review1,
+                requireContext().getString(R.string.store_name),
+                requireContext().getString(R.string.store_address),
+                marker.position,
+                isBan
+            ), true
+        )
+       /* marker.setOnClickListener {
             selectedMarker = marker
             val isBan = marker.tag as? Boolean ?: false
             showReviewFragment(
@@ -306,7 +534,7 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
                 ), true
             )
             true
-        }
+        }*/
     }
 
     private fun clickSearchBar() {
@@ -583,15 +811,21 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
         markerClick = click
 
         naverMap?.let { map ->
-            val marker = Marker()
-            marker.position = search.address
-            marker.map = naverMap
-            marker.setIconPerspectiveEnabled(true)
-            marker.setCaptionText(search.name)
+            if (click) {
+                // 🔸 지도 마커 클릭 → 마커 새로 생성하지 않고 이동만
+                map.moveCamera(CameraUpdate.scrollTo(search.address))
+            } else {
+                // 🔸 검색 결과 클릭 → 마커 새로 생성 + 이동
+                val marker = Marker().apply {
+                    position = search.address
+                    this.map = naverMap
+                    setIconPerspectiveEnabled(true)
+                    setCaptionText(search.name)
+                }
 
-            map.moveCamera(CameraUpdate.scrollTo(search.address))
-
-            newMarker = marker
+                map.moveCamera(CameraUpdate.scrollTo(search.address))
+                newMarker = marker
+            }
         }
     }
 

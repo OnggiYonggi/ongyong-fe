@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.bravepeople.onggiyonggi.R
 import com.bravepeople.onggiyonggi.data.Character
 import com.bravepeople.onggiyonggi.data.repositoryImpl.BaseRepositoryImpl
+import com.bravepeople.onggiyonggi.extension.character.AllCharacterState
 import com.bravepeople.onggiyonggi.extension.character.CollectionState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,7 +23,9 @@ class CharacterCollectionViewModel @Inject constructor(
     private val baseRepositoryImpl: BaseRepositoryImpl
 ) :ViewModel() {
     private val _collectionState = MutableStateFlow<CollectionState>(CollectionState.Loading)
+    private val _allCharacterState = MutableStateFlow<AllCharacterState>(AllCharacterState.Loading)
     val collectionState:StateFlow<CollectionState> = _collectionState.asStateFlow()
+    val allCharacterState:StateFlow<AllCharacterState> = _allCharacterState.asStateFlow()
 
     fun collection(token:String){
         viewModelScope.launch {
@@ -30,6 +33,26 @@ class CharacterCollectionViewModel @Inject constructor(
                 _collectionState.value=CollectionState.Success(response)
             }.onFailure {
                 _collectionState.value=CollectionState.Error("collection error")
+                if (it is HttpException) {
+                    try {
+                        val errorBody: ResponseBody? = it.response()?.errorBody()
+                        val errorBodyString = errorBody?.string() ?: ""
+                        httpError(errorBodyString)
+                    } catch (e: Exception) {
+                        // JSON 파싱 실패 시 로깅
+                        Timber.e("Error parsing error body: ${e}")
+                    }
+                }
+            }
+        }
+    }
+
+    fun allCharacter(token:String){
+        viewModelScope.launch {
+            baseRepositoryImpl.allCharacter(token).onSuccess { response->
+                _allCharacterState.value=AllCharacterState.Success(response)
+            }.onFailure {
+                _allCharacterState.value=AllCharacterState.Error("all character fail!!")
                 if (it is HttpException) {
                     try {
                         val errorBody: ResponseBody? = it.response()?.errorBody()

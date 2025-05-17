@@ -7,14 +7,13 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.bravepeople.onggiyonggi.R
-import com.bravepeople.onggiyonggi.data.Character
-import com.bravepeople.onggiyonggi.data.response_dto.ResponseCollectionDto
+import com.bravepeople.onggiyonggi.data.response_dto.character.ResponseCollectionDto
 import com.bravepeople.onggiyonggi.databinding.ActivityCharacterCollectionBinding
+import com.bravepeople.onggiyonggi.extension.character.AllCharacterState
 import com.bravepeople.onggiyonggi.extension.character.CollectionState
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 import timber.log.Timber
 
 @AndroidEntryPoint
@@ -48,6 +47,30 @@ class CharacterCollectionActivity:AppCompatActivity() {
         binding.rvCollection.adapter=collectionAdapter
 
         lifecycleScope.launch {
+            combine(
+                characterCollectionViewModel.collectionState,
+                characterCollectionViewModel.allCharacterState
+            ) { collectionState, allCharacterState ->
+                collectionState to allCharacterState
+            }.collect { (collectionState, allCharacterState) ->
+                when {
+                    collectionState is CollectionState.Success && allCharacterState is AllCharacterState.Success -> {
+                        // 둘 다 성공했을 때만 처리
+                        collectionAdapter.getList(collectionState.collectionDto.data, allCharacterState.characterDto.data)
+                    }
+                    collectionState is CollectionState.Error-> {
+                        Timber.e("error: ${collectionState.message}")
+                    }
+                    allCharacterState is AllCharacterState.Error->{
+                        Timber.e("error: ${allCharacterState.message}")
+                    }
+                    // 나머지 경우는 로딩 상태거나 아직 준비 안 된 상태
+                }
+            }
+        }
+
+
+        /*lifecycleScope.launch {
             characterCollectionViewModel.collectionState.collect{state->
                 when(state){
                     is CollectionState.Success->{
@@ -59,10 +82,11 @@ class CharacterCollectionActivity:AppCompatActivity() {
                     }
                 }
             }
-        }
+        }*/
 
         val token=intent.getStringExtra("accessToken")
         token?.let {
+            characterCollectionViewModel.allCharacter(token)
             characterCollectionViewModel.collection(token)
         }
 

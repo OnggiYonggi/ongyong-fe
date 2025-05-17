@@ -1,6 +1,6 @@
 package com.bravepeople.onggiyonggi.extension.character
 
-import com.bravepeople.onggiyonggi.data.response_dto.ResponseGetPetDto
+import com.bravepeople.onggiyonggi.data.response_dto.character.ResponseGetPetDto
 
 sealed class LevelUpState {
     data object Loading: LevelUpState()

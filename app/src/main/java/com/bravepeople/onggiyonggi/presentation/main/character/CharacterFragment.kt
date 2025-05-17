@@ -24,7 +24,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import coil.load
 import com.bravepeople.onggiyonggi.R
-import com.bravepeople.onggiyonggi.data.response_dto.ResponseGetPetDto
+import com.bravepeople.onggiyonggi.data.response_dto.character.ResponseGetPetDto
 import com.bravepeople.onggiyonggi.databinding.FragmentCharacterBinding
 import com.bravepeople.onggiyonggi.extension.character.GetPetState
 import com.bravepeople.onggiyonggi.extension.character.LevelUpState
@@ -368,6 +368,7 @@ class CharacterFragment : Fragment() {
 
                                 setAffectionProgressWithAnimation(affectionLevel) {
                                     if (affectionLevel >= 100 && !isLaunchingMaxActivity) {
+                                        isLaunchingMaxActivity=true
                                         val intent = Intent(
                                             requireContext(),
                                             CharacterMaxActivity::class.java

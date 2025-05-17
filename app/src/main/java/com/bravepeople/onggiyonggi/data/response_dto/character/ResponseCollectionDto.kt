@@ -1,4 +1,4 @@
-package com.bravepeople.onggiyonggi.data.response_dto
+package com.bravepeople.onggiyonggi.data.response_dto.character
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
@@ -7,33 +7,28 @@ import kotlinx.serialization.Serializable
 
 @Parcelize
 @Serializable
-data class ResponseGetPetDto(
+data class ResponseCollectionDto(
     @SerialName("success")
-    val success: Boolean,
+    val success:Boolean,
     @SerialName("status")
-    val status: String,
+    val status:String,
     @SerialName("message")
-    val message: String,
+    val message:String,
     @SerialName("data")
-    val data: Data?
-):Parcelable {
+    val data:List<Data>
+
+):Parcelable{
     @Parcelize
     @Serializable
     data class Data(
         @SerialName("id")
         val id: Int,
-        @SerialName("naturalMonumentCharacter")
-        val naturalMonumentCharacter: NaturalMonumentCharacter,
-        @SerialName("affinity")
-        val affinity: Float,
-    ):Parcelable {
+        @SerialName("characterResponseDto")
+        val characterResponseDto: CharacterResponseDto
+    ):Parcelable{
         @Parcelize
         @Serializable
-        data class NaturalMonumentCharacter(
-            @SerialName("createdAt")
-            val createdAt: String?,
-            @SerialName("updatedAt")
-            val updatedAt: String?,
+        data class CharacterResponseDto(
             @SerialName("id")
             val id: Int,
             @SerialName("name")
@@ -43,7 +38,7 @@ data class ResponseGetPetDto(
             @SerialName("story")
             val story: String,
             @SerialName("imageURL")
-            val imageUrl: String
+            val imageURL: String
         ):Parcelable
     }
 }

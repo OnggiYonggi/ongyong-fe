@@ -10,8 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import coil.load
-import com.bravepeople.onggiyonggi.data.Character
-import com.bravepeople.onggiyonggi.data.response_dto.ResponseCollectionDto
+import com.bravepeople.onggiyonggi.data.response_dto.character.ResponseCollectionDto
 import com.bravepeople.onggiyonggi.databinding.FragmentCharacterCollectionDetailBinding
 import timber.log.Timber
 

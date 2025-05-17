@@ -3,12 +3,14 @@ package com.bravepeople.onggiyonggi.data.repositoryImpl
 import com.bravepeople.onggiyonggi.data.datasource.BaseDataSource
 import com.bravepeople.onggiyonggi.data.request_dto.RequestLoginDto
 import com.bravepeople.onggiyonggi.data.request_dto.RequestSignUpDto
-import com.bravepeople.onggiyonggi.data.response_dto.ResponseAddMaxDto
+import com.bravepeople.onggiyonggi.data.response_dto.character.ResponseAddMaxDto
 import com.bravepeople.onggiyonggi.data.response_dto.ResponseCheckSignUpDto
-import com.bravepeople.onggiyonggi.data.response_dto.ResponseCollectionDto
+import com.bravepeople.onggiyonggi.data.response_dto.character.ResponseCollectionDto
 import com.bravepeople.onggiyonggi.data.response_dto.ResponseLoginDto
-import com.bravepeople.onggiyonggi.data.response_dto.ResponseGetPetDto
+import com.bravepeople.onggiyonggi.data.response_dto.character.ResponseGetPetDto
+import com.bravepeople.onggiyonggi.data.response_dto.ResponseGetStoreDto
 import com.bravepeople.onggiyonggi.data.response_dto.ResponseSignUpDto
+import com.bravepeople.onggiyonggi.data.response_dto.character.ResponseAllCharacterDto
 import com.bravepeople.onggiyonggi.domain.repository.BaseRepository
 import timber.log.Timber
 import javax.inject.Inject
@@ -54,6 +56,20 @@ class BaseRepositoryImpl @Inject constructor(
         }
     }
 
+    // home
+    override suspend fun getStore(
+        token: String,
+        latitude: Double,
+        longitude: Double,
+        radius: Int
+    ): Result<ResponseGetStoreDto> {
+        return runCatching {
+            baseDataSource.getStore(token, latitude, longitude, radius)
+        }.onFailure {
+            Timber.e("base repository get store fail!!: $it")
+        }
+    }
+
     // character
     override suspend fun getPet(token: String): Result<ResponseGetPetDto> {
         return runCatching {
@@ -84,6 +100,14 @@ class BaseRepositoryImpl @Inject constructor(
             baseDataSource.collection(token)
         }.onFailure {
             Timber.e("base repository collection fail!!: $it")
+        }
+    }
+
+    override suspend fun allCharacter(token: String): Result<ResponseAllCharacterDto> {
+        return runCatching {
+            baseDataSource.allCharacter(token)
+        }.onFailure {
+            Timber.e("base repository all character fail!!: $it")
         }
     }
 

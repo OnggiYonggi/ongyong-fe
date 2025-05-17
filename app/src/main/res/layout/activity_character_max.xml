@@ -16,19 +16,6 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"/>
 
-    <ImageView
-        android:id="@+id/btn_collection"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginEnd="30dp"
-        android:layout_marginTop="15dp"
-        android:background="@drawable/ic_collection_gray_91"
-        android:visibility="gone"
-        app:layout_constraintDimensionRatio="1:1"
-        app:layout_constraintWidth_percent="0.13"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/cl_card"
         android:layout_width="0dp"

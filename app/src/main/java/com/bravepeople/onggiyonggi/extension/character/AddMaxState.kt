@@ -1,7 +1,6 @@
 package com.bravepeople.onggiyonggi.extension.character
 
-import com.bravepeople.onggiyonggi.data.response_dto.ResponseAddMaxDto
-import com.bravepeople.onggiyonggi.data.response_dto.ResponseGetPetDto
+import com.bravepeople.onggiyonggi.data.response_dto.character.ResponseAddMaxDto
 
 sealed class AddMaxState {
     data object Loading: AddMaxState()
