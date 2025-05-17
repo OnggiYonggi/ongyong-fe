@@ -3,9 +3,7 @@ package com.bravepeople.onggiyonggi.presentation.main.character
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
-import com.bravepeople.onggiyonggi.data.Character
-import com.bravepeople.onggiyonggi.data.response_dto.ResponseCollectionDto
-import okhttp3.internal.notify
+import com.bravepeople.onggiyonggi.data.response_dto.character.ResponseCollectionDto
 
 class CharacterCollectionDetailAdapter(
     activity: FragmentActivity,

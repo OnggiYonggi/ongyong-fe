@@ -12,8 +12,8 @@ import coil3.Canvas
 import coil.load
 import coil.transform.Transformation
 import com.bravepeople.onggiyonggi.R
-import com.bravepeople.onggiyonggi.data.Character
-import com.bravepeople.onggiyonggi.data.response_dto.ResponseCollectionDto
+import com.bravepeople.onggiyonggi.data.response_dto.character.ResponseAllCharacterDto
+import com.bravepeople.onggiyonggi.data.response_dto.character.ResponseCollectionDto
 import com.bravepeople.onggiyonggi.databinding.ItemCollectionBinding
 import timber.log.Timber
 
@@ -39,16 +39,20 @@ class CharacterCollectionAdapter(
         holder.bind(collectionList[position])
     }
 
-    fun getList(list:List<ResponseCollectionDto.Data>){
-        val collectedMap=list.associateBy {it.id }
+    fun getList(
+        list: List<ResponseCollectionDto.Data>,
+        data: List<ResponseAllCharacterDto.CharacterDetail>
+    ){
+        val collectedIdSet = list.map { it.characterResponseDto.id }.toSet()
 
-        val fullList=(1..9).map{id->
-            collectedMap[id]?.characterResponseDto ?:ResponseCollectionDto.Data.CharacterResponseDto(
-                id = id,
-                name = "",
-                description = "",
-                story = "",
-                imageURL = ""
+        val fullList = data.map { character ->
+            val isCollected = collectedIdSet.contains(character.id)
+            ResponseCollectionDto.Data.CharacterResponseDto(
+                id = character.id,
+                name = if (isCollected) character.name else "?",
+                description = if (isCollected) character.description else "",
+                story = if (isCollected) character.story else "",
+                imageURL = if (isCollected) character.imageURL else ""
             )
         }
 

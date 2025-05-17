@@ -1,22 +1,12 @@
 package com.bravepeople.onggiyonggi.presentation.main.character
 
-import android.animation.Animator
-import android.animation.AnimatorListenerAdapter
-import android.animation.AnimatorSet
-import android.animation.ObjectAnimator
 import android.os.Bundle
-import android.os.PersistableBundle
-import android.view.View
 import androidx.activity.addCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.viewpager2.widget.ViewPager2
-import coil3.load
 import com.bravepeople.onggiyonggi.R
-import com.bravepeople.onggiyonggi.data.Character
-import com.bravepeople.onggiyonggi.data.response_dto.ResponseCollectionDto
+import com.bravepeople.onggiyonggi.data.response_dto.character.ResponseCollectionDto
 import com.bravepeople.onggiyonggi.databinding.ActivityCharacterCollectionDetailBinding
-import kotlinx.serialization.json.Json
-import timber.log.Timber
 
 class CharacterCollectionDetailActivity : AppCompatActivity() {
     private lateinit var binding: ActivityCharacterCollectionDetailBinding

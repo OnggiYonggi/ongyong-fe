@@ -1,11 +1,13 @@
 package com.bravepeople.onggiyonggi.domain.repository
 
-import com.bravepeople.onggiyonggi.data.response_dto.ResponseAddMaxDto
+import com.bravepeople.onggiyonggi.data.response_dto.character.ResponseAddMaxDto
 import com.bravepeople.onggiyonggi.data.response_dto.ResponseCheckSignUpDto
-import com.bravepeople.onggiyonggi.data.response_dto.ResponseCollectionDto
+import com.bravepeople.onggiyonggi.data.response_dto.character.ResponseCollectionDto
 import com.bravepeople.onggiyonggi.data.response_dto.ResponseLoginDto
-import com.bravepeople.onggiyonggi.data.response_dto.ResponseGetPetDto
+import com.bravepeople.onggiyonggi.data.response_dto.character.ResponseGetPetDto
+import com.bravepeople.onggiyonggi.data.response_dto.ResponseGetStoreDto
 import com.bravepeople.onggiyonggi.data.response_dto.ResponseSignUpDto
+import com.bravepeople.onggiyonggi.data.response_dto.character.ResponseAllCharacterDto
 
 interface BaseRepository {
     // signup
@@ -29,6 +31,14 @@ interface BaseRepository {
         password:String,
     ):Result<ResponseLoginDto>
 
+    // home
+    suspend fun getStore(
+        token:String,
+        latitude:Double,
+        longitude:Double,
+        radius:Int,
+    ):Result<ResponseGetStoreDto>
+
     // character
     suspend fun getPet(
         token:String,
@@ -45,6 +55,10 @@ interface BaseRepository {
     suspend fun addMax(
         token:String,
     ):Result<ResponseAddMaxDto>
+
+    suspend fun allCharacter(
+        token:String,
+    ):Result<ResponseAllCharacterDto>
 
     suspend fun collection(
         token:String,

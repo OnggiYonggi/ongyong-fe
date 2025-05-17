@@ -9,13 +9,11 @@ import android.view.View
 import android.view.animation.AccelerateDecelerateInterpolator
 import androidx.activity.addCallback
 import androidx.activity.viewModels
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.lifecycleScope
 import coil.load
 import com.bravepeople.onggiyonggi.R
-import com.bravepeople.onggiyonggi.data.response_dto.ResponseGetPetDto
+import com.bravepeople.onggiyonggi.data.response_dto.character.ResponseGetPetDto
 import com.bravepeople.onggiyonggi.databinding.ActivityCharacterMaxBinding
 import com.bravepeople.onggiyonggi.extension.character.AddMaxState
 import dagger.hilt.android.AndroidEntryPoint
@@ -124,14 +122,10 @@ class CharacterMaxActivity : AppCompatActivity() {
             duration = 500
         }
 
-        binding.btnCollection.visibility = View.VISIBLE
-        val fadeInButton = ObjectAnimator.ofFloat(binding.btnCollection, "alpha", 0f, 1f).apply {
-            duration = 500
-        }
 
         // 애니메이션 세트로 실행
         AnimatorSet().apply {
-            playTogether(slideAnimator, fadeInAnimator, fadeInButton)
+            playTogether(slideAnimator, fadeInAnimator)
             start()
         }
 
