@@ -1,6 +1,6 @@
 package com.bravepeople.onggiyonggi.data.service
 
-import com.bravepeople.onggiyonggi.data.response_dto.ResponseNaverAddressDto
+import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseNaverAddressDto
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.Query

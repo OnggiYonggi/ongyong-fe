@@ -2,7 +2,7 @@ package com.bravepeople.onggiyonggi.data.repositoryImpl
 
 import com.bravepeople.onggiyonggi.data.datasource.GoogleMapsDataSource
 import com.bravepeople.onggiyonggi.data.request_dto.RequestGoogleMapsSearchDto
-import com.bravepeople.onggiyonggi.data.response_dto.ResponseGoogleMapsSearchDto
+import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseGoogleMapsSearchDto
 import com.bravepeople.onggiyonggi.domain.repository.GoogleMapsRepository
 import timber.log.Timber
 import javax.inject.Inject

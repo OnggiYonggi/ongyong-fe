@@ -3,15 +3,12 @@ package com.bravepeople.onggiyonggi.presentation.main.home.review.review_detail
 import android.graphics.Color
 import android.os.Bundle
 import android.view.View
-import android.view.ViewTreeObserver
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.constraintlayout.widget.ConstraintLayout
 import coil3.load
 import com.bravepeople.onggiyonggi.R
 import com.bravepeople.onggiyonggi.data.Review
 import com.bravepeople.onggiyonggi.databinding.ActivityReviewDetailBinding
-import com.bravepeople.onggiyonggi.presentation.main.home.review.ReviewViewModel
 
 class ReviewDetailActivity : AppCompatActivity() {
     private lateinit var binding: ActivityReviewDetailBinding

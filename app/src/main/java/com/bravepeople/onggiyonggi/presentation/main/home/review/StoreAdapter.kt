@@ -1,48 +1,39 @@
 package com.bravepeople.onggiyonggi.presentation.main.home.review
 
-import android.content.Context
-import android.content.Intent
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import coil3.load
+import coil.load
 import coil3.request.transformations
-import coil3.transform.CircleCropTransformation
-import coil3.transform.RoundedCornersTransformation
-import com.bravepeople.onggiyonggi.R
+import coil.transform.RoundedCornersTransformation
 import com.bravepeople.onggiyonggi.data.Review
 import com.bravepeople.onggiyonggi.data.StoreOrReceipt
-import com.bravepeople.onggiyonggi.databinding.ItemBanDetailBinding
+import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseReviewDto
 import com.bravepeople.onggiyonggi.databinding.ItemReviewBinding
-import com.bravepeople.onggiyonggi.databinding.ItemStoreBinding
-import com.bravepeople.onggiyonggi.presentation.main.home.review.review_detail.ReviewDetailActivity
-import com.bravepeople.onggiyonggi.presentation.main.home.review_register.ReviewRegisterActivity
-import timber.log.Timber
 
-class ReviewAdapter(
-    private val clickReview:(Review)-> Unit,
-) : RecyclerView.Adapter<ReviewAdapter.ReviewViewHolder>() {
+class StoreAdapter(
+    private val clickReview:(ResponseReviewDto.Data.ReviewContent)-> Unit,
+) : RecyclerView.Adapter<StoreAdapter.StoreViewHolder>() {
     companion object {
         private const val VIEW_TYPE_STORE = 0
         private const val VIEW_TYPE_REVIEW = 1
     }
 
     private lateinit var storeData: StoreOrReceipt.Store
-    private val reviewList = mutableListOf<Review>()
+    private val reviewList = mutableListOf<ResponseReviewDto.Data.ReviewContent>()
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ReviewViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): StoreViewHolder {
                 val binding = ItemReviewBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-                return ReviewViewHolder(binding)
+                return StoreViewHolder(binding)
     }
 
-    override fun onBindViewHolder(holder: ReviewViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: StoreViewHolder, position: Int) {
                     holder.bind(reviewList[position])
     }
 
     override fun getItemCount(): Int =reviewList.size
 
-    fun setReviewList(newReviewList: List<Review>) {
+    fun setReviewList(newReviewList: List<ResponseReviewDto.Data.ReviewContent>) {
         reviewList.clear()
         reviewList.addAll(newReviewList)
         notifyDataSetChanged()
@@ -52,17 +43,17 @@ class ReviewAdapter(
         return getItemViewType(position) == VIEW_TYPE_REVIEW
     }
 
-    inner class ReviewViewHolder(private val binding: ItemReviewBinding) :
+    inner class StoreViewHolder(private val binding: ItemReviewBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(data: Review) {
+        fun bind(data: ResponseReviewDto.Data.ReviewContent) {
             with(binding) {
                 /*ivProfile.load(data.profile){
                     transformations(CircleCropTransformation())
                 }
                 tvUserName.text=data.userName
                 tvReviewDate.text=data.reviewDate*/
-                ivFood.load(data.food){
+                ivFood.load(data.imageURL){
                     transformations(RoundedCornersTransformation(16f))
                 }
             }
@@ -78,7 +69,7 @@ class ReviewAdapter(
             }
         }*/
 
-        private fun clickImage(review: Review){
+        private fun clickImage(review: ResponseReviewDto.Data.ReviewContent){
             binding.ivFood.setOnClickListener{
                 clickReview(review)
             }

@@ -5,9 +5,11 @@ import com.bravepeople.onggiyonggi.data.response_dto.ResponseCheckSignUpDto
 import com.bravepeople.onggiyonggi.data.response_dto.character.ResponseCollectionDto
 import com.bravepeople.onggiyonggi.data.response_dto.ResponseLoginDto
 import com.bravepeople.onggiyonggi.data.response_dto.character.ResponseGetPetDto
-import com.bravepeople.onggiyonggi.data.response_dto.ResponseGetStoreDto
+import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseGetStoreDto
 import com.bravepeople.onggiyonggi.data.response_dto.ResponseSignUpDto
 import com.bravepeople.onggiyonggi.data.response_dto.character.ResponseAllCharacterDto
+import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseReviewDto
+import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseStoreDetailDto
 
 interface BaseRepository {
     // signup
@@ -38,6 +40,18 @@ interface BaseRepository {
         longitude:Double,
         radius:Int,
     ):Result<ResponseGetStoreDto>
+
+    suspend fun storeDetail(
+        token:String,
+        id:Int,
+    ):Result<ResponseStoreDetailDto>
+
+    suspend fun getReviews(
+        token:String,
+        storeId:Int,
+        cursor:String,
+        size:Int,
+    ):Result<ResponseReviewDto>
 
     // character
     suspend fun getPet(

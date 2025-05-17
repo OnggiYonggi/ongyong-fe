@@ -7,13 +7,16 @@ import com.bravepeople.onggiyonggi.data.response_dto.ResponseCheckSignUpDto
 import com.bravepeople.onggiyonggi.data.response_dto.character.ResponseCollectionDto
 import com.bravepeople.onggiyonggi.data.response_dto.ResponseLoginDto
 import com.bravepeople.onggiyonggi.data.response_dto.character.ResponseGetPetDto
-import com.bravepeople.onggiyonggi.data.response_dto.ResponseGetStoreDto
+import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseGetStoreDto
 import com.bravepeople.onggiyonggi.data.response_dto.ResponseSignUpDto
 import com.bravepeople.onggiyonggi.data.response_dto.character.ResponseAllCharacterDto
+import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseReviewDto
+import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseStoreDetailDto
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.POST
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface BaseService {
@@ -46,8 +49,21 @@ interface BaseService {
         @Query("latitude") latitude:Double,
         @Query("longitude") longitude:Double,
         @Query("radius") radius:Int,
-    ):ResponseGetStoreDto
+    ): ResponseGetStoreDto
 
+    @GET("/store/{id}")
+    suspend fun storeDetail(
+        @Header ("Authorization") token:String,
+        @Path("id") id:Int,
+    ):ResponseStoreDetailDto
+
+    @GET("/store/{storeId}/reviews")
+    suspend fun getReviews(
+        @Header ("Authorization") token:String,
+        @Path("storeId") id:Int,
+        @Query("cursor") cursor:String,
+        @Query("size") size:Int,
+    ):ResponseReviewDto
 
     // character
     @GET("/pet/")

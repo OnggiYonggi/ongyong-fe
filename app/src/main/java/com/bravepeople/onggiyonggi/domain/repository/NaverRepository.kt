@@ -1,6 +1,6 @@
 package com.bravepeople.onggiyonggi.domain.repository
 
-import com.bravepeople.onggiyonggi.data.response_dto.ResponseNaverAddressDto
+import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseNaverAddressDto
 
 interface NaverRepository {
     suspend fun getAddress(

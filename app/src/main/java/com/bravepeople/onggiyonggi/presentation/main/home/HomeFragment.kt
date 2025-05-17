@@ -1,8 +1,6 @@
 package com.bravepeople.onggiyonggi.presentation.main.home
 
 import android.Manifest
-import android.animation.Animator
-import android.animation.AnimatorListenerAdapter
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.content.Intent
@@ -35,13 +33,14 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.bravepeople.onggiyonggi.R
 import com.bravepeople.onggiyonggi.data.Search
-import com.bravepeople.onggiyonggi.data.response_dto.ResponseGetStoreDto
+import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseGetStoreDto
 import com.bravepeople.onggiyonggi.databinding.FragmentHomeBinding
+import com.bravepeople.onggiyonggi.domain.model.StoreRank
 import com.bravepeople.onggiyonggi.extension.SearchState
 import com.bravepeople.onggiyonggi.extension.home.GetStoreState
 import com.bravepeople.onggiyonggi.presentation.MainViewModel
 import com.bravepeople.onggiyonggi.presentation.main.home.store_register.StoreRegisterActivity
-import com.bravepeople.onggiyonggi.presentation.main.home.review.ReviewFragment
+import com.bravepeople.onggiyonggi.presentation.main.home.review.StoreFragment
 import com.bravepeople.onggiyonggi.presentation.main.home.search.SearchRecentAdapter
 import com.bravepeople.onggiyonggi.presentation.main.home.search.SearchResultAdapter
 import com.bravepeople.onggiyonggi.presentation.main.home.search.SearchViewModel
@@ -300,22 +299,16 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
     }
 
     private fun rankToPriority(rank: String): Int {
-        return when (rank) {
-            "GOLD" -> 4
-            "SILVER" -> 3
-            "BRONZE" -> 2
-            "ROOKIE" -> 1
-            else -> 0
-        }
+        return StoreRank.from(rank).priority
     }
 
     private fun getColorByRank(rank: String): Int {
-        return when (rank) {
-            "ROOKIE" -> requireContext().getColor(R.color.home_rookie_yellow)
-            "BRONZE" -> requireContext().getColor(R.color.home_bronze_green)
-            "SILVER" -> requireContext().getColor(R.color.home_silver_green)
-            "GOLD" -> requireContext().getColor(R.color.home_gold_green)
-            else -> requireContext().getColor(R.color.red)
+        return when (StoreRank.from(rank)) {
+            StoreRank.ROOKIE -> requireContext().getColor(R.color.home_rookie_yellow)
+            StoreRank.BRONZE -> requireContext().getColor(R.color.home_bronze_green)
+            StoreRank.SILVER -> requireContext().getColor(R.color.home_silver_green)
+            StoreRank.GOLD -> requireContext().getColor(R.color.home_gold_green)
+            StoreRank.BAN -> requireContext().getColor(R.color.red)
         }
     }
 
@@ -503,9 +496,11 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
     }
 
     private fun clickMarker(marker: Marker, store: ResponseGetStoreDto.StoreData) {
+        selectedMarker?.captionText=""
+
         selectedMarker = marker
         selectedMarker?.let{
-            it.tag="marker"
+            it.captionText="marker"
         }
 
         // 클릭해도 색상 유지되도록 다시 설정
@@ -513,28 +508,8 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
 
         val isBan = marker.tag as? Boolean ?: false
         showReviewFragment(
-            Search(
-                R.drawable.img_review1,
-                requireContext().getString(R.string.store_name),
-                requireContext().getString(R.string.store_address),
-                marker.position,
-                isBan
-            ), true
+            store.id, true
         )
-       /* marker.setOnClickListener {
-            selectedMarker = marker
-            val isBan = marker.tag as? Boolean ?: false
-            showReviewFragment(
-                Search(
-                    R.drawable.img_review1,
-                    requireContext().getString(R.string.store_name),
-                    requireContext().getString(R.string.store_address),
-                    marker.position,
-                    isBan
-                ), true
-            )
-            true
-        }*/
     }
 
     private fun clickSearchBar() {
@@ -548,7 +523,7 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
 
             searchRecentAdapter = SearchRecentAdapter(requireContext(),
                 clickStore = { search ->
-                    showReviewFragment(search, false)
+                    //showReviewFragment(search, false)
                 },
                 clickDelete = { search ->
                     removeRecentList(search)
@@ -721,7 +696,7 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
                                     }"
                                 )
 
-                                showReviewFragment(data, false)
+                                //showReviewFragment(data, false)
                             }
                         )
                         searchResultAdapter.getList(searchState.searchDto.items)
@@ -745,7 +720,7 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
         searchRecentAdapter.getRecentSearchList(searchViewModel.getRecentSearchList())
     }
 
-    private fun showReviewFragment(data: Search, click: Boolean) {
+    private fun showReviewFragment(id: Int, click: Boolean) {
         hideKeyboard(binding.root)
         val fragmentManager = parentFragmentManager
 
@@ -757,7 +732,8 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
                 .commitNow() // 확실하게 제거 완료 후 진행
         }
 
-        val fragment = ReviewFragment.newInstance(data)
+        val token=homeViewModel.accessToken.value?:return
+        val fragment = StoreFragment.newInstance(id, token)
         with(binding.rvResult) {
             adapter = null
             visibility = View.GONE
@@ -782,11 +758,11 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
         }
 
         isUserTyping = false
-        binding.etSearch.setText(data.name)
+        /*binding.etSearch.setText(data.name)
         binding.etSearch.post {
             isUserTyping = true
         }
-        moveToMarker(data, click)
+        moveToMarker(data, click)*/
     }
 
 
@@ -913,7 +889,7 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
                         isUserTyping = true
                     }
                 }
-                selectedMarker!!.setCaptionText("")
+                selectedMarker!!.captionText=""
                 newMarker?.map = null
             } else {
                 setVisibility(false)
@@ -940,6 +916,7 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
 
                     markerClick = false
                     newMarker?.map = null
+                    selectedMarker?.captionText=""
 
                     if (clickSearch) setVisibility(true)
                 }
@@ -1124,7 +1101,7 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
 
     fun openReviewFragment() {
         resetFabState()
-        val reviewFragment = ReviewFragment()
+        val reviewFragment = StoreFragment()
         parentFragmentManager.beginTransaction()
             .add(R.id.fcv_review, reviewFragment, "ReviewFragment")
             .commit()

@@ -8,9 +8,11 @@ import com.bravepeople.onggiyonggi.data.response_dto.ResponseCheckSignUpDto
 import com.bravepeople.onggiyonggi.data.response_dto.character.ResponseCollectionDto
 import com.bravepeople.onggiyonggi.data.response_dto.ResponseLoginDto
 import com.bravepeople.onggiyonggi.data.response_dto.character.ResponseGetPetDto
-import com.bravepeople.onggiyonggi.data.response_dto.ResponseGetStoreDto
+import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseGetStoreDto
 import com.bravepeople.onggiyonggi.data.response_dto.ResponseSignUpDto
 import com.bravepeople.onggiyonggi.data.response_dto.character.ResponseAllCharacterDto
+import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseReviewDto
+import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseStoreDetailDto
 import com.bravepeople.onggiyonggi.data.service.BaseService
 import javax.inject.Inject
 
@@ -32,6 +34,14 @@ class BaseDataSourceImpl @Inject constructor(
         longitude: Double,
         radius: Int
     ): ResponseGetStoreDto = baseService.getStore(token, latitude, longitude, radius)
+
+    override suspend fun storeDetail(token: String, id: Int): ResponseStoreDetailDto = baseService.storeDetail(token,id)
+    override suspend fun getReviews(
+        token: String,
+        id: Int,
+        cursor: String,
+        size: Int
+    ): ResponseReviewDto = baseService.getReviews(token, id, cursor, size)
 
     // character
     override suspend fun getPet(token:String): ResponseGetPetDto = baseService.getPet(token)
