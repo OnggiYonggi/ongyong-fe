@@ -1,7 +1,7 @@
 package com.bravepeople.onggiyonggi.data.service
 
 import com.bravepeople.onggiyonggi.data.request_dto.RequestGoogleMapsSearchDto
-import com.bravepeople.onggiyonggi.data.response_dto.ResponseGoogleMapsSearchDto
+import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseGoogleMapsSearchDto
 import retrofit2.http.Body
 import retrofit2.http.Header
 import retrofit2.http.POST

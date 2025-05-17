@@ -1,7 +1,7 @@
 package com.bravepeople.onggiyonggi.data.datasourceImpl
 
 import com.bravepeople.onggiyonggi.data.datasource.NaverDataSource
-import com.bravepeople.onggiyonggi.data.response_dto.ResponseNaverAddressDto
+import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseNaverAddressDto
 import com.bravepeople.onggiyonggi.data.service.NaverMapService
 import javax.inject.Inject
 

@@ -1,6 +1,6 @@
 package com.bravepeople.onggiyonggi.data.datasource
 
-import com.bravepeople.onggiyonggi.data.response_dto.ResponseNaverAddressDto
+import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseNaverAddressDto
 import retrofit2.http.Header
 import retrofit2.http.Query
 
@@ -12,5 +12,5 @@ interface NaverDataSource {
         @Query("display") display: Int = 10,
         @Query("start") start: Int = 1,
         @Query("sort") sort: String = "random"
-    ):ResponseNaverAddressDto
+    ): ResponseNaverAddressDto
 }

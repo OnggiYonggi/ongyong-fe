@@ -1,6 +1,7 @@
 package com.bravepeople.onggiyonggi.presentation.main.home.review
 
 import android.animation.ValueAnimator
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -14,9 +15,14 @@ import androidx.lifecycle.lifecycleScope
 import com.bravepeople.onggiyonggi.R
 import com.bravepeople.onggiyonggi.data.Review
 import com.bravepeople.onggiyonggi.data.Search
+import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseReviewDto
+import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseStoreDetailDto
 import com.bravepeople.onggiyonggi.data.toStore
 import com.bravepeople.onggiyonggi.databinding.FragmentReviewBinding
+import com.bravepeople.onggiyonggi.domain.model.StoreRank
 import com.bravepeople.onggiyonggi.extension.GetStoreTimeState
+import com.bravepeople.onggiyonggi.extension.home.GetReviewState
+import com.bravepeople.onggiyonggi.extension.home.GetStoreDetailState
 import com.bravepeople.onggiyonggi.presentation.main.home.store_register.StoreRegisterActivity
 import com.bravepeople.onggiyonggi.presentation.main.home.review.review_detail.ReviewDetailActivity
 import com.bravepeople.onggiyonggi.presentation.main.home.review_register.ReviewRegisterActivity
@@ -25,13 +31,13 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 
 @AndroidEntryPoint
-class ReviewFragment : Fragment() {
+class StoreFragment : Fragment() {
     private var _binding: FragmentReviewBinding? = null
     private val binding: FragmentReviewBinding
         get() = requireNotNull(_binding) { "review fragment is null" }
 
-    private val reviewViewModel: ReviewViewModel by activityViewModels()
-    private lateinit var reviewAdapter: ReviewAdapter
+    private val storeViewModel: StoreViewModel by activityViewModels()
+    private lateinit var reviewAdapter: StoreAdapter
     private var isExpanded = false
 
     private var initialY = 0f
@@ -39,10 +45,11 @@ class ReviewFragment : Fragment() {
     private val minHeightToShow = 300f
 
     companion object {
-        fun newInstance(search: Search): ReviewFragment {
-            val fragment = ReviewFragment()
+        fun newInstance(storeId: Int, token:String): StoreFragment {
+            val fragment = StoreFragment()
             val args = Bundle().apply {
-                putParcelable("search", search)
+                putInt("storeId", storeId)
+                putString("accessToken", token)
             }
             fragment.arguments = args
             return fragment
@@ -62,13 +69,17 @@ class ReviewFragment : Fragment() {
     }
 
     private fun setting() {
-        val getData = arguments?.getParcelable<Search>("search")
+        val storeId = arguments?.getInt("storeId")
+        val token=arguments?.getString("accessToken")
         setupBottomSheetBehavior()
         getStoreTime()
-        setupUI(getData)
+        if (token != null && storeId!=null) {
+                setupUI(token, storeId)
+        }
         Timber.d("Fragment height: ${binding.root.height}")
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     private fun setupBottomSheetBehavior() {
         val parent = view?.parent as? View
         val velocityTracker = VelocityTracker.obtain()
@@ -146,6 +157,7 @@ class ReviewFragment : Fragment() {
         return (this * resources.displayMetrics.density).toInt()
     }
 
+    // 추후 가게 추가 api까지 끝나면 서버에서 time도 받아오므로 없어질 메서드.
     private fun getStoreTime(){
         val dayMap = mapOf(
             "Monday" to "월요일",
@@ -158,7 +170,7 @@ class ReviewFragment : Fragment() {
         )
 
         lifecycleScope.launch {
-            reviewViewModel.getStoreTimeState.collect{getStoreTimeState->
+            storeViewModel.getStoreTimeState.collect{getStoreTimeState->
                 when(getStoreTimeState){
                     is GetStoreTimeState.Success->{
                         val time = getStoreTimeState.searchDto.places
@@ -186,8 +198,46 @@ class ReviewFragment : Fragment() {
         }
     }
 
-    private fun setupUI(data: Search?) {
-        if (data == null) return
+    private fun setupUI(accessToken:String, id:Int) {
+        lifecycleScope.launch {
+            storeViewModel.getDetailState.collect{state->
+                when(state){
+                    is GetStoreDetailState.Success->{
+                        storeViewModel.searchStoreTime(state.storeDto.data.name)
+
+                        val store = state.storeDto.data
+                        val isBan = StoreRank.from(store.storeRank) == StoreRank.BAN
+
+                        with(binding) {
+                            clBan.visibility = if (isBan) View.VISIBLE else View.GONE
+                            clReviews.visibility = if (isBan) View.GONE else View.VISIBLE
+
+                            tvStoreName.text=store.name
+                            tvStoreAddress.text=store.address
+
+                            if (isBan) {
+                                clBan.minHeight = (resources.displayMetrics.heightPixels * 0.6).toInt()
+                                btnRegister.setOnClickListener {
+                                    clickNewRegister()
+                                }
+                            } else {
+                                setupRecyclerView(accessToken, id)
+                                btnAdd.setOnClickListener{
+                                    writeReview()
+                                }
+                            }
+                        }
+                    }
+                    is GetStoreDetailState.Loading->{}
+                    is GetStoreDetailState.Error->{
+                        Timber.e("get store detail state error!!")
+                    }
+                }
+            }
+        }
+
+        storeViewModel.getDetail(accessToken,id)
+       /* if (data == null) return
         val isBan = data.isBan
 
         with(binding) {
@@ -207,26 +257,34 @@ class ReviewFragment : Fragment() {
             }
         }
 
-        reviewViewModel.searchStoreTime(data.name)
+        storeViewModel.searchStoreTime(data.name)*/
     }
 
 
-    private fun setupRecyclerView(getData: Search) {
-        reviewAdapter = ReviewAdapter(
-            clickReview = {review -> clickReview(review)},
-        )
-        binding.rvReviews.adapter = reviewAdapter
-        binding.rvReviews.setOnTouchListener { _, event ->
-            !isExpanded  // isExpanded가 false면 true를 반환해서 터치 막음
+    private fun setupRecyclerView(accessToken: String, id: Int) {
+        lifecycleScope.launch {
+            storeViewModel.getReviewState.collect{state->
+                when(state){
+                    is GetReviewState.Success->{
+                        reviewAdapter = StoreAdapter(
+                            clickReview = {review -> clickReview(review)},
+                        )
+                        binding.rvReviews.adapter = reviewAdapter
+                        binding.rvReviews.setOnTouchListener { _, event ->
+                            !isExpanded  // isExpanded가 false면 true를 반환해서 터치 막음
+                        }
+
+                        state.reviewDto.data.contents?.let { reviewAdapter.setReviewList(it) }
+                    }
+                    is GetReviewState.Loading->{}
+                    is GetReviewState.Error->{
+                        Timber.e("get review state error!!")
+                    }
+                }
+            }
         }
-        loadStoreAndReviews(getData)
-    }
 
-    private fun loadStoreAndReviews(getData: Search) {
-        val store = getData.toStore()
-        store?.let {
-            reviewAdapter.setReviewList(reviewViewModel.getReviewList())
-        } ?: Timber.e("Store is null")
+        storeViewModel.getReviews(accessToken, id)
     }
 
     private fun clickNewRegister() {
@@ -237,7 +295,7 @@ class ReviewFragment : Fragment() {
         requireActivity().overridePendingTransition(R.anim.slide_in_right, R.anim.stay_still)
     }
 
-    private fun clickReview(review: Review) {
+    private fun clickReview(review: ResponseReviewDto.Data.ReviewContent) {
         val intent = Intent(requireContext(), ReviewDetailActivity::class.java)
         intent.putExtra("review", review)
         startActivity(intent)
@@ -257,156 +315,3 @@ class ReviewFragment : Fragment() {
         _binding = null
     }
 }
-
-
-/*
-import android.app.Dialog
-import android.content.Intent
-import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
-import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import androidx.fragment.app.activityViewModels
-import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.bravepeople.onggiyonggi.R
-import com.bravepeople.onggiyonggi.data.Review
-import com.bravepeople.onggiyonggi.data.Search
-import com.bravepeople.onggiyonggi.data.StoreOrReceipt
-import com.bravepeople.onggiyonggi.data.toStore
-import com.bravepeople.onggiyonggi.databinding.FragmentReviewBinding
-import com.bravepeople.onggiyonggi.presentation.review.review_detail.ReviewDetailActivity
-import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import timber.log.Timber
-
-class ReviewFragment:BottomSheetDialogFragment(), ReviewClickListener {
-    private var _binding: FragmentReviewBinding?=null
-    private val binding: FragmentReviewBinding
-        get()= requireNotNull(_binding){"receipt fragment is null"}
-
-    private var bottomSheetBehavior: BottomSheetBehavior<View>? = null
-    private var isFirstResume = true
-
-    private val reviewViewModel:ReviewViewModel by activityViewModels()
-    private lateinit var reviewAdapter:ReviewAdapter
-
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        val dialog = super.onCreateDialog(savedInstanceState)
-        dialog.window?.setDimAmount(0f)
-        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-        return dialog
-    }
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        _binding = FragmentReviewBinding.inflate(inflater, container, false)
-        return binding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        setting()
-    }
-
-    private fun setting(){
-        reviewAdapter=ReviewAdapter(requireContext(), this)
-        val gridLayoutManager = GridLayoutManager(requireContext(), 2)
-        gridLayoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
-            override fun getSpanSize(position: Int): Int {
-                return if (reviewAdapter.getItemViewType(position) == 0) 2 else 1
-            }
-        }
-        binding.rvReview.layoutManager = gridLayoutManager
-        binding.rvReview.adapter=reviewAdapter
-
-        val store = when {
-            arguments?.containsKey("search") == true -> {
-                val search = arguments?.getParcelable<Search>("search")
-                search?.toStore()
-            }
-            else -> reviewViewModel.getStore()
-        }
-
-        if (store == null) {
-            Timber.e("Store is null")
-            return
-        }
-
-        getStore(store)
-        getReview()
-
-    }
-
-    private fun getStore(store: StoreOrReceipt.Store) {
-        reviewAdapter.setStore(store)
-    }
-
-    private fun getReview(){
-        val reviews = reviewViewModel.getReviewList()
-        reviewAdapter.setReviewList(reviews)
-    }
-
-     override fun onStart() {
-         super.onStart()
-
-         val bottomSheet = dialog?.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)
-         bottomSheet?.let {
-             bottomSheetBehavior = BottomSheetBehavior.from(it).apply {
-                 peekHeight = (resources.displayMetrics.heightPixels * 0.25).toInt()
-                 isFitToContents = true
-                 skipCollapsed = false
-                 isHideable = false
-                 state = BottomSheetBehavior.STATE_COLLAPSED
-             }
-
-             binding.rvReview.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-                 override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                     val isAtTop = !recyclerView.canScrollVertically(-1)
-                     bottomSheetBehavior?.isDraggable = isAtTop
-                 }
-             })
-         }
-     }
-
-    override fun onResume() {
-        super.onResume()
-        if (!isFirstResume) {
-            bottomSheetBehavior?.state = BottomSheetBehavior.STATE_EXPANDED
-            reviewAdapter.setReviewList(reviewViewModel.getNewList())
-        }
-        isFirstResume = false
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding=null
-    }
-
-    override fun onReviewClick(review: Review) {
-        val intent= Intent(requireContext(), ReviewDetailActivity::class.java)
-        intent.putExtra("review", review)
-        startActivity(intent)
-        requireActivity().overridePendingTransition(
-            R.anim.slide_in_right,
-            R.anim.stay_still
-        )
-    }
-
-    companion object {
-        fun newInstance(search: Search): ReviewFragment {
-            val fragment = ReviewFragment()
-            val args = Bundle().apply {
-                putParcelable("search", search)
-            }
-            fragment.arguments = args
-            return fragment
-        }
-    }
-
-}*/

@@ -1,8 +1,6 @@
 package com.bravepeople.onggiyonggi.extension.home
 
-import com.bravepeople.onggiyonggi.data.response_dto.ResponseGetStoreDto
-import com.bravepeople.onggiyonggi.data.response_dto.ResponseGoogleMapsSearchDto
-import com.bravepeople.onggiyonggi.extension.GetStoreTimeState
+import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseGetStoreDto
 
 sealed class GetStoreState {
     data object Loading: GetStoreState()

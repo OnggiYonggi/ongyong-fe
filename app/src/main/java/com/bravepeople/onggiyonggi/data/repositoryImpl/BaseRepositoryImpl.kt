@@ -8,9 +8,11 @@ import com.bravepeople.onggiyonggi.data.response_dto.ResponseCheckSignUpDto
 import com.bravepeople.onggiyonggi.data.response_dto.character.ResponseCollectionDto
 import com.bravepeople.onggiyonggi.data.response_dto.ResponseLoginDto
 import com.bravepeople.onggiyonggi.data.response_dto.character.ResponseGetPetDto
-import com.bravepeople.onggiyonggi.data.response_dto.ResponseGetStoreDto
+import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseGetStoreDto
 import com.bravepeople.onggiyonggi.data.response_dto.ResponseSignUpDto
 import com.bravepeople.onggiyonggi.data.response_dto.character.ResponseAllCharacterDto
+import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseReviewDto
+import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseStoreDetailDto
 import com.bravepeople.onggiyonggi.domain.repository.BaseRepository
 import timber.log.Timber
 import javax.inject.Inject
@@ -67,6 +69,27 @@ class BaseRepositoryImpl @Inject constructor(
             baseDataSource.getStore(token, latitude, longitude, radius)
         }.onFailure {
             Timber.e("base repository get store fail!!: $it")
+        }
+    }
+
+    override suspend fun storeDetail(token: String, id: Int): Result<ResponseStoreDetailDto> {
+        return runCatching {
+            baseDataSource.storeDetail(token,id)
+        }.onFailure {
+            Timber.e("base repository store detail fail!!: $it")
+        }
+    }
+
+    override suspend fun getReviews(
+        token: String,
+        storeId: Int,
+        cursor: String,
+        size: Int
+    ): Result<ResponseReviewDto> {
+        return runCatching {
+            baseDataSource.getReviews(token,  storeId, cursor, size)
+        }.onFailure {
+            Timber.e("base repository get reviews fail!!: $it")
         }
     }
 

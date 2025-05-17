@@ -1,7 +1,7 @@
 package com.bravepeople.onggiyonggi.data.repositoryImpl
 
 import com.bravepeople.onggiyonggi.data.datasource.NaverDataSource
-import com.bravepeople.onggiyonggi.data.response_dto.ResponseNaverAddressDto
+import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseNaverAddressDto
 import com.bravepeople.onggiyonggi.domain.repository.NaverRepository
 import timber.log.Timber
 import javax.inject.Inject

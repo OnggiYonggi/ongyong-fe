@@ -1,4 +1,4 @@
-package com.bravepeople.onggiyonggi.data.response_dto
+package com.bravepeople.onggiyonggi.data.response_dto.home
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

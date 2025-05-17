@@ -8,9 +8,12 @@ import androidx.lifecycle.viewModelScope
 import com.bravepeople.onggiyonggi.R
 import com.bravepeople.onggiyonggi.data.Review
 import com.bravepeople.onggiyonggi.data.StoreOrReceipt
+import com.bravepeople.onggiyonggi.data.repositoryImpl.BaseRepositoryImpl
 import com.bravepeople.onggiyonggi.data.request_dto.RequestGoogleMapsSearchDto
 import com.bravepeople.onggiyonggi.domain.repository.GoogleMapsRepository
 import com.bravepeople.onggiyonggi.extension.GetStoreTimeState
+import com.bravepeople.onggiyonggi.extension.home.GetReviewState
+import com.bravepeople.onggiyonggi.extension.home.GetStoreDetailState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -23,11 +26,17 @@ import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
-class ReviewViewModel @Inject constructor(
+class StoreViewModel @Inject constructor(
+    private val baseRepositoryImpl: BaseRepositoryImpl,
     private val googleMapsRepository: GoogleMapsRepository
 ) : ViewModel() {
     private val _getStoreTimeState = MutableStateFlow<GetStoreTimeState>(GetStoreTimeState.Loading)
+    private val _getDetailState = MutableStateFlow<GetStoreDetailState>(GetStoreDetailState.Loading)
+    private val _getReviewState = MutableStateFlow<GetReviewState>(GetReviewState.Loading)
+
     val getStoreTimeState:StateFlow<GetStoreTimeState> = _getStoreTimeState.asStateFlow()
+    val getDetailState:StateFlow<GetStoreDetailState> = _getDetailState.asStateFlow()
+    val getReviewState:StateFlow<GetReviewState> = _getReviewState.asStateFlow()
 
     fun searchStoreTime(inputText:String){
         viewModelScope.launch {
@@ -36,6 +45,46 @@ class ReviewViewModel @Inject constructor(
                 Timber.d("search store time success!")
             }.onFailure {
                 _getStoreTimeState.value=GetStoreTimeState.Error("Error: response fail")
+                if (it is HttpException) {
+                    try {
+                        val errorBody: ResponseBody? = it.response()?.errorBody()
+                        val errorBodyString = errorBody?.string() ?: ""
+                        httpError(errorBodyString)
+                    } catch (e: Exception) {
+                        // JSON 파싱 실패 시 로깅
+                        Timber.e("Error parsing error body: ${e}")
+                    }
+                }
+            }
+        }
+    }
+
+    fun getDetail(token:String, id:Int){
+        viewModelScope.launch {
+            baseRepositoryImpl.storeDetail(token, id).onSuccess { response->
+                _getDetailState.value=GetStoreDetailState.Success(response)
+            }.onFailure {
+                _getDetailState.value=GetStoreDetailState.Error("get detail error!!")
+                if (it is HttpException) {
+                    try {
+                        val errorBody: ResponseBody? = it.response()?.errorBody()
+                        val errorBodyString = errorBody?.string() ?: ""
+                        httpError(errorBodyString)
+                    } catch (e: Exception) {
+                        // JSON 파싱 실패 시 로깅
+                        Timber.e("Error parsing error body: ${e}")
+                    }
+                }
+            }
+        }
+    }
+
+    fun getReviews(token:String, id:Int){
+        viewModelScope.launch {
+            baseRepositoryImpl.getReviews(token, id, "", 10).onSuccess { response->
+                _getReviewState.value=GetReviewState.Success(response)
+            }.onFailure {
+                _getReviewState.value=GetReviewState.Error("get reviews error")
                 if (it is HttpException) {
                     try {
                         val errorBody: ResponseBody? = it.response()?.errorBody()

@@ -5,7 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.bravepeople.onggiyonggi.data.response_dto.ResponseNaverAddressDto
+import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseNaverAddressDto
 import com.bravepeople.onggiyonggi.databinding.ItemSearchBinding
 import timber.log.Timber
 

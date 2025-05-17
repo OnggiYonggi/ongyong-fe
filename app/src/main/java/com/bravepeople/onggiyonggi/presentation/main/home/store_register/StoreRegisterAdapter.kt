@@ -5,7 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.bravepeople.onggiyonggi.data.response_dto.ResponseNaverAddressDto
+import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseNaverAddressDto
 import com.bravepeople.onggiyonggi.databinding.ItemSearchBinding
 
 class StoreRegisterAdapter(
@@ -34,7 +34,7 @@ class StoreRegisterAdapter(
     inner class StoreRegisterViewHolder(
         private val binding:ItemSearchBinding
     ):RecyclerView.ViewHolder(binding.root){
-        fun onBind(item:ResponseNaverAddressDto.Item){
+        fun onBind(item: ResponseNaverAddressDto.Item){
             with(binding){
                 tvName.text = Html.fromHtml(item.title, Html.FROM_HTML_MODE_LEGACY)
                 tvAddress.text = item.roadAddress
