@@ -16,7 +16,7 @@ class WriteReviewViewHolder(val binding: ItemWriteReviewBinding) :
     RecyclerView.ViewHolder(binding.root) {
 
     @SuppressLint("ClickableViewAccessibility")
-    fun bind(complete: () -> Unit, onBound: () -> Unit, onRequestFadeOut: (() -> Unit)? = null, onFocusRequest:(Int)->Unit,) {
+    fun bind(complete: (String) -> Unit, onBound: () -> Unit, onRequestFadeOut: (() -> Unit)? = null, onFocusRequest:(Int)->Unit,) {
         binding.root.post {
             onBound()
         }
@@ -68,7 +68,7 @@ class WriteReviewViewHolder(val binding: ItemWriteReviewBinding) :
         }
 
         binding.btnRegister.setOnClickListener {
-            complete()
+            complete(binding.etReview.text.toString())
         }
 
         binding.root.tag = {

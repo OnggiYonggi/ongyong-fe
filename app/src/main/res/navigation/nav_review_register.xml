@@ -59,6 +59,11 @@
         android:id="@+id/reviewCompleteFragment"
         android:name="com.bravepeople.onggiyonggi.presentation.main.home.review_register.ReviewCompleteFragment"
         android:label="review complete">
+
+        <argument
+            android:name="text"
+            app:argType="string"
+            app:nullable="false"/>
     </fragment>
 
     <fragment

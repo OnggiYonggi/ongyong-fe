@@ -8,11 +8,13 @@ import androidx.core.view.WindowInsetsControllerCompat
 import androidx.navigation.findNavController
 import com.bravepeople.onggiyonggi.R
 import com.bravepeople.onggiyonggi.databinding.ActivityReviewRegisterBinding
-import timber.log.Timber
+import dagger.hilt.android.AndroidEntryPoint
 
-class ReviewRegisterActivity:AppCompatActivity() {
-    private  lateinit var binding: ActivityReviewRegisterBinding
+@AndroidEntryPoint
+class ReviewRegisterActivity : AppCompatActivity() {
+    private lateinit var binding: ActivityReviewRegisterBinding
     private val reviewRegisterViewModel: ReviewRegisterViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         init()
@@ -24,7 +26,7 @@ class ReviewRegisterActivity:AppCompatActivity() {
 
         val navController = findNavController(R.id.fcv_review)
         val navInflater = navController.navInflater
-        val navGraph = navInflater.inflate(R.navigation.nav_graph)
+        val navGraph = navInflater.inflate(R.navigation.nav_review_register)
 
         val bundle = Bundle().apply {
             putSerializable("photoType", PhotoType.RECEIPT)
@@ -35,7 +37,7 @@ class ReviewRegisterActivity:AppCompatActivity() {
     }
 
 
-    private fun init(){
+    private fun init() {
         binding = ActivityReviewRegisterBinding.inflate(layoutInflater)
         setContentView(binding.root)
     }
@@ -48,7 +50,10 @@ class ReviewRegisterActivity:AppCompatActivity() {
             isAppearanceLightNavigationBars = true  // 네비게이션 바 아이콘도 어둡게
         }
 
-        val registerActivity=intent.getStringExtra("registerActivity")
-        if(registerActivity!=null) reviewRegisterViewModel.setBeforeActivity(registerActivity)
+        val registerActivity = intent.getStringExtra("registerActivity")
+        if (registerActivity != null) reviewRegisterViewModel.setBeforeActivity(registerActivity)
+
+        val token = intent.getStringExtra("accessToken")
+        token?.let { reviewRegisterViewModel.saveToken(token) }
     }
 }

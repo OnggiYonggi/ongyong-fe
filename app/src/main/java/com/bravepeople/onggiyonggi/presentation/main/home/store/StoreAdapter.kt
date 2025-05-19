@@ -1,12 +1,10 @@
-package com.bravepeople.onggiyonggi.presentation.main.home.review
+package com.bravepeople.onggiyonggi.presentation.main.home.store
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
-import coil3.request.transformations
 import coil.transform.RoundedCornersTransformation
-import com.bravepeople.onggiyonggi.data.Review
 import com.bravepeople.onggiyonggi.data.StoreOrReceipt
 import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseReviewDto
 import com.bravepeople.onggiyonggi.databinding.ItemReviewBinding

@@ -2,15 +2,24 @@ package com.bravepeople.onggiyonggi.presentation.main.home.review_register
 
 import android.content.Context
 import android.net.Uri
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.bravepeople.onggiyonggi.R
 import com.bravepeople.onggiyonggi.data.SelectQuestion
 import com.bravepeople.onggiyonggi.data.StoreOrReceipt
 
 class ReviewRegisterViewModel : ViewModel() {
+    private val _accessToken = MutableLiveData<String>()
+    val accessToken: LiveData<String> get()=_accessToken
+
     private var receipt: Uri? = null
     private var food: Uri? = null
     private var beforeActivity: String? = null
+
+    fun saveToken(token:String){
+        _accessToken.value=token
+    }
 
     fun setBeforeActivity(before: String) {
         beforeActivity = before

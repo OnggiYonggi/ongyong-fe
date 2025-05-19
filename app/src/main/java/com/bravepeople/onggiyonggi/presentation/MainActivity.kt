@@ -151,12 +151,15 @@ class MainActivity : AppCompatActivity() {
 
         val openFragment = intent.getStringExtra("openFragment")
         val fromReview = intent.getBooleanExtra("fromReview", false)
+        val goTo = intent.getStringExtra("goTo")
 
         if (openFragment == "review" && fromReview) {
             val fragment = supportFragmentManager.findFragmentById(R.id.fcv_main)
             if (fragment is HomeFragment) {
                 fragment.openReviewFragment()
             }
+        } else if (goTo == "character") {
+            binding.bnvMain.selectedItemId = R.id.characterFragment
         }
     }
 }

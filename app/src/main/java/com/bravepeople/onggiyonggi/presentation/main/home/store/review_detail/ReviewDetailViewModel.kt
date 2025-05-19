@@ -1,4 +1,4 @@
-package com.bravepeople.onggiyonggi.presentation.main.home.review.review_detail
+package com.bravepeople.onggiyonggi.presentation.main.home.store.review_detail
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
