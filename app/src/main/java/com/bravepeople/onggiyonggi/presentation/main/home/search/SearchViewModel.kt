@@ -6,8 +6,11 @@ import androidx.lifecycle.viewModelScope
 import com.bravepeople.onggiyonggi.BuildConfig
 import com.bravepeople.onggiyonggi.R
 import com.bravepeople.onggiyonggi.data.Search
+import com.bravepeople.onggiyonggi.data.repositoryImpl.BaseRepositoryImpl
+import com.bravepeople.onggiyonggi.domain.repository.BaseRepository
 import com.bravepeople.onggiyonggi.domain.repository.NaverRepository
 import com.bravepeople.onggiyonggi.extension.SearchState
+import com.bravepeople.onggiyonggi.extension.home.SearchStoreState
 import com.naver.maps.geometry.LatLng
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,8 +25,32 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SearchViewModel @Inject constructor(
+    private val baseRepository: BaseRepository,
     private val naverRepository: NaverRepository
 ) : ViewModel() {
+    private val _searchStoreState = MutableStateFlow<SearchStoreState>(SearchStoreState.Loading)
+    val searchStoreState:StateFlow<SearchStoreState> = _searchStoreState.asStateFlow()
+
+    fun searchStore(token:String, keyword:String){
+        viewModelScope.launch {
+            baseRepository.searchStore(token,keyword).onSuccess { response->
+                _searchStoreState.value=SearchStoreState.Success(response)
+            }.onFailure {
+                _searchStoreState.value=SearchStoreState.Error("search store error!!")
+                if (it is HttpException) {
+                    try {
+                        val errorBody: ResponseBody? = it.response()?.errorBody()
+                        val errorBodyString = errorBody?.string() ?: ""
+                        httpError(errorBodyString)
+                    } catch (e: Exception) {
+                        // JSON 파싱 실패 시 로깅
+                        Timber.e("Error parsing error body: ${e}")
+                    }
+                }
+            }
+        }
+    }
+
     private val recentSearchList = listOf(
         Search(
             R.drawable.ic_pin_green,

@@ -9,6 +9,7 @@ import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseGetStoreDto
 import com.bravepeople.onggiyonggi.data.response_dto.ResponseSignUpDto
 import com.bravepeople.onggiyonggi.data.response_dto.character.ResponseAllCharacterDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseReviewDto
+import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseSearchStoreDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseStoreDetailDto
 
 interface BaseRepository {
@@ -52,6 +53,11 @@ interface BaseRepository {
         cursor:String,
         size:Int,
     ):Result<ResponseReviewDto>
+
+    suspend fun searchStore(
+        token:String,
+        keyword:String,
+    ):Result<ResponseSearchStoreDto>
 
     // character
     suspend fun getPet(
