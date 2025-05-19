@@ -1,6 +1,7 @@
 package com.bravepeople.onggiyonggi.data.service
 
 import com.bravepeople.onggiyonggi.data.request_dto.RequestLoginDto
+import com.bravepeople.onggiyonggi.data.request_dto.RequestRegisterStoreDto
 import com.bravepeople.onggiyonggi.data.request_dto.RequestSignUpDto
 import com.bravepeople.onggiyonggi.data.response_dto.character.ResponseAddMaxDto
 import com.bravepeople.onggiyonggi.data.response_dto.ResponseCheckSignUpDto
@@ -13,7 +14,10 @@ import com.bravepeople.onggiyonggi.data.response_dto.character.ResponseAllCharac
 import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseReviewDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseSearchStoreDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseStoreDetailDto
+import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponseDeleteStoreDto
+import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponseRegisterStoreDto
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.POST
@@ -71,6 +75,20 @@ interface BaseService {
         @Header ("Authorization") token:String,
         @Path("keyword") keyword:String,
     ):ResponseSearchStoreDto
+
+    // register
+    @POST("/store/")
+    suspend fun registerStore(
+        @Header ("Authorization") token:String,
+        @Query("storeRank") storeRank:String,
+        @Body requestRegisterStoreDto: RequestRegisterStoreDto
+    ):ResponseRegisterStoreDto
+
+    @DELETE("/store/{id}")
+    suspend fun deleteStore(
+        @Header ("Authorization") token:String,
+        @Path("id") id:Int,
+    ):ResponseDeleteStoreDto
 
     // character
     @GET("/pet/")

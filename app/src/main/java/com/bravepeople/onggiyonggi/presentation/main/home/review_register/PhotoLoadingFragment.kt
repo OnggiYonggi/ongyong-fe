@@ -9,8 +9,10 @@ import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -18,6 +20,8 @@ import coil3.load
 import coil3.request.transformations
 import com.bravepeople.onggiyonggi.R
 import com.bravepeople.onggiyonggi.databinding.FragmentPhotoLoadingBinding
+import com.bravepeople.onggiyonggi.extension.home.register.DeleteState
+import kotlinx.coroutines.launch
 import timber.log.Timber
 
 class PhotoLoadingFragment:Fragment() {
@@ -40,6 +44,7 @@ class PhotoLoadingFragment:Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         loadingEffect()
+        deleteStore()
         clickCancel()
     }
 
@@ -113,9 +118,31 @@ class PhotoLoadingFragment:Fragment() {
 
     }
 
+    private fun deleteStore(){
+        lifecycleScope.launch {
+            reviewViewModel.deleteState.collect{state->
+                when(state){
+                    is DeleteState.Success->{
+                        requireActivity().finish()
+                    }
+                    is DeleteState.Loading->{}
+                    is DeleteState.Error->{
+                        Timber.e("delete state error!")
+                    }
+                }
+            }
+        }
+
+    }
+
     private fun clickCancel(){
         binding.btnCancel.setOnClickListener {
-            requireActivity().finish()
+            if(reviewViewModel.storeId.value!=-1) reviewViewModel.delete()
+            else requireActivity().finish()
+        }
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner){
+            if(reviewViewModel.storeId.value!=-1) reviewViewModel.delete()
+            else requireActivity().finish()
         }
     }
 

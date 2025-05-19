@@ -16,6 +16,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.addCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.core.CameraSelector
@@ -26,6 +27,7 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -34,6 +36,9 @@ import coil3.request.error
 import coil3.request.placeholder
 import com.bravepeople.onggiyonggi.R
 import com.bravepeople.onggiyonggi.databinding.FragmentPhotoBinding
+import com.bravepeople.onggiyonggi.extension.home.register.DeleteState
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.io.File
 
@@ -43,7 +48,7 @@ class PhotoCaptureFragment:Fragment() {
         get()= requireNotNull(_binding){"receipt fragment is null"}
 
     private lateinit var imageCapture: ImageCapture
-    private val reviewViewModel: ReviewRegisterViewModel by activityViewModels()
+    private val reviewRegisterViewModel: ReviewRegisterViewModel by activityViewModels()
     private val args: PhotoCaptureFragmentArgs by navArgs()
     private lateinit var galleryLauncher: ActivityResultLauncher<Intent>
     private lateinit var currentType: PhotoType
@@ -84,7 +89,7 @@ class PhotoCaptureFragment:Fragment() {
                 selectedImageUri?.let { uri ->
                     Timber.d("갤러리에서 선택된 URI: $uri")
 
-                    reviewViewModel.saveReceipt(uri)
+                    reviewRegisterViewModel.saveReceipt(uri)
 
                     val action = PhotoCaptureFragmentDirections.actionPhotoToLoading(currentType)
                     findNavController().navigate(action)
@@ -112,9 +117,8 @@ class PhotoCaptureFragment:Fragment() {
 
         checkGalleryPermissionAndThenCamera()
 
-        binding.btnCancel.setOnClickListener {
-            requireActivity().finish()
-        }
+        deleteStore()
+        clickCancel()
     }
 
     // 갤러리 권한 설정
@@ -210,7 +214,7 @@ class PhotoCaptureFragment:Fragment() {
     private fun savePicture(savedUri: Uri, currentType: PhotoType) {
         Timber.d("savePicture() called with uri: $savedUri")
 
-        reviewViewModel.saveReceipt(savedUri)
+        reviewRegisterViewModel.saveReceipt(savedUri)
 
         try {
             Timber.d("photo-phototype: $currentType")
@@ -266,6 +270,36 @@ class PhotoCaptureFragment:Fragment() {
             true
         } catch (e: Exception) {
             false
+        }
+    }
+
+    private fun deleteStore(){
+        lifecycleScope.launch {
+            reviewRegisterViewModel.deleteState.collect{state->
+                when(state){
+                    is DeleteState.Success->{
+                        requireActivity().finish()
+                    }
+                    is DeleteState.Loading->{}
+                    is DeleteState.Error->{
+                        Timber.e("delete state error!")
+                    }
+                }
+            }
+        }
+
+    }
+
+    private fun clickCancel(){
+        binding.btnCancel.setOnClickListener {
+            Timber.e("storeId: ${reviewRegisterViewModel.storeId.value}")
+            if(reviewRegisterViewModel.storeId.value!=-1) reviewRegisterViewModel.delete()
+            else requireActivity().finish()
+        }
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner){
+            Timber.e("storeId: ${reviewRegisterViewModel.storeId.value}")
+            if(reviewRegisterViewModel.storeId.value!=-1) reviewRegisterViewModel.delete()
+            else requireActivity().finish()
         }
     }
 

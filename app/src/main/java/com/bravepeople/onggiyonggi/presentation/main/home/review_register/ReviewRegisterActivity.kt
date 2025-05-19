@@ -9,6 +9,7 @@ import androidx.navigation.findNavController
 import com.bravepeople.onggiyonggi.R
 import com.bravepeople.onggiyonggi.databinding.ActivityReviewRegisterBinding
 import dagger.hilt.android.AndroidEntryPoint
+import timber.log.Timber
 
 @AndroidEntryPoint
 class ReviewRegisterActivity : AppCompatActivity() {
@@ -54,6 +55,10 @@ class ReviewRegisterActivity : AppCompatActivity() {
         if (registerActivity != null) reviewRegisterViewModel.setBeforeActivity(registerActivity)
 
         val token = intent.getStringExtra("accessToken")
+        val storeId = intent.getIntExtra("storeId", -1)
+        Timber.d("accessToken: $token, activity get id: $storeId")
+
         token?.let { reviewRegisterViewModel.saveToken(token) }
+        if(storeId!=-1) reviewRegisterViewModel.saveId(storeId)
     }
 }
