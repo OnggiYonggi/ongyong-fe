@@ -2,6 +2,7 @@ package com.bravepeople.onggiyonggi.data.datasourceImpl
 
 import com.bravepeople.onggiyonggi.data.datasource.BaseDataSource
 import com.bravepeople.onggiyonggi.data.request_dto.RequestLoginDto
+import com.bravepeople.onggiyonggi.data.request_dto.RequestRegisterStoreDto
 import com.bravepeople.onggiyonggi.data.request_dto.RequestSignUpDto
 import com.bravepeople.onggiyonggi.data.response_dto.character.ResponseAddMaxDto
 import com.bravepeople.onggiyonggi.data.response_dto.ResponseCheckSignUpDto
@@ -14,6 +15,8 @@ import com.bravepeople.onggiyonggi.data.response_dto.character.ResponseAllCharac
 import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseReviewDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseSearchStoreDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseStoreDetailDto
+import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponseDeleteStoreDto
+import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponseRegisterStoreDto
 import com.bravepeople.onggiyonggi.data.service.BaseService
 import javax.inject.Inject
 
@@ -45,6 +48,15 @@ class BaseDataSourceImpl @Inject constructor(
     ): ResponseReviewDto = baseService.getReviews(token, id, cursor, size)
 
     override suspend fun searchStore(token: String, keyword: String): ResponseSearchStoreDto = baseService.searchStore(token,keyword)
+
+    // register
+    override suspend fun registerStore(
+        token: String,
+        storeRank: String,
+        requestRegisterStoreDto: RequestRegisterStoreDto
+    ): ResponseRegisterStoreDto = baseService.registerStore(token, storeRank, requestRegisterStoreDto)
+
+    override suspend fun deleteStore(token: String, id: Int): ResponseDeleteStoreDto = baseService.deleteStore(token, id)
 
     // character
     override suspend fun getPet(token:String): ResponseGetPetDto = baseService.getPet(token)

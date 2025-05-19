@@ -1,6 +1,7 @@
 package com.bravepeople.onggiyonggi.data.datasource
 
 import com.bravepeople.onggiyonggi.data.request_dto.RequestLoginDto
+import com.bravepeople.onggiyonggi.data.request_dto.RequestRegisterStoreDto
 import com.bravepeople.onggiyonggi.data.request_dto.RequestSignUpDto
 import com.bravepeople.onggiyonggi.data.response_dto.character.ResponseAddMaxDto
 import com.bravepeople.onggiyonggi.data.response_dto.ResponseCheckSignUpDto
@@ -13,6 +14,8 @@ import com.bravepeople.onggiyonggi.data.response_dto.character.ResponseAllCharac
 import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseReviewDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseSearchStoreDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseStoreDetailDto
+import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponseDeleteStoreDto
+import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponseRegisterStoreDto
 
 interface BaseDataSource {
     // signup
@@ -57,6 +60,18 @@ interface BaseDataSource {
         token:String,
         keyword:String,
     ):ResponseSearchStoreDto
+
+    // register
+    suspend fun registerStore(
+        token:String,
+        storeRank:String,
+        requestRegisterStoreDto: RequestRegisterStoreDto
+    ):ResponseRegisterStoreDto
+
+    suspend fun deleteStore(
+        token:String,
+        id:Int,
+    ):ResponseDeleteStoreDto
 
     // character
     suspend fun getPet(

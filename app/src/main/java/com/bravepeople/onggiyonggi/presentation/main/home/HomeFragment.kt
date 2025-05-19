@@ -797,10 +797,10 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
                     }, 80)
 
                     fabNew.setOnClickListener {
-                        registerStore("new")
+                        registerStore("ROOKIE")
                     }
                     fabBan.setOnClickListener {
-                        registerStore("ban")
+                        registerStore("BAN")
                     }
                 }
                 isFabOpen = true

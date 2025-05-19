@@ -18,8 +18,12 @@ import androidx.core.view.WindowInsetsControllerCompat
 import androidx.core.view.updateLayoutParams
 import androidx.lifecycle.lifecycleScope
 import com.bravepeople.onggiyonggi.R
+import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseNaverAddressDto
 import com.bravepeople.onggiyonggi.databinding.ActivityStoreRegisterBinding
+import com.bravepeople.onggiyonggi.extension.GetStoreTimeState
 import com.bravepeople.onggiyonggi.extension.SearchState
+import com.bravepeople.onggiyonggi.extension.home.GetStoreState
+import com.bravepeople.onggiyonggi.extension.home.register.RegisterState
 import com.bravepeople.onggiyonggi.presentation.main.home.review_register.ReviewRegisterActivity
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.CameraUpdate
@@ -32,11 +36,12 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 
 @AndroidEntryPoint
-class StoreRegisterActivity:AppCompatActivity(), OnMapReadyCallback {
+class StoreRegisterActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var binding: ActivityStoreRegisterBinding
 
     private val storeRegisterViewModel: StoreRegisterViewModel by viewModels()
-    private lateinit var mapView:MapView
+
+    private lateinit var mapView: MapView
     private var naverMap: NaverMap? = null
     private lateinit var newMarker: Marker
 
@@ -52,8 +57,8 @@ class StoreRegisterActivity:AppCompatActivity(), OnMapReadyCallback {
         setting(savedInstanceState)
     }
 
-    private fun init(){
-        binding=ActivityStoreRegisterBinding.inflate(layoutInflater)
+    private fun init() {
+        binding = ActivityStoreRegisterBinding.inflate(layoutInflater)
         setContentView(binding.root)
     }
 
@@ -90,39 +95,58 @@ class StoreRegisterActivity:AppCompatActivity(), OnMapReadyCallback {
         }
 
         mapReset(savedInstanceState)
-        getResultList()
-        setText()
         searchStore()
-        clickBackButton()
         clickTypeButton()
+        clickBackButton()
     }
 
     private fun Int.dpToPx(): Int {
         return (this * resources.displayMetrics.density).toInt()
     }
 
-    private fun mapReset(savedInstanceState: Bundle?){
-        mapView=binding.mvMap
+    private fun mapReset(savedInstanceState: Bundle?) {
+        mapView = binding.mvMap
         mapView.onCreate(savedInstanceState)
         mapView.getMapAsync(this)
     }
 
-    private fun getResultList(){
-        lifecycleScope.launch {
-            storeRegisterViewModel.searchState.collect{searchState->
-                when(searchState){
-                    is SearchState.Success->{
-                        val storeRegisterAdapter = StoreRegisterAdapter(
-                            clickStore = {store->
-                                binding.mvMap.visibility=View.VISIBLE
-                                binding.rvResult.visibility=View.GONE
-                                binding.btnRegister.visibility=View.VISIBLE
+    private fun searchStore() {
+        binding.svSearch.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
 
-                                val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+                return true
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                if (newText != null) {
+                    binding.rvResult.visibility = View.VISIBLE
+                    storeRegisterViewModel.searchQueryInfo(newText)
+                } else {
+                    binding.rvResult.visibility = View.GONE
+                }
+                return false
+            }
+        })
+    }
+
+    private fun getResultList(storeType: String) {
+        lifecycleScope.launch {
+            storeRegisterViewModel.searchState.collect { searchState ->
+                when (searchState) {
+                    is SearchState.Success -> {
+                        val storeRegisterAdapter = StoreRegisterAdapter(
+                            clickStore = { store ->
+                                binding.mvMap.visibility = View.VISIBLE
+                                binding.rvResult.visibility = View.GONE
+                                checkVisibleRegister()
+
+                                val imm =
+                                    getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
                                 imm.hideSoftInputFromWindow(binding.svSearch.windowToken, 0)
                                 binding.svSearch.clearFocus()
 
-                                val position = LatLng(store.mapy.toDouble() / 1e7, store.mapx.toDouble() / 1e7)
+                                val position =
+                                    LatLng(store.mapy.toDouble() / 1e7, store.mapx.toDouble() / 1e7)
 
                                 if (naverMap != null) {
                                     addMarkerAndMoveCamera(position, store.title)
@@ -130,14 +154,113 @@ class StoreRegisterActivity:AppCompatActivity(), OnMapReadyCallback {
                                     pendingLatLng = position
                                     pendingTitle = store.title
                                 }
+
+                                getTime(storeType, store)
                             }
                         )
-                        binding.rvResult.adapter=storeRegisterAdapter
+                        binding.rvResult.adapter = storeRegisterAdapter
                         storeRegisterAdapter.getList(searchState.searchDto.items)
                     }
-                    is SearchState.Loading->{}
-                    is SearchState.Error-> Timber.e("get search state error!")
+
+                    is SearchState.Loading -> {}
+                    is SearchState.Error -> Timber.e("get search state error!")
                 }
+            }
+        }
+    }
+
+    private fun getTime(storeType: String, store: ResponseNaverAddressDto.Item){
+        val dayMap = mapOf(
+            "Monday" to "월요일",
+            "Tuesday" to "화요일",
+            "Wednesday" to "수요일",
+            "Thursday" to "목요일",
+            "Friday" to "금요일",
+            "Saturday" to "토요일",
+            "Sunday" to "일요일"
+        )
+
+        lifecycleScope.launch {
+            storeRegisterViewModel.getStoreTimeState.collect{state->
+                when(state){
+                    is GetStoreTimeState.Success->{
+                        val time = state.searchDto.places
+                            .firstOrNull { it.regularOpeningHours != null }
+                            ?.regularOpeningHours?.weekdayDescriptions
+
+                        val translatedTime = time?.map { line ->
+                            var newLine = line
+                            dayMap.forEach { (eng, kor) ->
+                                newLine = newLine.replace(eng, kor)
+                            }
+                            newLine
+                        }
+                        clickRegisterButton(setText(), storeType, store, translatedTime?.joinToString("\n"))
+                    }
+                    is GetStoreTimeState.Loading->{}
+                    is GetStoreTimeState.Error->{
+                        Timber.e("get store time state error!")
+                    }
+                }
+            }
+        }
+
+        storeRegisterViewModel.searchStoreTime(store.title)
+    }
+
+    private fun clickRegisterButton(
+        type: String,
+        storeType: String,
+        store: ResponseNaverAddressDto.Item,
+        time:String?
+    ) {
+        val token = intent.getStringExtra("accessToken")
+
+        binding.btnRegister.setOnClickListener {
+            lifecycleScope.launch {
+                storeRegisterViewModel.registerState.collect { state ->
+                    when (state) {
+                        is RegisterState.Success -> {
+                            if (type == "ROOKIE") {
+                                val intent = Intent(
+                                    this@StoreRegisterActivity,
+                                    ReviewRegisterActivity::class.java
+                                )
+                                intent.putExtra("registerActivity", "storeRegisterActivity")
+                                intent.putExtra("fromReview", true)
+                                intent.putExtra("storeId", state.registerDto.data)
+                                intent.putExtra("accessToken", token)
+                                startActivity(intent)
+                            } else {
+                                Toast.makeText(
+                                    this@StoreRegisterActivity,
+                                    getString(R.string.store_register_ban_complete),
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                                finish()
+                                //overridePendingTransition(R.anim.stay_still, R.anim.slide_out_right)
+                            }
+                        }
+
+                        is RegisterState.Loading -> {}
+                        is RegisterState.Error -> {
+                            Timber.e("register state error!")
+                        }
+                    }
+                }
+            }
+
+            token?.let {
+                storeRegisterViewModel.register(
+                    token,
+                    type,
+                    storeType,
+                    store.mapy.toDouble() / 1e7,
+                    store.mapx.toDouble() / 1e7,
+                    store.roadAddress,
+                    store.title,
+                    time?:getString(R.string.store_register_time_null)
+                )
             }
         }
     }
@@ -155,6 +278,77 @@ class StoreRegisterActivity:AppCompatActivity(), OnMapReadyCallback {
         naverMap?.moveCamera(CameraUpdate.scrollTo(position))
     }
 
+    private fun setText(): String {
+        val type = intent.getStringExtra("type")
+        if (type == "ROOKIE") {
+            binding.tvTitle.text = getString(R.string.store_register_new)
+        } else binding.tvTitle.text = getString(R.string.store_register_ban)
+
+        return type!!
+    }
+
+    private fun checkVisibleRegister() {
+        with(binding) {
+            if ((btnCafe.isSelected || btnRestaurant.isSelected) && mvMap.visibility == View.VISIBLE)
+                btnRegister.visibility = View.VISIBLE
+        }
+    }
+
+    private fun clickTypeButton() {
+        with(binding) {
+            btnCafe.setOnClickListener {
+                btnCafe.isSelected = !btnCafe.isSelected
+                btnRestaurant.isSelected = false
+
+                if (btnCafe.isSelected && !btnRestaurant.isSelected) {
+                    setVisibleSearch(true)
+                } else if (!btnCafe.isSelected && !btnRestaurant.isSelected) {
+                    setVisibleSearch(false)
+                }
+
+                checkVisibleRegister()
+                getResultList("CAFE")
+            }
+
+            btnRestaurant.setOnClickListener {
+                btnRestaurant.isSelected = !btnRestaurant.isSelected
+                btnCafe.isSelected = false
+
+                if (!btnCafe.isSelected && btnRestaurant.isSelected) {
+                    setVisibleSearch(true)
+                } else if (!btnCafe.isSelected && !btnRestaurant.isSelected) {
+                    setVisibleSearch(false)
+                }
+
+                checkVisibleRegister()
+                getResultList("FOOD")
+            }
+        }
+    }
+
+    private fun setVisibleSearch(isVisible:Boolean){
+        with(binding){
+            if(isVisible){
+                tvWhere.visibility = View.VISIBLE
+                svSearch.visibility = View.VISIBLE
+            }else{
+                svSearch.setQuery("", false)
+                tvWhere.visibility = View.GONE
+                svSearch.visibility = View.GONE
+                mvMap.visibility=View.GONE
+                btnRegister.visibility=View.GONE
+            }
+        }
+
+    }
+
+    private fun clickBackButton() {
+        binding.btnBack.setOnClickListener {
+            finish()
+            overridePendingTransition(R.anim.stay_still, R.anim.slide_out_right)
+        }
+    }
+
     override fun onMapReady(naverMap: NaverMap) {
         this.naverMap = naverMap
         naverMap.locationOverlay.isVisible = false
@@ -169,73 +363,6 @@ class StoreRegisterActivity:AppCompatActivity(), OnMapReadyCallback {
             addMarkerAndMoveCamera(pendingLatLng!!, pendingTitle!!)
             pendingLatLng = null
             pendingTitle = null
-        }
-    }
-
-    private fun setText(){
-        val type = intent.getStringExtra("type")
-        if(type=="new"){
-            binding.tvTitle.text=getString(R.string.store_register_new)
-        }else binding.tvTitle.text=getString(R.string.store_register_ban)
-
-        clickRegisterButton(type)
-    }
-
-    private fun searchStore(){
-        binding.svSearch.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(query: String?): Boolean {
-
-                return true
-            }
-
-            override fun onQueryTextChange(newText: String?): Boolean {
-                if(newText!=null) {
-                    binding.rvResult.visibility = View.VISIBLE
-                    storeRegisterViewModel.searchQueryInfo(newText)
-                }
-                else{
-                    binding.rvResult.visibility=View.GONE
-                }
-                return false
-            }
-        })
-    }
-
-    private fun clickBackButton(){
-        binding.btnBack.setOnClickListener{
-            finish()
-            overridePendingTransition(R.anim.stay_still, R.anim.slide_out_right)
-        }
-    }
-
-    private fun clickTypeButton(){
-        binding.btnCafe.setOnClickListener{
-            binding.btnCafe.isSelected=!binding.btnCafe.isSelected
-            binding.btnRestaurant.isSelected=false
-        }
-
-        binding.btnRestaurant.setOnClickListener{
-            binding.btnRestaurant.isSelected=!binding.btnRestaurant.isSelected
-            binding.btnCafe.isSelected=false
-        }
-    }
-
-    private fun clickRegisterButton(type: String?) {
-        binding.btnRegister.setOnClickListener{
-            if(type=="new"){
-                val intent=Intent(this, ReviewRegisterActivity::class.java)
-                intent.putExtra("registerActivity","storeRegisterActivity")
-                intent.putExtra("fromReview", true)
-                startActivity(intent)
-            }else{
-                Toast.makeText(
-                    this,
-                    getString(R.string.store_register_ban_complete),
-                    Toast.LENGTH_SHORT
-                ).show()
-                finish()
-                //overridePendingTransition(R.anim.stay_still, R.anim.slide_out_right)
-            }
         }
     }
 

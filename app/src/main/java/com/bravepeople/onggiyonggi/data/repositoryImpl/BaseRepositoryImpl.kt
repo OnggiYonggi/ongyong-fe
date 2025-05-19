@@ -2,6 +2,7 @@ package com.bravepeople.onggiyonggi.data.repositoryImpl
 
 import com.bravepeople.onggiyonggi.data.datasource.BaseDataSource
 import com.bravepeople.onggiyonggi.data.request_dto.RequestLoginDto
+import com.bravepeople.onggiyonggi.data.request_dto.RequestRegisterStoreDto
 import com.bravepeople.onggiyonggi.data.request_dto.RequestSignUpDto
 import com.bravepeople.onggiyonggi.data.response_dto.character.ResponseAddMaxDto
 import com.bravepeople.onggiyonggi.data.response_dto.ResponseCheckSignUpDto
@@ -14,6 +15,8 @@ import com.bravepeople.onggiyonggi.data.response_dto.character.ResponseAllCharac
 import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseReviewDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseSearchStoreDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseStoreDetailDto
+import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponseDeleteStoreDto
+import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponseRegisterStoreDto
 import com.bravepeople.onggiyonggi.domain.repository.BaseRepository
 import timber.log.Timber
 import javax.inject.Inject
@@ -102,6 +105,32 @@ class BaseRepositoryImpl @Inject constructor(
             baseDataSource.searchStore(token, keyword)
         }.onFailure {
             Timber.e("base repository search store faill!!: $it")
+        }
+    }
+
+    // register
+    override suspend fun registerStore(
+        token: String,
+        storeRank: String,
+        storeType: String,
+        latitude: Double,
+        longitude: Double,
+        address: String,
+        name: String,
+        businessHours: String
+    ): Result<ResponseRegisterStoreDto> {
+        return runCatching {
+            baseDataSource.registerStore(token, storeRank, RequestRegisterStoreDto(storeType, latitude, longitude, address, name, businessHours))
+        }.onFailure {
+            Timber.e("base repository register store fail!!: $it")
+        }
+    }
+
+    override suspend fun deleteStore(token: String, id: Int): Result<ResponseDeleteStoreDto> {
+        return runCatching {
+            baseDataSource.deleteStore(token,id)
+        }.onFailure {
+            Timber.e("base repository delete store fail!!: $it")
         }
     }
 

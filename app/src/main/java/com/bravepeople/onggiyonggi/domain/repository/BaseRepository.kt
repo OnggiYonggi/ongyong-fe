@@ -11,76 +11,95 @@ import com.bravepeople.onggiyonggi.data.response_dto.character.ResponseAllCharac
 import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseReviewDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseSearchStoreDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseStoreDetailDto
+import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponseDeleteStoreDto
+import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponseRegisterStoreDto
 
 interface BaseRepository {
     // signup
     suspend fun checkId(
-        id:String,
-    ):Result<ResponseCheckSignUpDto>
+        id: String,
+    ): Result<ResponseCheckSignUpDto>
 
     suspend fun checkNickName(
-        nickname:String,
-    ):Result<ResponseCheckSignUpDto>
+        nickname: String,
+    ): Result<ResponseCheckSignUpDto>
 
     suspend fun signUp(
-        id:String,
-        password:String,
-        nickname:String,
-    ):Result<ResponseSignUpDto>
+        id: String,
+        password: String,
+        nickname: String,
+    ): Result<ResponseSignUpDto>
 
     // login
     suspend fun login(
-        id:String,
-        password:String,
-    ):Result<ResponseLoginDto>
+        id: String,
+        password: String,
+    ): Result<ResponseLoginDto>
 
     // home
     suspend fun getStore(
-        token:String,
-        latitude:Double,
-        longitude:Double,
-        radius:Int,
-    ):Result<ResponseGetStoreDto>
+        token: String,
+        latitude: Double,
+        longitude: Double,
+        radius: Int,
+    ): Result<ResponseGetStoreDto>
 
     suspend fun storeDetail(
-        token:String,
-        id:Int,
-    ):Result<ResponseStoreDetailDto>
+        token: String,
+        id: Int,
+    ): Result<ResponseStoreDetailDto>
 
     suspend fun getReviews(
-        token:String,
-        storeId:Int,
-        cursor:String,
-        size:Int,
-    ):Result<ResponseReviewDto>
+        token: String,
+        storeId: Int,
+        cursor: String,
+        size: Int,
+    ): Result<ResponseReviewDto>
 
     suspend fun searchStore(
+        token: String,
+        keyword: String,
+    ): Result<ResponseSearchStoreDto>
+
+    // register
+    suspend fun registerStore(
+        token: String,
+        storeRank: String,
+        storeType: String,
+        latitude: Double,
+        longitude: Double,
+        address: String,
+        name: String,
+        businessHours: String,
+    ):Result<ResponseRegisterStoreDto>
+
+    suspend fun deleteStore(
         token:String,
-        keyword:String,
-    ):Result<ResponseSearchStoreDto>
+        id:Int,
+    ):Result<ResponseDeleteStoreDto>
 
     // character
     suspend fun getPet(
-        token:String,
-    ):Result<ResponseGetPetDto>
+        token: String,
+    ): Result<ResponseGetPetDto>
 
     suspend fun randomPet(
-        token:String,
-    ):Result<ResponseGetPetDto>
+        token: String,
+    ): Result<ResponseGetPetDto>
 
     suspend fun levelUp(
-        token:String,
-    ):Result<ResponseGetPetDto>
+        token: String,
+    ): Result<ResponseGetPetDto>
 
     suspend fun addMax(
-        token:String,
-    ):Result<ResponseAddMaxDto>
+        token: String,
+    ): Result<ResponseAddMaxDto>
 
     suspend fun allCharacter(
-        token:String,
-    ):Result<ResponseAllCharacterDto>
+        token: String,
+    ): Result<ResponseAllCharacterDto>
 
     suspend fun collection(
-        token:String,
-    ):Result<ResponseCollectionDto>
+        token: String,
+    ): Result<ResponseCollectionDto>
 }

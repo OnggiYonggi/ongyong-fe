@@ -1,11 +1,18 @@
 package com.bravepeople.onggiyonggi.presentation.main.home.store_register
 
 import android.util.Log
+import android.util.Printer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bravepeople.onggiyonggi.BuildConfig
+import com.bravepeople.onggiyonggi.data.request_dto.RequestGoogleMapsSearchDto
+import com.bravepeople.onggiyonggi.domain.repository.BaseRepository
+import com.bravepeople.onggiyonggi.domain.repository.GoogleMapsRepository
 import com.bravepeople.onggiyonggi.domain.repository.NaverRepository
+import com.bravepeople.onggiyonggi.extension.GetStoreTimeState
 import com.bravepeople.onggiyonggi.extension.SearchState
+import com.bravepeople.onggiyonggi.extension.home.register.DeleteState
+import com.bravepeople.onggiyonggi.extension.home.register.RegisterState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -19,10 +26,17 @@ import javax.inject.Inject
 
 @HiltViewModel
 class StoreRegisterViewModel @Inject constructor(
-    private val naverRepository: NaverRepository
+    private val baseRepository: BaseRepository,
+    private val naverRepository: NaverRepository,
+    private val googleMapsRepository: GoogleMapsRepository
 ) :ViewModel() {
     private val _searchState = MutableStateFlow<SearchState>(SearchState.Loading)
+    private val _getStoreTimeState = MutableStateFlow<GetStoreTimeState>(GetStoreTimeState.Loading)
+    private val _registerState = MutableStateFlow<RegisterState>(RegisterState.Loading)
+
     val searchState: StateFlow<SearchState> = _searchState.asStateFlow()
+    val getStoreTimeState:StateFlow<GetStoreTimeState> = _getStoreTimeState.asStateFlow()
+    val registerState:StateFlow<RegisterState> = _registerState.asStateFlow()
 
     fun searchQueryInfo(inputText: String) {
         viewModelScope.launch {
@@ -38,6 +52,47 @@ class StoreRegisterViewModel @Inject constructor(
                 Timber.d("searchstate success! - ${response.items}")
             }.onFailure {
                 _searchState.value = SearchState.Error("Error response failure: ${it.message}")
+                if (it is HttpException) {
+                    try {
+                        val errorBody: ResponseBody? = it.response()?.errorBody()
+                        val errorBodyString = errorBody?.string() ?: ""
+                        httpError(errorBodyString)
+                    } catch (e: Exception) {
+                        // JSON 파싱 실패 시 로깅
+                        Timber.e("Error parsing error body: ${e}")
+                    }
+                }
+            }
+        }
+    }
+
+    fun searchStoreTime(inputText:String){
+        viewModelScope.launch {
+            googleMapsRepository.getTime(RequestGoogleMapsSearchDto(inputText)).onSuccess { response->
+                _getStoreTimeState.value=GetStoreTimeState.Success(response)
+                Timber.d("search store time success!")
+            }.onFailure {
+                _getStoreTimeState.value=GetStoreTimeState.Error("Error: response fail")
+                if (it is HttpException) {
+                    try {
+                        val errorBody: ResponseBody? = it.response()?.errorBody()
+                        val errorBodyString = errorBody?.string() ?: ""
+                        httpError(errorBodyString)
+                    } catch (e: Exception) {
+                        // JSON 파싱 실패 시 로깅
+                        Timber.e("Error parsing error body: ${e}")
+                    }
+                }
+            }
+        }
+    }
+
+    fun register(token:String, storeRank:String, storeType: String, latitude:Double, longitude:Double, address:String, name:String, businessHours:String){
+        viewModelScope.launch {
+            baseRepository.registerStore(token, storeRank, storeType, latitude, longitude, address, name, businessHours).onSuccess { response->
+                _registerState.value=RegisterState.Success(response)
+            }.onFailure {
+                _registerState.value=RegisterState.Error("register error!")
                 if (it is HttpException) {
                     try {
                         val errorBody: ResponseBody? = it.response()?.errorBody()
