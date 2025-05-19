@@ -12,6 +12,7 @@ import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseGetStoreDto
 import com.bravepeople.onggiyonggi.data.response_dto.ResponseSignUpDto
 import com.bravepeople.onggiyonggi.data.response_dto.character.ResponseAllCharacterDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseReviewDto
+import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseSearchStoreDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseStoreDetailDto
 import com.bravepeople.onggiyonggi.data.service.BaseService
 import javax.inject.Inject
@@ -42,6 +43,8 @@ class BaseDataSourceImpl @Inject constructor(
         cursor: String,
         size: Int
     ): ResponseReviewDto = baseService.getReviews(token, id, cursor, size)
+
+    override suspend fun searchStore(token: String, keyword: String): ResponseSearchStoreDto = baseService.searchStore(token,keyword)
 
     // character
     override suspend fun getPet(token:String): ResponseGetPetDto = baseService.getPet(token)

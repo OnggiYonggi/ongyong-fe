@@ -11,6 +11,7 @@ import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseGetStoreDto
 import com.bravepeople.onggiyonggi.data.response_dto.ResponseSignUpDto
 import com.bravepeople.onggiyonggi.data.response_dto.character.ResponseAllCharacterDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseReviewDto
+import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseSearchStoreDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseStoreDetailDto
 
 interface BaseDataSource {
@@ -51,6 +52,11 @@ interface BaseDataSource {
         cursor:String,
         size:Int,
     ):ResponseReviewDto
+
+    suspend fun searchStore(
+        token:String,
+        keyword:String,
+    ):ResponseSearchStoreDto
 
     // character
     suspend fun getPet(

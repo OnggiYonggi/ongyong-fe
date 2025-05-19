@@ -34,10 +34,12 @@ import androidx.lifecycle.lifecycleScope
 import com.bravepeople.onggiyonggi.R
 import com.bravepeople.onggiyonggi.data.Search
 import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseGetStoreDto
+import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseSearchStoreDto
 import com.bravepeople.onggiyonggi.databinding.FragmentHomeBinding
 import com.bravepeople.onggiyonggi.domain.model.StoreRank
 import com.bravepeople.onggiyonggi.extension.SearchState
 import com.bravepeople.onggiyonggi.extension.home.GetStoreState
+import com.bravepeople.onggiyonggi.extension.home.SearchStoreState
 import com.bravepeople.onggiyonggi.presentation.MainViewModel
 import com.bravepeople.onggiyonggi.presentation.main.home.store_register.StoreRegisterActivity
 import com.bravepeople.onggiyonggi.presentation.main.home.review.StoreFragment
@@ -81,7 +83,7 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
     private var isAutoMoveEnabled = true
     private var isFirstCameraMove = true
 
-    private var newMarker: Marker? = null
+    //private var newMarker: Marker? = null
     private var isUserTyping = true
     private var clickSearch = false
     private var markerClick: Boolean = false
@@ -107,6 +109,120 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
     // 위치 요청 받을 변수
     private lateinit var fusedLocationClient: FusedLocationProviderClient
 
+    val PERMISSIONS_REQUEST_CODE = 100
+    var REQUIRED_PERMISSIONS = arrayOf(
+        Manifest.permission.ACCESS_FINE_LOCATION,   // 앱 사용중에만 허용
+        Manifest.permission.ACCESS_COARSE_LOCATION
+    )
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        _binding = FragmentHomeBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        Timber.d("viewcreated")
+        mapReset(savedInstanceState)
+
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
+            if (binding.btnBack.visibility == View.VISIBLE) {
+                binding.btnBack.performClick()
+            } else {
+                isEnabled = false
+                requireActivity().onBackPressed()
+            }
+        }
+
+        lifecycleScope.launch {
+            mainViewModel.accessToken.observe(viewLifecycleOwner){token->
+                homeViewModel.saveToken(token)
+                setting()
+                clickSearchBar(token)
+            }
+        }
+    }
+
+    private fun mapReset(savedInstanceState: Bundle?) {
+        //맵 초기화
+        mapView = binding.mvMap
+        mapView.onCreate(savedInstanceState)
+    }
+
+    private fun setting() {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.cvSearch) { view, insets ->
+            val topInset = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
+            view.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                topMargin = topInset + 16.dpToPx()  // 원래 marginTop이 16dp였다면 이렇게 추가
+            }
+            insets
+        }
+
+        permissionCheck()
+        getResultList()
+
+        clickCurrentBtn()
+        clickEditText()
+        clickAddButton()
+        clickSystemBackButton()
+    }
+
+    private fun Int.dpToPx(): Int {
+        return (this * resources.displayMetrics.density).toInt()
+    }
+
+    private fun permissionCheck() {
+        // 권한 확인 및 지도 초기화
+        val permissionCheck = ContextCompat.checkSelfPermission(
+            requireContext(),
+            Manifest.permission.ACCESS_FINE_LOCATION
+        )
+
+        Timber.d("권한 상태: $permissionCheck") // 0이면 권한 허용, -1이면 거부
+
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext())
+
+        if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
+            fusedLocationClient.lastLocation.addOnSuccessListener { location ->
+                if (location != null) {
+                    val position = LatLng(location.latitude, location.longitude)
+                    currentPosition = position
+
+                    Timber.d("latitude: ${location.latitude}, longitude: ${location.longitude}")
+
+                    naverMap?.let { map ->
+                        map.moveCamera(CameraUpdate.scrollTo(position))
+                        map.locationOverlay.position = position
+                        map.locationOverlay.isVisible = true
+                    }
+                    Timber.d("lastLocation으로 즉시 이동")
+                } else {
+                    val locationRequest = LocationRequest.create().apply {
+                        priority = Priority.PRIORITY_HIGH_ACCURACY
+                        interval = 5000L
+                    }
+
+                    fusedLocationClient.requestLocationUpdates(
+                        locationRequest,
+                        mLocationCallback,
+                        Looper.getMainLooper()
+                    )
+
+                    Timber.d("실시간 위치 요청 시작")
+                }
+            }
+
+            mapView.getMapAsync(this)
+        } else {
+            Timber.d("위치 권한 거부됨 → 권한 요청 실행")
+            requestPermissions(REQUIRED_PERMISSIONS, PERMISSIONS_REQUEST_CODE)
+        }
+    }
+
     // 시스템으로 부터 위치 정보를 콜백으로 받음
     private val mLocationCallback = object : LocationCallback() {
         override fun onLocationResult(locationResult: LocationResult) {
@@ -122,7 +238,7 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
                     map.moveCamera(CameraUpdate.scrollTo(position))
                     isFirstCameraMove = false
 
-                    map.addOnCameraIdleListener {
+                   /* map.addOnCameraIdleListener {
                         val center = naverMap?.cameraPosition?.target ?: return@addOnCameraIdleListener
                         val zoom = naverMap?.cameraPosition?.zoom ?: return@addOnCameraIdleListener
                         Timber.d("zoom: $zoom")
@@ -156,7 +272,53 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
                                 filterMarkers(center, radius)  // 🔥 줌 변경 시에도 마커 다시 그리기
                             }
                         }
-                    }
+                    }*/
+                }
+            }
+        }
+    }
+
+    private fun clickCurrentBtn() {
+        binding.btnCurrent.setOnClickListener {
+            currentPosition?.let { position ->
+                isAutoMoveEnabled = true
+                isFirstCameraMove = true
+                naverMap?.moveCamera(CameraUpdate.scrollTo(position))
+                Timber.d("current button click!")
+            }
+        }
+    }
+
+    override fun onMapReady(naverMap: NaverMap) {
+        this.naverMap = naverMap
+        naverMap.locationOverlay.isVisible = true
+
+        naverMap.addOnCameraIdleListener {
+            val center = naverMap.cameraPosition.target
+            val zoom = naverMap.cameraPosition.zoom
+
+            Timber.d("onCameraIdle - center: $center zoom: $zoom")
+
+            val shouldUpdateZoom = (zoom != lastZoomLevel)
+            val radius = getRadiusFromZoom(zoom)
+
+            if (zoom >= 17) {
+                if (shouldFetchFromServer(center)) {
+                    lastRequestedPosition = center
+                    lastZoomLevel = zoom
+                    requestStoreFromServer(center, 1)
+                } else if (shouldUpdateZoom) {
+                    lastZoomLevel = zoom
+                    filterMarkers(center, radius)
+                }
+            } else {
+                if (shouldFetchFromServer(center)) {
+                    lastRequestedPosition = center
+                    lastZoomLevel = zoom
+                    requestStoreFromServer(center, radius)
+                } else if (shouldUpdateZoom) {
+                    lastZoomLevel = zoom
+                    filterMarkers(center, radius)
                 }
             }
         }
@@ -312,189 +474,6 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
         }
     }
 
-
-    val PERMISSIONS_REQUEST_CODE = 100
-    var REQUIRED_PERMISSIONS = arrayOf(
-        Manifest.permission.ACCESS_FINE_LOCATION,   // 앱 사용중에만 허용
-        Manifest.permission.ACCESS_COARSE_LOCATION
-    )
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        _binding = FragmentHomeBinding.inflate(inflater, container, false)
-        return binding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        Timber.d("viewcreated")
-        mapReset(savedInstanceState)
-
-        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
-            if (binding.btnBack.visibility == View.VISIBLE) {
-                binding.btnBack.performClick()
-            } else {
-                isEnabled = false
-                requireActivity().onBackPressed()
-            }
-        }
-
-        lifecycleScope.launch {
-            mainViewModel.accessToken.observe(viewLifecycleOwner){token->
-                homeViewModel.saveToken(token)
-                setting()
-            }
-        }
-    }
-
-    private fun mapReset(savedInstanceState: Bundle?) {
-        //맵 초기화
-        mapView = binding.mvMap
-        mapView.onCreate(savedInstanceState)
-    }
-
-    private fun setting() {
-        ViewCompat.setOnApplyWindowInsetsListener(binding.cvSearch) { view, insets ->
-            val topInset = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
-            view.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                topMargin = topInset + 16.dpToPx()  // 원래 marginTop이 16dp였다면 이렇게 추가
-            }
-            insets
-        }
-
-        permissionCheck()
-        getResultList()
-
-        clickCurrentBtn()
-        clickSearchBar()
-        clickEditText()
-        clickAddButton()
-        clickSystemBackButton()
-    }
-
-    private fun Int.dpToPx(): Int {
-        return (this * resources.displayMetrics.density).toInt()
-    }
-
-    private fun permissionCheck() {
-        // 권한 확인 및 지도 초기화
-        val permissionCheck = ContextCompat.checkSelfPermission(
-            requireContext(),
-            Manifest.permission.ACCESS_FINE_LOCATION
-        )
-
-        Timber.d("권한 상태: $permissionCheck") // 0이면 권한 허용, -1이면 거부
-
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext())
-
-        if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
-            fusedLocationClient.lastLocation.addOnSuccessListener { location ->
-                if (location != null) {
-                    val position = LatLng(location.latitude, location.longitude)
-                    currentPosition = position
-
-                    Timber.d("latitude: ${location.latitude}, longitude: ${location.longitude}")
-
-                    naverMap?.let { map ->
-                        map.moveCamera(CameraUpdate.scrollTo(position))
-                        map.locationOverlay.position = position
-                        map.locationOverlay.isVisible = true
-                    }
-                    Timber.d("lastLocation으로 즉시 이동")
-                } else {
-                    val locationRequest = LocationRequest.create().apply {
-                        priority = Priority.PRIORITY_HIGH_ACCURACY
-                        interval = 5000L
-                    }
-
-                    fusedLocationClient.requestLocationUpdates(
-                        locationRequest,
-                        mLocationCallback,
-                        Looper.getMainLooper()
-                    )
-
-                    Timber.d("실시간 위치 요청 시작")
-                }
-            }
-
-            mapView.getMapAsync(this)
-        } else {
-            Timber.d("위치 권한 거부됨 → 권한 요청 실행")
-            requestPermissions(REQUIRED_PERMISSIONS, PERMISSIONS_REQUEST_CODE)
-        }
-    }
-
-    private fun clickCurrentBtn() {
-        binding.btnCurrent.setOnClickListener {
-            currentPosition?.let { position ->
-                isAutoMoveEnabled = true
-                isFirstCameraMove = true
-                naverMap?.moveCamera(CameraUpdate.scrollTo(position))
-                Timber.d("current button click!")
-            }
-        }
-    }
-
-    override fun onMapReady(naverMap: NaverMap) {
-        this.naverMap = naverMap
-        naverMap.locationOverlay.isVisible = true
-
-        /*val marker = Marker()
-        marker.position = LatLng(37.300536, 127.044169)
-        marker.setIconPerspectiveEnabled(true)
-        marker.icon = MarkerIcons.BLACK
-        marker.iconTintColor = requireContext().getColor(R.color.home_bronze_green)
-        marker.map = naverMap
-
-       *//* val markerBan = Marker()
-        markerBan.position = LatLng(37.300956, 127.045275)
-        markerBan.setIconPerspectiveEnabled(true)
-        markerBan.tag = true
-        markerBan.icon = MarkerIcons.BLACK
-        markerBan.iconTintColor = requireContext().getColor(R.color.red)
-        markerBan.map = naverMap*//*
-
-        val marker2 = Marker()
-        marker2.position = LatLng(37.299176, 127.045354)
-        marker2.setIconPerspectiveEnabled(true)
-        marker2.tag = false
-        marker2.icon = MarkerIcons.BLACK
-        marker2.iconTintColor = requireContext().getColor(R.color.home_silver_green)
-        marker2.map = naverMap
-
-        val marker3 = Marker()
-        marker3.position = LatLng(37.298992, 127.043875)
-        marker3.setIconPerspectiveEnabled(true)
-        marker3.tag = false
-        marker3.icon = MarkerIcons.BLACK
-        marker3.iconTintColor = requireContext().getColor(R.color.home_gold_green)
-        marker3.map = naverMap
-
-        val marker4 = Marker()
-        marker4.position = LatLng(37.297731, 127.042160)
-        marker4.setIconPerspectiveEnabled(true)
-        marker4.tag = false
-        marker4.icon = MarkerIcons.BLACK
-        marker4.iconTintColor = requireContext().getColor(R.color.home_rookie_yellow)
-        marker4.map = naverMap
-
-        clickMarker(marker)*/
-        //clickMarker(markerBan)
-
-        /* naverMap.addOnCameraIdleListener {
-             if (isFirstCameraMove) {
-                 isFirstCameraMove = false
-                 Timber.d("최초 자동 이동 → 무시")
-             } else {
-                 isAutoMoveEnabled = false
-                 Timber.d("사용자 조작 감지 → 자동 이동 비활성화")
-             }
-         }*/
-    }
-
     private fun clickMarker(marker: Marker, store: ResponseGetStoreDto.StoreData) {
         selectedMarker?.captionText=""
 
@@ -512,10 +491,10 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
         )
     }
 
-    private fun clickSearchBar() {
+    private fun clickSearchBar(token:String) {
         binding.cvSearch.setOnClickListener {
             setVisibility(true)
-            getEditText()
+            getEditText(token)
 
             with(binding) {
                 etSearch.text.clear()
@@ -540,7 +519,7 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
             markerClick = false
             clickSearch = true
             selectedMarker?.setCaptionText("")
-            newMarker?.map = null
+            //selectedMarker?.map = null
 
             requestPermission()
             getSearchRecentList()
@@ -563,6 +542,7 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
 
             setVisibility(true)
             clickSearch = true
+            isUserTyping= true
 
             searchRecentAdapter.getRecentSearchList(searchViewModel.getRecentSearchList())
             with(binding) {
@@ -574,7 +554,7 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
                 fcvReview.requestLayout()
             }
 
-            newMarker?.map = null
+            //selectedMarker?.map = null
 
             false
         }
@@ -625,7 +605,7 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
         }
     }
 
-    private fun getEditText() {
+    private fun getEditText(token:String) {
         binding.etSearch.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
 
@@ -654,7 +634,7 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
                             ivTextsBackground.visibility = View.INVISIBLE
                         }
 
-                        searchViewModel.searchQueryInfo(inputText)
+                        searchViewModel.searchStore(token, inputText)
                     } else {
                         Timber.d("text change skipped: not user typing")
                     }
@@ -669,42 +649,25 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
 
     private fun getResultList() {
         lifecycleScope.launch {
-            searchViewModel.searchState.collect { searchState ->
-                when (searchState) {
-                    is SearchState.Success -> {
+            searchViewModel.searchStoreState.collect { searchStoreState ->
+                when (searchStoreState) {
+                    is SearchStoreState.Success -> {
                         val searchResultAdapter = SearchResultAdapter(
                             clickStore = { store ->
-                                val title = HtmlCompat.fromHtml(
-                                    store.title,
-                                    HtmlCompat.FROM_HTML_MODE_LEGACY
-                                ).toString()
-                                val address = HtmlCompat.fromHtml(
-                                    store.roadAddress,
-                                    HtmlCompat.FROM_HTML_MODE_LEGACY
-                                ).toString()
-                                val data = Search(
-                                    R.drawable.ic_pin_green, title, address, LatLng(
-                                        store.mapy.toDouble() / 1e7, store.mapx.toDouble() / 1e7
-                                    ), true
-                                )
-
-                                Timber.d(
-                                    "좌표: ${
-                                        LatLng(
-                                            store.mapy.toDouble() / 1e7, store.mapx.toDouble() / 1e7
-                                        )
-                                    }"
-                                )
-
-                                //showReviewFragment(data, false)
+                                showReviewFragment(store.id, false)
+                                binding.etSearch.setText(store.name)
+                                binding.etSearch.post {
+                                    isUserTyping = true
+                                }
+                                moveToMarker(store, false)
                             }
                         )
-                        searchResultAdapter.getList(searchState.searchDto.items)
+                        searchResultAdapter.getList(searchStoreState.storeDto.data)
                         binding.rvResult.adapter = searchResultAdapter
                     }
 
-                    is SearchState.Loading -> {}
-                    is SearchState.Error -> {
+                    is SearchStoreState.Loading -> {}
+                    is SearchStoreState.Error -> {
                         Timber.e("get search state error!")
                     }
                 }
@@ -772,7 +735,7 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
         imm.hideSoftInputFromWindow(view.windowToken, 0)
     }
 
-    private fun moveToMarker(search: Search, click: Boolean) {
+    private fun moveToMarker(search: ResponseSearchStoreDto.StoreDto, click: Boolean) {
         with(binding) {
             ivTextsBackground.visibility = View.INVISIBLE
             tvRecentSearches.visibility = View.INVISIBLE
@@ -781,7 +744,7 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
         }
 
         if (markerClick) {
-            newMarker?.setCaptionText("")
+            selectedMarker?.setCaptionText("")
             markerClick = false
         }
         markerClick = click
@@ -789,18 +752,20 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
         naverMap?.let { map ->
             if (click) {
                 // 🔸 지도 마커 클릭 → 마커 새로 생성하지 않고 이동만
-                map.moveCamera(CameraUpdate.scrollTo(search.address))
+                map.moveCamera(CameraUpdate.scrollTo(LatLng(search.latitude, search.longitude)))
             } else {
                 // 🔸 검색 결과 클릭 → 마커 새로 생성 + 이동
                 val marker = Marker().apply {
-                    position = search.address
+                    position = LatLng(search.latitude, search.longitude)
                     this.map = naverMap
+                    icon = MarkerIcons.BLACK
+                    iconTintColor = getColorByRank(search.storeRank)
                     setIconPerspectiveEnabled(true)
                     setCaptionText(search.name)
                 }
 
-                map.moveCamera(CameraUpdate.scrollTo(search.address))
-                newMarker = marker
+                map.moveCamera(CameraUpdate.scrollTo(LatLng(search.latitude, search.longitude)))
+                selectedMarker = marker
             }
         }
     }
@@ -890,7 +855,7 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
                     }
                 }
                 selectedMarker!!.captionText=""
-                newMarker?.map = null
+                //selectedMarker?.map = null
             } else {
                 setVisibility(false)
                 clickSearch = false
@@ -915,7 +880,7 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
                         .commitNow()
 
                     markerClick = false
-                    newMarker?.map = null
+                    //selectedMarker?.map = null
                     selectedMarker?.captionText=""
 
                     if (clickSearch) setVisibility(true)

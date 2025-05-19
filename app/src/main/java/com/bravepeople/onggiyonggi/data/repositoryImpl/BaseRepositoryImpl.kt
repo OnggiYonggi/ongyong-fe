@@ -12,6 +12,7 @@ import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseGetStoreDto
 import com.bravepeople.onggiyonggi.data.response_dto.ResponseSignUpDto
 import com.bravepeople.onggiyonggi.data.response_dto.character.ResponseAllCharacterDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseReviewDto
+import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseSearchStoreDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseStoreDetailDto
 import com.bravepeople.onggiyonggi.domain.repository.BaseRepository
 import timber.log.Timber
@@ -90,6 +91,17 @@ class BaseRepositoryImpl @Inject constructor(
             baseDataSource.getReviews(token,  storeId, cursor, size)
         }.onFailure {
             Timber.e("base repository get reviews fail!!: $it")
+        }
+    }
+
+    override suspend fun searchStore(
+        token: String,
+        keyword: String
+    ): Result<ResponseSearchStoreDto> {
+        return runCatching {
+            baseDataSource.searchStore(token, keyword)
+        }.onFailure {
+            Timber.e("base repository search store faill!!: $it")
         }
     }
 

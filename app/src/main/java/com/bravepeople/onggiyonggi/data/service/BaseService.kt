@@ -11,6 +11,7 @@ import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseGetStoreDto
 import com.bravepeople.onggiyonggi.data.response_dto.ResponseSignUpDto
 import com.bravepeople.onggiyonggi.data.response_dto.character.ResponseAllCharacterDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseReviewDto
+import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseSearchStoreDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseStoreDetailDto
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -64,6 +65,12 @@ interface BaseService {
         @Query("cursor") cursor:String,
         @Query("size") size:Int,
     ):ResponseReviewDto
+
+    @GET("/store/search/{keyword}")
+    suspend fun searchStore(
+        @Header ("Authorization") token:String,
+        @Path("keyword") keyword:String,
+    ):ResponseSearchStoreDto
 
     // character
     @GET("/pet/")
