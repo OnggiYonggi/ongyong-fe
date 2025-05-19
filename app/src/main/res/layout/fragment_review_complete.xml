@@ -11,16 +11,16 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:background="@drawable/iv_review_complte_gradation"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintHeight_percent="0.6"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintHeight_percent="0.25"/>
+        app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
         android:id="@+id/iv_character"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:background="@drawable/character_olive_turtle"
-        app:layout_constraintWidth_percent="0.4"
+        android:src="@drawable/character_olive_turtle"
+        app:layout_constraintWidth_percent="0.8"
         app:layout_constraintDimensionRatio="1:1"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -47,7 +47,21 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
-    <ImageView
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btn_go_character"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:text="@string/review_complete_go_character"
+        android:textColor="@color/white"
+        android:background="@drawable/btn_review_complete_end"
+        android:layout_marginTop="20dp"
+        app:layout_constraintWidth_percent="0.6"
+        app:layout_constraintHeight_percent="0.05"
+        app:layout_constraintTop_toBottomOf="@id/tv_review_character"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+  <!--  <ImageView
         android:id="@+id/iv_life_background"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -81,22 +95,23 @@
         android:layout_marginTop="10dp"
         app:layout_constraintTop_toBottomOf="@id/lav_earth"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent"/>-->
 
     <TextView
         android:id="@+id/tv_my_review_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/review_complete_my_review"
+        android:layout_marginStart="10dp"
         android:layout_marginTop="40dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/iv_life_background"/>
+        app:layout_constraintTop_toBottomOf="@id/iv_character_background"/>
 
     <ImageView
         android:id="@+id/iv_my_review_photo"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:background="@drawable/img_review1"
+        android:src="@drawable/img_review1"
         android:layout_marginTop="10dp"
         app:layout_constraintWidth_percent="0.3"
         app:layout_constraintDimensionRatio="1:1"
@@ -108,6 +123,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
         android:textSize="18sp"
         app:layout_constraintStart_toEndOf="@id/iv_my_review_photo"
         app:layout_constraintEnd_toEndOf="parent"
@@ -123,7 +139,7 @@
         android:ellipsize="end"
         app:layout_constraintStart_toStartOf="@id/tv_my_review_store"
         app:layout_constraintTop_toBottomOf="@id/tv_my_review_store"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toEndOf="@id/tv_my_review_store"
         app:layout_constraintBottom_toBottomOf="@id/iv_my_review_photo"/>
 
     <androidx.appcompat.widget.AppCompatButton

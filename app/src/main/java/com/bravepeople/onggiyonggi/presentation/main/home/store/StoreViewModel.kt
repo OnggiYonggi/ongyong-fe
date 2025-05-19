@@ -1,4 +1,4 @@
-package com.bravepeople.onggiyonggi.presentation.main.home.review
+package com.bravepeople.onggiyonggi.presentation.main.home.store
 
 import android.util.Log
 import androidx.lifecycle.LiveData

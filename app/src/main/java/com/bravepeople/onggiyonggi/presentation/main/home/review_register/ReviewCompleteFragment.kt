@@ -1,5 +1,6 @@
 package com.bravepeople.onggiyonggi.presentation.main.home.review_register
 
+import android.app.Activity
 import android.content.Intent
 import android.content.res.Resources
 import android.graphics.Color
@@ -17,11 +18,18 @@ import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
+import coil.load
 import com.bravepeople.onggiyonggi.R
 import com.bravepeople.onggiyonggi.databinding.FragmentReviewCompleteBinding
+import com.bravepeople.onggiyonggi.extension.character.GetPetState
 import com.bravepeople.onggiyonggi.presentation.MainActivity
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import timber.log.Timber
 
+@AndroidEntryPoint
 class ReviewCompleteFragment:Fragment() {
     private var _binding:FragmentReviewCompleteBinding?=null
     private val binding:FragmentReviewCompleteBinding
@@ -54,7 +62,7 @@ class ReviewCompleteFragment:Fragment() {
             val navBarHeight = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
 
             // 상단 여백 적용
-            binding.root.setPadding(0, statusBarHeight, 0, 0)
+            binding.root.setPadding(10, statusBarHeight, 10, 0)
 
             // 하단 버튼 위 여백 적용
             binding.btnEnd.updateLayoutParams<ViewGroup.MarginLayoutParams> {
@@ -64,12 +72,20 @@ class ReviewCompleteFragment:Fragment() {
             insets
         }
 
-        val lottieView=binding.lavEarth
+        /*val lottieView=binding.lavEarth
         lottieView.setAnimation(R.raw.earth)
-        lottieView.playAnimation()
+        lottieView.playAnimation()*/
 
         setCharacter()
         setReview()
+
+        binding.btnGoCharacter.setOnClickListener {
+            val intent = Intent(requireContext(), MainActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                putExtra("goTo", "character")
+            }
+            startActivity(intent)
+        }
 
         binding.btnEnd.setOnClickListener{
             endFragment()
@@ -80,8 +96,39 @@ class ReviewCompleteFragment:Fragment() {
     }
 
     private fun setCharacter(){
-        val name=reviewCompleteViewModel.name
-        val percentage=reviewCompleteViewModel.likeability.toString()+"%"
+        lifecycleScope.launch {
+            reviewCompleteViewModel.getPetState.collect{state->
+                when(state){
+                    is GetPetState.Success->{
+                        val pet = state.getPetDto.data!!.naturalMonumentCharacter
+                        val name = pet.name
+                        val percentage = "7%"
+                        val text=context?.getString(R.string.review_complete_character_likeability, name, percentage)
+                        val spannable=SpannableString(text)
+
+                        val start=text!!.indexOf(percentage)
+                        val end=start + percentage.length
+
+                        spannable.setSpan(
+                            ForegroundColorSpan(Color.RED),
+                            start, end,
+                            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                        )
+
+                        binding.tvReviewCharacter.text=spannable
+                        binding.ivCharacter.load(pet.imageUrl)
+                    }
+                    is GetPetState.Loading->{}
+                    is GetPetState.Error->{
+                        Timber.e("get pet state error!!")
+                    }
+                }
+            }
+        }
+        val token = reviewRegisterViewModel.accessToken.value?:return
+        reviewCompleteViewModel.getPet(token)
+        /*val name=reviewCompleteViewModel.name
+        val percentage = "7%"
         val text=context?.getString(R.string.review_complete_character_likeability, name, percentage)
         val spannable=SpannableString(text)
 
@@ -94,13 +141,14 @@ class ReviewCompleteFragment:Fragment() {
             Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
         )
 
-        binding.tvReviewCharacter.text=spannable
+        binding.tvReviewCharacter.text=spannable*/
     }
 
     private fun setReview(){
         with(binding){
+            val reviewText = arguments?.getString("text")
             tvMyReviewStore.text=reviewCompleteViewModel.storeName
-            tvMyReviewContent.text=reviewCompleteViewModel.review
+            tvMyReviewContent.text=reviewText
         }
     }
 

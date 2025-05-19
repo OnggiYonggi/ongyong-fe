@@ -24,7 +24,7 @@ import com.bravepeople.onggiyonggi.presentation.main.home.review_register.write_
 import timber.log.Timber
 
 class WriteReviewAdapter(
-    private val complete: () -> Unit,
+    private val complete: (String) -> Unit,
     private val onFocusKeyBoard:(Int)->Unit
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     companion object {
@@ -160,7 +160,9 @@ class WriteReviewAdapter(
             }
 
             is WriteReviewViewHolder -> holder.bind(
-                complete = complete,
+                complete = {text->
+                    complete(text)
+                },
                 onBound = {
                     onScrollRequest?.invoke(position)
                 },

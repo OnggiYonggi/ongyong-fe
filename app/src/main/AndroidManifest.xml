@@ -69,7 +69,7 @@
             android:exported="false">
         </activity>
 
-        <activity android:name=".presentation.main.home.review.review_detail.ReviewDetailActivity"
+        <activity android:name=".presentation.main.home.store.review_detail.ReviewDetailActivity"
             android:exported="false">
         </activity>
 

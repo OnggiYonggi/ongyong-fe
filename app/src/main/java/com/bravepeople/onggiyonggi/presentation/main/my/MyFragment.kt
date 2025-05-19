@@ -7,9 +7,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.PopupMenu
 import android.widget.TextView
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import coil3.load
@@ -18,7 +16,7 @@ import coil3.request.transformations
 import com.bravepeople.onggiyonggi.R
 import com.bravepeople.onggiyonggi.data.Review
 import com.bravepeople.onggiyonggi.databinding.FragmentMyBinding
-import com.bravepeople.onggiyonggi.presentation.main.home.review.review_detail.ReviewDetailActivity
+import com.bravepeople.onggiyonggi.presentation.main.home.store.review_detail.ReviewDetailActivity
 
 class MyFragment : Fragment(R.layout.fragment_my) {
     private var _binding: FragmentMyBinding? = null

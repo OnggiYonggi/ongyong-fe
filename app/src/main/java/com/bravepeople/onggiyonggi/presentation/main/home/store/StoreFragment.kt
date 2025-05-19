@@ -1,4 +1,4 @@
-package com.bravepeople.onggiyonggi.presentation.main.home.review
+package com.bravepeople.onggiyonggi.presentation.main.home.store
 
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
@@ -13,18 +13,14 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import com.bravepeople.onggiyonggi.R
-import com.bravepeople.onggiyonggi.data.Review
-import com.bravepeople.onggiyonggi.data.Search
 import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseReviewDto
-import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseStoreDetailDto
-import com.bravepeople.onggiyonggi.data.toStore
 import com.bravepeople.onggiyonggi.databinding.FragmentReviewBinding
 import com.bravepeople.onggiyonggi.domain.model.StoreRank
 import com.bravepeople.onggiyonggi.extension.GetStoreTimeState
 import com.bravepeople.onggiyonggi.extension.home.GetReviewState
 import com.bravepeople.onggiyonggi.extension.home.GetStoreDetailState
 import com.bravepeople.onggiyonggi.presentation.main.home.store_register.StoreRegisterActivity
-import com.bravepeople.onggiyonggi.presentation.main.home.review.review_detail.ReviewDetailActivity
+import com.bravepeople.onggiyonggi.presentation.main.home.store.review_detail.ReviewDetailActivity
 import com.bravepeople.onggiyonggi.presentation.main.home.review_register.ReviewRegisterActivity
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -223,7 +219,7 @@ class StoreFragment : Fragment() {
                             } else {
                                 setupRecyclerView(accessToken, id)
                                 btnAdd.setOnClickListener{
-                                    writeReview()
+                                    writeReview(accessToken)
                                 }
                             }
                         }
@@ -302,10 +298,11 @@ class StoreFragment : Fragment() {
         requireActivity().overridePendingTransition(R.anim.slide_in_right, R.anim.stay_still)
     }
 
-    private fun writeReview(){
+    private fun writeReview(accessToken: String) {
         Timber.d("writeReview")
         val intent = Intent(requireContext(), ReviewRegisterActivity::class.java)
         intent.putExtra("type", "registerActivity")
+        intent.putExtra("accessToken", accessToken)
         startActivity(intent)
         requireActivity().overridePendingTransition(R.anim.slide_in_right, R.anim.stay_still)
     }

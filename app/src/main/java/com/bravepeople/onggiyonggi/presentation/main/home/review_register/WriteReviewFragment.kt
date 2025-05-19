@@ -8,21 +8,29 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import coil3.load
 import com.bravepeople.onggiyonggi.data.StoreAndDateAndPhoto
 import com.bravepeople.onggiyonggi.databinding.FragmentWriteReviewBinding
+import com.bravepeople.onggiyonggi.extension.character.LevelUpState
 import com.bravepeople.onggiyonggi.presentation.main.home.review_register.write_review_adapter.ReceiptInfoAdapter
 import com.bravepeople.onggiyonggi.presentation.main.home.review_register.write_review_adapter.WriteReviewAdapter
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
+import timber.log.Timber
 
+@AndroidEntryPoint
 class WriteReviewFragment : Fragment() {
     private var _binding: FragmentWriteReviewBinding? = null
     private val binding: FragmentWriteReviewBinding
         get() = requireNotNull(_binding) { "receipt fragment is null" }
 
     private val reviewRegisterViewModel: ReviewRegisterViewModel by activityViewModels()
+    private val writeReviewViewModel:WriteReviewViewModel by viewModels()
     private lateinit var writeReviewAdapter:WriteReviewAdapter
     private var pendingFocusPosition: Int? = null
 
@@ -120,9 +128,23 @@ class WriteReviewFragment : Fragment() {
         receiptInfoAdapter.getList(receipt)
 
         writeReviewAdapter=WriteReviewAdapter(
-            complete = {
-                val action = WriteReviewFragmentDirections.actionWriteToComplete()
-                findNavController().navigate(action)
+            complete = { text->
+                lifecycleScope.launch {
+                    writeReviewViewModel.levelUpState.collect{state->
+                        when(state){
+                            is LevelUpState.Success->{
+                                val action = WriteReviewFragmentDirections.actionWriteToComplete(text)
+                                findNavController().navigate(action)
+                            }
+                            is LevelUpState.Loading->{}
+                            is LevelUpState.Error->{
+                                Timber.e("level up state error")
+                            }
+                        }
+                    }
+                }
+                val token = reviewRegisterViewModel.accessToken.value?: return@WriteReviewAdapter
+                writeReviewViewModel.levelUp(token)
             },
             onFocusKeyBoard = {position->
                 pendingFocusPosition = position

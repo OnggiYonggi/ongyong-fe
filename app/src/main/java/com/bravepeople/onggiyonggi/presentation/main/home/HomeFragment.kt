@@ -23,7 +23,6 @@ import androidx.activity.addCallback
 import androidx.core.animation.doOnEnd
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.core.text.HtmlCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
@@ -37,12 +36,11 @@ import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseGetStoreDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseSearchStoreDto
 import com.bravepeople.onggiyonggi.databinding.FragmentHomeBinding
 import com.bravepeople.onggiyonggi.domain.model.StoreRank
-import com.bravepeople.onggiyonggi.extension.SearchState
 import com.bravepeople.onggiyonggi.extension.home.GetStoreState
 import com.bravepeople.onggiyonggi.extension.home.SearchStoreState
 import com.bravepeople.onggiyonggi.presentation.MainViewModel
 import com.bravepeople.onggiyonggi.presentation.main.home.store_register.StoreRegisterActivity
-import com.bravepeople.onggiyonggi.presentation.main.home.review.StoreFragment
+import com.bravepeople.onggiyonggi.presentation.main.home.store.StoreFragment
 import com.bravepeople.onggiyonggi.presentation.main.home.search.SearchRecentAdapter
 import com.bravepeople.onggiyonggi.presentation.main.home.search.SearchResultAdapter
 import com.bravepeople.onggiyonggi.presentation.main.home.search.SearchViewModel
@@ -799,27 +797,27 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
                     }, 80)
 
                     fabNew.setOnClickListener {
-                        val intent = Intent(requireContext(), StoreRegisterActivity::class.java)
-                        intent.putExtra("type", "new")
-                        startActivity(intent)
-                        requireActivity().overridePendingTransition(
-                            R.anim.slide_in_right,
-                            R.anim.stay_still
-                        )
+                        registerStore("new")
                     }
                     fabBan.setOnClickListener {
-                        val intent = Intent(requireContext(), StoreRegisterActivity::class.java)
-                        intent.putExtra("type", "bav")
-                        startActivity(intent)
-                        requireActivity().overridePendingTransition(
-                            R.anim.slide_in_right,
-                            R.anim.stay_still
-                        )
+                        registerStore("ban")
                     }
                 }
                 isFabOpen = true
             }
         }
+    }
+
+    private fun registerStore(type:String){
+        val accessToken = homeViewModel.accessToken.value?:return
+        val intent = Intent(requireContext(), StoreRegisterActivity::class.java)
+        intent.putExtra("type", type)
+        intent.putExtra("accessToken", accessToken)
+        startActivity(intent)
+        requireActivity().overridePendingTransition(
+            R.anim.slide_in_right,
+            R.anim.stay_still
+        )
     }
 
     private fun resetFabState() {
