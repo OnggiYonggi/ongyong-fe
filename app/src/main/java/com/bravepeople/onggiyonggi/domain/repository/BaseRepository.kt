@@ -12,7 +12,9 @@ import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseReviewDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseSearchStoreDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseStoreDetailDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponseDeleteStoreDto
+import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponseReceiptDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponseRegisterStoreDto
+import okhttp3.MultipartBody
 
 interface BaseRepository {
     // signup
@@ -77,6 +79,11 @@ interface BaseRepository {
         token:String,
         id:Int,
     ):Result<ResponseDeleteStoreDto>
+
+    suspend fun receipt(
+        token:String,
+        file:MultipartBody.Part,
+    ):Result<ResponseReceiptDto>
 
     // character
     suspend fun getPet(

@@ -37,15 +37,15 @@ import coil3.request.placeholder
 import com.bravepeople.onggiyonggi.R
 import com.bravepeople.onggiyonggi.databinding.FragmentPhotoBinding
 import com.bravepeople.onggiyonggi.extension.home.register.DeleteState
-import kotlinx.coroutines.flow.collect
+import com.yalantis.ucrop.UCrop
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.io.File
 
-class PhotoCaptureFragment:Fragment() {
-    private var _binding:FragmentPhotoBinding?=null
-    private val binding:FragmentPhotoBinding
-        get()= requireNotNull(_binding){"receipt fragment is null"}
+class PhotoCaptureFragment : Fragment() {
+    private var _binding: FragmentPhotoBinding? = null
+    private val binding: FragmentPhotoBinding
+        get() = requireNotNull(_binding) { "receipt fragment is null" }
 
     private lateinit var imageCapture: ImageCapture
     private val reviewRegisterViewModel: ReviewRegisterViewModel by activityViewModels()
@@ -83,19 +83,26 @@ class PhotoCaptureFragment:Fragment() {
         super.onCreate(savedInstanceState)
 
         // galleryLauncher 초기화
-        galleryLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == Activity.RESULT_OK) {
-                val selectedImageUri = result.data?.data
-                selectedImageUri?.let { uri ->
-                    Timber.d("갤러리에서 선택된 URI: $uri")
+        galleryLauncher =
+            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+                if (result.resultCode == Activity.RESULT_OK) {
+                    val selectedImageUri = result.data?.data
+                    selectedImageUri?.let { uri ->
+                        Timber.d("갤러리에서 선택된 URI: $uri")
 
-                    reviewRegisterViewModel.saveReceipt(uri)
+                        if (currentType == PhotoType.RECEIPT) {
+                            startCrop(uri)  // or startCrop(selectedImageUri)
+                        } else {
+                            //reviewRegisterViewModel.saveReceipt(uri)
+                            navigateToLoading(uri)
+                        }
 
-                    val action = PhotoCaptureFragmentDirections.actionPhotoToLoading(currentType)
-                    findNavController().navigate(action)
+                        /*val action =
+                            PhotoCaptureFragmentDirections.actionPhotoToLoading(currentType)
+                        findNavController().navigate(action)*/
+                    }
                 }
             }
-        }
     }
 
     override fun onCreateView(
@@ -112,7 +119,7 @@ class PhotoCaptureFragment:Fragment() {
         setting()
     }
 
-    private fun setting(){
+    private fun setting() {
         currentType = args.photoType
 
         checkGalleryPermissionAndThenCamera()
@@ -122,14 +129,18 @@ class PhotoCaptureFragment:Fragment() {
     }
 
     // 갤러리 권한 설정
-    private fun checkGalleryPermissionAndThenCamera(){
+    private fun checkGalleryPermissionAndThenCamera() {
         val permission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             Manifest.permission.READ_MEDIA_IMAGES
         } else {
             Manifest.permission.READ_EXTERNAL_STORAGE
         }
 
-        if (ContextCompat.checkSelfPermission(requireContext(), permission) != PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(
+                requireContext(),
+                permission
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
             requestPermissions(arrayOf(permission), GALLERY_PERMISSION_CODE)
         } else {
             checkCameraPermissionAndLoad()
@@ -137,12 +148,14 @@ class PhotoCaptureFragment:Fragment() {
     }
 
     // 카메라 권한 설정
-    private fun checkCameraPermissionAndLoad(){
+    private fun checkCameraPermissionAndLoad() {
         if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA)
-            == PackageManager.PERMISSION_GRANTED) {
+            == PackageManager.PERMISSION_GRANTED
+        ) {
             startCamera(currentType)
         } else {
-            requestPermissions(arrayOf(Manifest.permission.CAMERA),
+            requestPermissions(
+                arrayOf(Manifest.permission.CAMERA),
                 CAMERA_PERMISSION_CODE
             )
         }
@@ -171,12 +184,12 @@ class PhotoCaptureFragment:Fragment() {
             cameraProvider.unbindAll()
             cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageCapture)
 
-            when(currentType){
+            when (currentType) {
                 PhotoType.RECEIPT -> binding.tvTitle.setText(R.string.receipt_photo_title)
-                else->binding.tvTitle.setText(R.string.food_photo_title)
+                else -> binding.tvTitle.setText(R.string.food_photo_title)
             }
 
-            binding.btnCapture.setOnClickListener{
+            binding.btnCapture.setOnClickListener {
                 Timber.d("btnCapture 클릭됨")
                 takePhoto(currentType)
             }
@@ -214,8 +227,37 @@ class PhotoCaptureFragment:Fragment() {
     private fun savePicture(savedUri: Uri, currentType: PhotoType) {
         Timber.d("savePicture() called with uri: $savedUri")
 
-        reviewRegisterViewModel.saveReceipt(savedUri)
+        if (currentType == PhotoType.RECEIPT) {
+            startCrop(savedUri)  // or startCrop(selectedImageUri)
+        } else {
+            //reviewRegisterViewModel.saveReceipt(savedUri)
+            navigateToLoading(savedUri)
+        }
+    }
 
+    private fun startCrop(uri: Uri) {
+        val destinationUri = Uri.fromFile(
+            File(
+                requireContext().cacheDir,
+                "cropped_${System.currentTimeMillis()}.jpg"
+            )
+        )
+
+        val options = UCrop.Options().apply {
+            //setCompressionQuality(80)
+            setShowCropFrame(true)      // crop 프레임 보여주기
+            setHideBottomControls(true) // 비율 버튼
+            setFreeStyleCropEnabled(true)  // 자유로운 비율
+            setCircleDimmedLayer(false)     // 원형 크롭 아닌 사각형 유지
+            setToolbarTitle("영수증 자르기")
+        }
+
+        UCrop.of(uri, destinationUri)
+            .withOptions(options)
+            .start(requireContext(), this)
+    }
+
+    private fun navigateToLoading(uri: Uri) {
         try {
             Timber.d("photo-phototype: $currentType")
 
@@ -223,7 +265,9 @@ class PhotoCaptureFragment:Fragment() {
                 .setPopUpTo(R.id.photoFragment, true)
                 .build()
 
-            val action = PhotoCaptureFragmentDirections.actionPhotoToLoading(currentType)
+            val action = PhotoCaptureFragmentDirections.actionPhotoToLoading(currentType,
+                uri.toString()
+            )
             findNavController().navigate(action, navOptions)
         } catch (e: Exception) {
             Timber.e(e, "예외 발생: photoType 처리 중 오류")
@@ -242,18 +286,25 @@ class PhotoCaptureFragment:Fragment() {
         cursor?.use {
             if (it.moveToFirst()) {
                 val id = it.getLong(it.getColumnIndexOrThrow(MediaStore.Images.Media._ID))
-                val uri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id)
+                val uri =
+                    ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id)
                 Timber.d("불러온 이미지 URI: $uri")
 
                 if (canOpenUri(requireContext(), uri)) {
                     Timber.d("정상적인 URI: $uri")
                     binding.ivGalary.load(uri) {
-                        placeholder(ContextCompat.getDrawable(requireContext(), R.drawable.placeholder))
+                        placeholder(
+                            ContextCompat.getDrawable(
+                                requireContext(),
+                                R.drawable.placeholder
+                            )
+                        )
                         error(ContextCompat.getDrawable(requireContext(), R.drawable.error))
                     }
 
                     binding.ivGalary.setOnClickListener {
-                        val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+                        val intent =
+                            Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
                         intent.type = "image/*"
                         galleryLauncher.launch(intent)
                     }
@@ -273,15 +324,16 @@ class PhotoCaptureFragment:Fragment() {
         }
     }
 
-    private fun deleteStore(){
+    private fun deleteStore() {
         lifecycleScope.launch {
-            reviewRegisterViewModel.deleteState.collect{state->
-                when(state){
-                    is DeleteState.Success->{
+            reviewRegisterViewModel.deleteState.collect { state ->
+                when (state) {
+                    is DeleteState.Success -> {
                         requireActivity().finish()
                     }
-                    is DeleteState.Loading->{}
-                    is DeleteState.Error->{
+
+                    is DeleteState.Loading -> {}
+                    is DeleteState.Error -> {
                         Timber.e("delete state error!")
                     }
                 }
@@ -290,15 +342,15 @@ class PhotoCaptureFragment:Fragment() {
 
     }
 
-    private fun clickCancel(){
+    private fun clickCancel() {
         binding.btnCancel.setOnClickListener {
             Timber.e("storeId: ${reviewRegisterViewModel.storeId.value}")
-            if(reviewRegisterViewModel.storeId.value!=-1) reviewRegisterViewModel.delete()
+            if (reviewRegisterViewModel.storeId.value != null) reviewRegisterViewModel.delete()
             else requireActivity().finish()
         }
-        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner){
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
             Timber.e("storeId: ${reviewRegisterViewModel.storeId.value}")
-            if(reviewRegisterViewModel.storeId.value!=-1) reviewRegisterViewModel.delete()
+            if (reviewRegisterViewModel.storeId.value != null) reviewRegisterViewModel.delete()
             else requireActivity().finish()
         }
     }
@@ -309,9 +361,26 @@ class PhotoCaptureFragment:Fragment() {
     }
 
     companion object {
-        private const val CAMERA_PERMISSION_CODE=100
-        private const val GALLERY_REQUEST_CODE=1001
-        private const val GALLERY_PERMISSION_CODE=101
+        private const val CAMERA_PERMISSION_CODE = 100
+        private const val GALLERY_REQUEST_CODE = 1001
+        private const val GALLERY_PERMISSION_CODE = 101
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == UCrop.REQUEST_CROP && resultCode == Activity.RESULT_OK) {
+            val resultUri = UCrop.getOutput(data!!)
+            resultUri?.let {
+                Timber.d("크롭된 URI: $it")
+                //reviewRegisterViewModel.saveReceipt(it)
+                navigateToLoading(it)
+            }
+        } else if (resultCode == UCrop.RESULT_ERROR) {
+            val cropError = UCrop.getError(data!!)
+            Timber.e(cropError, "사진 자르기 실패")
+            Toast.makeText(requireContext(), "사진 자르기에 실패했어요", Toast.LENGTH_SHORT).show()
+        }
     }
 
 }

@@ -265,14 +265,14 @@ class WriteReviewFragment : Fragment() {
     private fun clickCancel() {
         binding.btnCancel.setOnClickListener {
             Timber.e("storeId: ${reviewRegisterViewModel.storeId.value}")
-            if (reviewRegisterViewModel.storeId.value != -1)
+            if (reviewRegisterViewModel.storeId.value != null)
                 showDeleteConfirmDialog()
             else requireActivity().finish()
         }
 
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
             Timber.e("storeId: ${reviewRegisterViewModel.storeId.value}")
-            if (reviewRegisterViewModel.storeId.value != -1)
+            if (reviewRegisterViewModel.storeId.value != null)
                 showDeleteConfirmDialog()
             else requireActivity().finish()
         }

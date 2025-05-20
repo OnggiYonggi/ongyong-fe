@@ -173,7 +173,8 @@ dependencies {
     implementation("com.github.bumptech.glide:glide:4.16.0")
     kapt("com.github.bumptech.glide:compiler:4.16.0")
 
-
+    // 이미지 crop
+    implementation ("com.github.yalantis:ucrop:2.2.8")
 }
 
 kapt {

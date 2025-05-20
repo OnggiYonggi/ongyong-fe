@@ -16,8 +16,10 @@ import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseReviewDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseSearchStoreDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseStoreDetailDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponseDeleteStoreDto
+import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponseReceiptDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponseRegisterStoreDto
 import com.bravepeople.onggiyonggi.data.service.BaseService
+import okhttp3.MultipartBody
 import javax.inject.Inject
 
 class BaseDataSourceImpl @Inject constructor(
@@ -57,6 +59,7 @@ class BaseDataSourceImpl @Inject constructor(
     ): ResponseRegisterStoreDto = baseService.registerStore(token, storeRank, requestRegisterStoreDto)
 
     override suspend fun deleteStore(token: String, id: Int): ResponseDeleteStoreDto = baseService.deleteStore(token, id)
+    override suspend fun receipt(token: String, file: MultipartBody.Part): ResponseReceiptDto = baseService.receipt(token, file)
 
     // character
     override suspend fun getPet(token:String): ResponseGetPetDto = baseService.getPet(token)

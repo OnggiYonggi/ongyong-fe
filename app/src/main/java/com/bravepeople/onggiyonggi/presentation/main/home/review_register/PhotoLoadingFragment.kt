@@ -3,6 +3,7 @@ package com.bravepeople.onggiyonggi.presentation.main.home.review_register
 import android.animation.Animator
 import android.graphics.Color
 import android.graphics.PorterDuff
+import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -16,11 +17,11 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import coil3.load
-import coil3.request.transformations
+import coil.load
 import com.bravepeople.onggiyonggi.R
 import com.bravepeople.onggiyonggi.databinding.FragmentPhotoLoadingBinding
 import com.bravepeople.onggiyonggi.extension.home.register.DeleteState
+import com.bravepeople.onggiyonggi.extension.home.register.ReceiptState
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -29,7 +30,7 @@ class PhotoLoadingFragment:Fragment() {
     private val binding:FragmentPhotoLoadingBinding
         get()= requireNotNull(_binding){"receipt fragment is null"}
 
-    private val reviewViewModel: ReviewRegisterViewModel by activityViewModels()
+    private val reviewRegisterViewModel: ReviewRegisterViewModel by activityViewModels()
     private val args: PhotoLoadingFragmentArgs by navArgs()
 
     override fun onCreateView(
@@ -43,13 +44,109 @@ class PhotoLoadingFragment:Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        loadingEffect()
+
+        setting()
+        //loadingEffect()
         deleteStore()
         clickCancel()
     }
 
+    private fun setting(){
+        lifecycleScope.launch {
+            reviewRegisterViewModel.receiptState.collect{state->
+                when(state){
+                    is ReceiptState.Success->{
+                        showSecondAnimation()
+                    }
+                    is ReceiptState.Loading->{
+                        showFirstAnimation()
+                    }
+                    is ReceiptState.Error->{
+                        Timber.e("receipt state error!")
+                    }
+                }
+            }
+        }
+
+        val uri = args.uri
+        binding.ivReceipt.load(uri)
+        reviewRegisterViewModel.receipt(requireContext(), Uri.parse(uri))
+    }
+
+    private fun showFirstAnimation() {
+        binding.ivReceipt.load(reviewRegisterViewModel.getReceipt()) {
+            transformations()
+            listener(
+                onSuccess = { _, _ ->
+                    binding.ivReceipt.setColorFilter(
+                        Color.parseColor("#80000000"),
+                        PorterDuff.Mode.SRC_OVER
+                    )
+                }
+            )
+        }
+
+        binding.lavLoading.apply {
+            alpha = 1f
+            visibility = View.VISIBLE
+            playAnimation()
+        }
+    }
+
+    private fun showSecondAnimation() {
+        // 1단계: 첫 번째 로딩 애니메이션 사라지게
+        binding.lavLoading.animate()
+            .alpha(0f)
+            .setDuration(500)
+            .withEndAction {
+                binding.lavLoading.visibility = View.INVISIBLE
+            }
+            .start()
+
+        // 2단계: 완료 애니메이션 나타나게
+        binding.lavComplete.apply {
+            alpha = 0f
+            visibility = View.VISIBLE
+            playAnimation()
+
+            animate()
+                .alpha(1f)
+                .setDuration(500)
+                .start()
+
+            addAnimatorListener(object : Animator.AnimatorListener {
+                override fun onAnimationEnd(p0: Animator) {
+                    navigateToNext()
+                }
+
+                override fun onAnimationStart(p0: Animator) {}
+                override fun onAnimationCancel(p0: Animator) {}
+                override fun onAnimationRepeat(p0: Animator) {}
+            })
+        }
+    }
+
+    private fun navigateToNext() {
+        val photoType = args.photoType
+        val navOptions = NavOptions.Builder()
+            .setPopUpTo(R.id.loadingFragment, true)
+            .build()
+
+        when (photoType) {
+            PhotoType.RECEIPT -> {
+                val action = PhotoLoadingFragmentDirections.actionLoadingToPhoto(PhotoType.FOOD)
+                findNavController().navigate(action, navOptions)
+            }
+            else -> {
+                val action = PhotoLoadingFragmentDirections.actionLoadingToWrite()
+                findNavController().navigate(action, navOptions)
+            }
+        }
+    }
+
+
     private fun loadingEffect(){
-        binding.ivReceipt.load(reviewViewModel.getReceipt()) {
+        binding.ivReceipt.load(reviewRegisterViewModel.getReceipt()) {
             transformations()
             listener(
                 onSuccess = { _, _ ->
@@ -120,7 +217,7 @@ class PhotoLoadingFragment:Fragment() {
 
     private fun deleteStore(){
         lifecycleScope.launch {
-            reviewViewModel.deleteState.collect{state->
+            reviewRegisterViewModel.deleteState.collect{state->
                 when(state){
                     is DeleteState.Success->{
                         requireActivity().finish()
@@ -137,11 +234,11 @@ class PhotoLoadingFragment:Fragment() {
 
     private fun clickCancel(){
         binding.btnCancel.setOnClickListener {
-            if(reviewViewModel.storeId.value!=-1) reviewViewModel.delete()
+            if(reviewRegisterViewModel.storeId.value!= null) reviewRegisterViewModel.delete()
             else requireActivity().finish()
         }
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner){
-            if(reviewViewModel.storeId.value!=-1) reviewViewModel.delete()
+            if(reviewRegisterViewModel.storeId.value!= null) reviewRegisterViewModel.delete()
             else requireActivity().finish()
         }
     }

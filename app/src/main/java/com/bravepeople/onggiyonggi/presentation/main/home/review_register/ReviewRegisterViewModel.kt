@@ -12,15 +12,21 @@ import com.bravepeople.onggiyonggi.data.SelectQuestion
 import com.bravepeople.onggiyonggi.data.StoreOrReceipt
 import com.bravepeople.onggiyonggi.domain.repository.BaseRepository
 import com.bravepeople.onggiyonggi.extension.home.register.DeleteState
+import com.bravepeople.onggiyonggi.extension.home.register.ReceiptState
+import dagger.hilt.android.internal.Contexts.getApplication
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.ResponseBody
 import org.json.JSONObject
 import retrofit2.HttpException
 import timber.log.Timber
+import java.io.File
 import javax.inject.Inject
 
 @HiltViewModel
@@ -33,8 +39,10 @@ class ReviewRegisterViewModel @Inject constructor(
     val accessToken: LiveData<String> get() = _accessToken
     val storeId: LiveData<Int> get() = _storeId
 
+    private val _receiptState = MutableStateFlow<ReceiptState>(ReceiptState.Loading)
     private val _deleteState = MutableStateFlow<DeleteState>(DeleteState.Loading)
     val deleteState: StateFlow<DeleteState> = _deleteState.asStateFlow()
+    val receiptState: StateFlow<ReceiptState> = _receiptState.asStateFlow()
 
     private var receipt: Uri? = null
     private var food: Uri? = null
@@ -51,10 +59,38 @@ class ReviewRegisterViewModel @Inject constructor(
     fun delete() {
         viewModelScope.launch {
             if (_accessToken.value != null && _storeId.value != null) {
-                baseRepository.deleteStore(_accessToken.value!!, _storeId.value!!).onSuccess { response ->
-                    _deleteState.value = DeleteState.Success(response)
+                baseRepository.deleteStore(_accessToken.value!!, _storeId.value!!)
+                    .onSuccess { response ->
+                        _deleteState.value = DeleteState.Success(response)
+                    }.onFailure {
+                        _deleteState.value = DeleteState.Error("delete error!")
+                        if (it is HttpException) {
+                            try {
+                                val errorBody: ResponseBody? = it.response()?.errorBody()
+                                val errorBodyString = errorBody?.string() ?: ""
+                                httpError(errorBodyString)
+                            } catch (e: Exception) {
+                                // JSON 파싱 실패 시 로깅
+                                Timber.e("Error parsing error body: ${e}")
+                            }
+                        }
+                    }
+            }
+        }
+    }
+
+    fun receipt(context: Context, uri: Uri) {
+        viewModelScope.launch {
+            val file = uriToFile(context, uri)
+            val requestFile =
+                file.asRequestBody("image/*".toMediaTypeOrNull()) // 또는 "multipart/form-data"
+            val multipartBody = MultipartBody.Part.createFormData("file", file.name, requestFile)
+
+            _accessToken.value?.let {
+                baseRepository.receipt(it, multipartBody).onSuccess { response ->
+                    _receiptState.value=ReceiptState.Success(response)
                 }.onFailure {
-                    _deleteState.value = DeleteState.Error("delete error!")
+                    _receiptState.value=ReceiptState.Error("receipt error!")
                     if (it is HttpException) {
                         try {
                             val errorBody: ResponseBody? = it.response()?.errorBody()
@@ -68,6 +104,15 @@ class ReviewRegisterViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    private fun uriToFile(context: Context, uri: Uri): File {
+        val inputStream = context.contentResolver.openInputStream(uri)!!
+        val tempFile = File.createTempFile("upload_", ".tmp", context.cacheDir)
+        tempFile.outputStream().use { outputStream ->
+            inputStream.copyTo(outputStream)
+        }
+        return tempFile
     }
 
     private fun httpError(errorBody: String) {

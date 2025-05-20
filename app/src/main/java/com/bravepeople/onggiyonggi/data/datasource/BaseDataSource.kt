@@ -15,7 +15,9 @@ import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseReviewDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseSearchStoreDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseStoreDetailDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponseDeleteStoreDto
+import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponseReceiptDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponseRegisterStoreDto
+import okhttp3.MultipartBody
 
 interface BaseDataSource {
     // signup
@@ -72,6 +74,11 @@ interface BaseDataSource {
         token:String,
         id:Int,
     ):ResponseDeleteStoreDto
+
+    suspend fun receipt(
+        token:String,
+        file: MultipartBody.Part
+    ):ResponseReceiptDto
 
     // character
     suspend fun getPet(

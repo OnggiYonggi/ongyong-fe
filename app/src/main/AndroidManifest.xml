@@ -77,6 +77,10 @@
             android:exported="false">
         </activity>
 
+        <activity
+            android:name="com.yalantis.ucrop.UCropActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
+
         <activity android:name=".presentation.main.character.CharacterGachaActivity"
             android:exported="false">
         </activity>
