@@ -1,5 +1,7 @@
 package com.bravepeople.onggiyonggi.data.repositoryImpl
 
+import android.content.Context
+import android.net.Uri
 import com.bravepeople.onggiyonggi.data.datasource.BaseDataSource
 import com.bravepeople.onggiyonggi.data.request_dto.RequestLoginDto
 import com.bravepeople.onggiyonggi.data.request_dto.RequestRegisterStoreDto
@@ -16,9 +18,12 @@ import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseReviewDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseSearchStoreDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseStoreDetailDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponseDeleteStoreDto
+import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponseReceiptDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponseRegisterStoreDto
 import com.bravepeople.onggiyonggi.domain.repository.BaseRepository
+import okhttp3.MultipartBody
 import timber.log.Timber
+import java.io.File
 import javax.inject.Inject
 
 class BaseRepositoryImpl @Inject constructor(
@@ -131,6 +136,14 @@ class BaseRepositoryImpl @Inject constructor(
             baseDataSource.deleteStore(token,id)
         }.onFailure {
             Timber.e("base repository delete store fail!!: $it")
+        }
+    }
+
+    override suspend fun receipt(token: String, file: MultipartBody.Part): Result<ResponseReceiptDto> {
+        return runCatching {
+            baseDataSource.receipt(token,file)
+        }.onFailure {
+            Timber.e("base repository receipt fail!!: $it")
         }
     }
 

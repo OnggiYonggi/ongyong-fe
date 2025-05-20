@@ -31,6 +31,11 @@
             app:argType="com.bravepeople.onggiyonggi.presentation.main.home.review_register.PhotoType"
             app:nullable="false" />
 
+        <argument
+            android:name="uri"
+            app:argType="string"
+            app:nullable="false"/>
+
         <action
             android:id="@+id/action_loading_to_photo"
             app:destination="@id/photoFragment" />
