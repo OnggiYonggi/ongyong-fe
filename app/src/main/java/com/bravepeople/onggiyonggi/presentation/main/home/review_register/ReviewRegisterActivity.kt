@@ -8,7 +8,6 @@ import androidx.core.view.WindowInsetsControllerCompat
 import androidx.navigation.findNavController
 import com.bravepeople.onggiyonggi.R
 import com.bravepeople.onggiyonggi.databinding.ActivityReviewRegisterBinding
-import timber.log.Timber
 
 class ReviewRegisterActivity:AppCompatActivity() {
     private  lateinit var binding: ActivityReviewRegisterBinding
@@ -24,7 +23,7 @@ class ReviewRegisterActivity:AppCompatActivity() {
 
         val navController = findNavController(R.id.fcv_review)
         val navInflater = navController.navInflater
-        val navGraph = navInflater.inflate(R.navigation.nav_graph)
+        val navGraph = navInflater.inflate(R.navigation.nav_reveiw_register)
 
         val bundle = Bundle().apply {
             putSerializable("photoType", PhotoType.RECEIPT)

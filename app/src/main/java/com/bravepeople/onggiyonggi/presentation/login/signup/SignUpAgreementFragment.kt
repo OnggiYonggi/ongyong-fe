@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import android.widget.TextView
 import androidx.annotation.RawRes
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
@@ -15,7 +14,7 @@ import com.bravepeople.onggiyonggi.presentation.signup.TermsFragment
 
 class SignUpAgreementFragment : Fragment() {
     private var _binding: FragmentSignupAgreementBinding? = null
-    private val binding get() = requireNotNull(_binding){"sign up agreement fragment is null"}
+    private val binding get() = requireNotNull(_binding) { "sign up agreement fragment is null" }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -30,10 +29,10 @@ class SignUpAgreementFragment : Fragment() {
         binding.btnNext.isEnabled = false
         binding.btnNext.alpha = 0.5f
 
-        binding.item1.tvTitle.text=getString(R.string.sign_up_agreement_terms_of_use)
-        binding.item2.tvTitle.text=getString(R.string.sign_up_agreement_user_info_agree)
-        binding.item3.tvTitle.text=getString(R.string.sign_up_agreement_user_third_party_info_agree)
-        binding.item4.tvTitle.text=getString(R.string.sign_up_agreement_location_agree)
+        binding.item1.tvTitle.text = getString(R.string.sign_up_agreement_terms_of_use)
+        binding.item2.tvTitle.text = getString(R.string.sign_up_agreement_user_info_agree)
+        binding.item3.tvTitle.text = getString(R.string.sign_up_agreement_user_third_party_info_agree)
+        binding.item4.tvTitle.text = getString(R.string.sign_up_agreement_location_agree)
 
         binding.item1.tvView.setOnClickListener {
             val content = readRawTextFile(R.raw.terms_of_service)
@@ -55,14 +54,6 @@ class SignUpAgreementFragment : Fragment() {
             navigateToTerms("위치 기반 서비스 제공 동의", content)
         }
 
-
-        val agreementItems = listOf(binding.item1, binding.item2, binding.item3, binding.item4)
-        agreementItems.forEach { item ->
-            item.root.setOnClickListener {
-                toggleAgreement(item.root)
-            }
-        }
-
         binding.ivCheckAll.setOnClickListener { view ->
             val checkAll = view as ImageView
             val isChecked = checkAll.tag as? Boolean ?: false
@@ -71,9 +62,7 @@ class SignUpAgreementFragment : Fragment() {
             checkAll.setImageResource(newIcon)
             checkAll.tag = !isChecked
 
-            val itemViews = listOf(
-                binding.item1, binding.item2, binding.item3, binding.item4
-            )
+            val itemViews = listOf(binding.item1, binding.item2, binding.item3, binding.item4)
             itemViews.forEach { item ->
                 val iv = item.ivCheck
                 iv.setImageResource(newIcon)
@@ -83,24 +72,21 @@ class SignUpAgreementFragment : Fragment() {
             updateNextButtonState()
         }
 
-        binding.btnNext.setOnClickListener {
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.fcv_sign_up, SignUpFormFragment())
-                .addToBackStack(null)
-                .commit()
-        }
-
-        binding.btnBack.setOnClickListener {
-            requireActivity().onBackPressedDispatcher.onBackPressed()
-            requireActivity().finish()
-        }
-
+        val agreementItems = listOf(binding.item1, binding.item2, binding.item3, binding.item4)
         agreementItems.forEach { item ->
             item.root.setOnClickListener {
                 toggleAgreement(item.root)
                 updateAllAgreeState()
                 updateNextButtonState()
             }
+        }
+
+        binding.btnNext.setOnClickListener {
+            findNavController().navigate(R.id.action_signUpAgreementFragment_to_signUpFormFragment)
+        }
+
+        binding.btnBack.setOnClickListener {
+            requireActivity().onBackPressedDispatcher.onBackPressed()
         }
     }
 
@@ -112,7 +98,6 @@ class SignUpAgreementFragment : Fragment() {
         )
         imgCheck.tag = !isChecked
         updateNextButtonState()
-
     }
 
     private fun updateNextButtonState() {
@@ -127,10 +112,17 @@ class SignUpAgreementFragment : Fragment() {
         binding.btnNext.alpha = if (allChecked) 1f else 0.5f
     }
 
+    private fun updateAllAgreeState() {
+        val allChecked = listOf(
+            binding.item1.ivCheck.tag,
+            binding.item2.ivCheck.tag,
+            binding.item3.ivCheck.tag,
+            binding.item4.ivCheck.tag
+        ).all { it == true }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
+        val newIcon = if (allChecked) R.drawable.ic_check_green else R.drawable.ic_check_gray
+        binding.ivCheckAll.setImageResource(newIcon)
+        binding.ivCheckAll.tag = allChecked
     }
 
     private fun readRawTextFile(@RawRes resId: Int): String {
@@ -152,18 +144,8 @@ class SignUpAgreementFragment : Fragment() {
             .commit()
     }
 
-
-    private fun updateAllAgreeState() {
-        val allChecked = listOf(
-            binding.item1.ivCheck.tag,
-            binding.item2.ivCheck.tag,
-            binding.item3.ivCheck.tag,
-            binding.item4.ivCheck.tag
-        ).all { it == true }
-
-        val newIcon = if (allChecked) R.drawable.ic_check_green else R.drawable.ic_check_gray
-        binding.ivCheckAll.setImageResource(newIcon)
-        binding.ivCheckAll.tag = allChecked
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
-
 }

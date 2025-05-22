@@ -122,7 +122,6 @@ class SignUpFormFragment : Fragment() {
         binding.btnDone.alpha = 0.5f
 
         binding.btnDone.setOnClickListener {
-            parentFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
             requireActivity().finish()
         }
 
