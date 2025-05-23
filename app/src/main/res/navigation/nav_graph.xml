@@ -2,64 +2,8 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/nav_graph">
-
-    <fragment
-        android:id="@+id/photoFragment"
-        android:name="com.bravepeople.onggiyonggi.presentation.main.home.review_register.PhotoCaptureFragment"
-        android:label="take a photo">
-
-        <argument
-            android:name="photoType"
-            app:argType="com.bravepeople.onggiyonggi.presentation.main.home.review_register.PhotoType"
-            android:defaultValue="RECEIPT"
-            app:nullable="false" />
-
-        <!-- 전환경로-->
-        <action
-            android:id="@+id/action_photo_to_loading"
-            app:destination="@id/loadingFragment" />
-    </fragment>
-
-    <fragment
-        android:id="@+id/loadingFragment"
-        android:name="com.bravepeople.onggiyonggi.presentation.main.home.review_register.PhotoLoadingFragment"
-        android:label="checking the photo" >
-
-        <argument
-            android:name="photoType"
-            app:argType="com.bravepeople.onggiyonggi.presentation.main.home.review_register.PhotoType"
-            app:nullable="false" />
-
-        <action
-            android:id="@+id/action_loading_to_photo"
-            app:destination="@id/photoFragment" />
-
-        <action
-            android:id="@+id/action_loading_to_write"
-            app:destination="@id/writeReviewFragment" />
-
-    </fragment>
-
-    <fragment
-        android:id="@+id/writeReviewFragment"
-        android:name="com.bravepeople.onggiyonggi.presentation.main.home.review_register.WriteReviewFragment"
-        android:label="write a review">
-
-        <action
-            android:id="@+id/action_write_to_complete"
-            app:destination="@id/reviewCompleteFragment"/>
-
-        <action
-            android:id="@+id/action_write_to_photo"
-            app:destination="@id/photoFragment"/>
-    </fragment>
-
-    <fragment
-        android:id="@+id/reviewCompleteFragment"
-        android:name="com.bravepeople.onggiyonggi.presentation.main.home.review_register.ReviewCompleteFragment"
-        android:label="review complete">
-    </fragment>
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/signUpAgreementFragment">
 
     <fragment
         android:id="@+id/signUpAgreementFragment"
@@ -70,6 +14,10 @@
         <action
             android:id="@+id/action_signUpAgreementFragment_to_termsFragment"
             app:destination="@id/termsFragment" />
+
+        <action
+            android:id="@+id/action_signUpAgreementFragment_to_signUpFormFragment"
+            app:destination="@id/signUpFormFragment" />
     </fragment>
 
     <fragment
@@ -82,12 +30,5 @@
         android:id="@+id/signUpFormFragment"
         android:name="com.bravepeople.onggiyonggi.presentation.login.signup.SignUpFormFragment"
         android:label="정보 입력"
-        tools:layout="@layout/fragment_signup_form">
-
-    <action
-        android:id="@+id/action_signUpAgreementFragment_to_signUpFormFragment"
-        app:destination="@id/signUpFormFragment" />
-    </fragment>
-
-
+        tools:layout="@layout/fragment_signup_form" />
 </navigation>
