@@ -11,18 +11,23 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.bravepeople.onggiyonggi.R
-import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseReviewDto
 import com.bravepeople.onggiyonggi.databinding.FragmentReviewBinding
 import com.bravepeople.onggiyonggi.domain.model.StoreRank
 import com.bravepeople.onggiyonggi.extension.GetStoreTimeState
+import com.bravepeople.onggiyonggi.extension.home.GetEnumState
 import com.bravepeople.onggiyonggi.extension.home.GetReviewState
 import com.bravepeople.onggiyonggi.extension.home.GetStoreDetailState
+import com.bravepeople.onggiyonggi.presentation.MainViewModel
 import com.bravepeople.onggiyonggi.presentation.main.home.store_register.StoreRegisterActivity
 import com.bravepeople.onggiyonggi.presentation.main.home.store.review_detail.ReviewDetailActivity
 import com.bravepeople.onggiyonggi.presentation.main.home.review_register.ReviewRegisterActivity
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.observeOn
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -32,7 +37,8 @@ class StoreFragment : Fragment() {
     private val binding: FragmentReviewBinding
         get() = requireNotNull(_binding) { "review fragment is null" }
 
-    private val storeViewModel: StoreViewModel by activityViewModels()
+    private val mainViewModel: MainViewModel by activityViewModels()
+    private val storeViewModel: StoreViewModel by viewModels()
     private lateinit var reviewAdapter: StoreAdapter
     private var isExpanded = false
 
@@ -263,7 +269,7 @@ class StoreFragment : Fragment() {
                 when(state){
                     is GetReviewState.Success->{
                         reviewAdapter = StoreAdapter(
-                            clickReview = {review -> clickReview(review)},
+                            clickReview = {review -> clickReview(accessToken, review.id, id)},
                         )
                         binding.rvReviews.adapter = reviewAdapter
                         binding.rvReviews.setOnTouchListener { _, event ->
@@ -291,11 +297,20 @@ class StoreFragment : Fragment() {
         requireActivity().overridePendingTransition(R.anim.slide_in_right, R.anim.stay_still)
     }
 
-    private fun clickReview(review: ResponseReviewDto.Data.ReviewContent) {
-        val intent = Intent(requireContext(), ReviewDetailActivity::class.java)
-        intent.putExtra("review", review)
-        startActivity(intent)
-        requireActivity().overridePendingTransition(R.anim.slide_in_right, R.anim.stay_still)
+    private fun clickReview(accessToken:String, reviewId:Int, storeId:Int) {
+        val getEnumState = mainViewModel.getEnumState.value
+
+        if(getEnumState is GetEnumState.Success){
+            val intent = Intent(requireContext(), ReviewDetailActivity::class.java)
+            intent.putExtra("accessToken", accessToken)
+            intent.putExtra("reviewId", reviewId)
+            intent.putExtra("storeId", storeId)
+            intent.putExtra("enum", getEnumState.enumDto.data)
+            startActivity(intent)
+            requireActivity().overridePendingTransition(R.anim.slide_in_right, R.anim.stay_still)
+        }else{
+            Timber.e("store get enum state error!")
+        }
     }
 
     private fun writeReview(accessToken: String) {

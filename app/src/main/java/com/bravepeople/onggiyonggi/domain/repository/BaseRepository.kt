@@ -5,15 +5,17 @@ import com.bravepeople.onggiyonggi.data.response_dto.ResponseCheckSignUpDto
 import com.bravepeople.onggiyonggi.data.response_dto.character.ResponseCollectionDto
 import com.bravepeople.onggiyonggi.data.response_dto.ResponseLoginDto
 import com.bravepeople.onggiyonggi.data.response_dto.character.ResponseGetPetDto
-import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseGetStoreDto
+import com.bravepeople.onggiyonggi.data.response_dto.home.store.ResponseGetStoreDto
 import com.bravepeople.onggiyonggi.data.response_dto.ResponseSignUpDto
 import com.bravepeople.onggiyonggi.data.response_dto.character.ResponseAllCharacterDto
-import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseReviewDto
+import com.bravepeople.onggiyonggi.data.response_dto.home.store.ResponseReviewDetailDto
+import com.bravepeople.onggiyonggi.data.response_dto.home.store.ResponseReviewDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseSearchStoreDto
-import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseStoreDetailDto
+import com.bravepeople.onggiyonggi.data.response_dto.home.store.ResponseStoreDetailDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponseDeleteStoreDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponseReceiptDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponseRegisterStoreDto
+import com.bravepeople.onggiyonggi.data.response_dto.home.store.ResponseReviewEnumDto
 import okhttp3.MultipartBody
 
 interface BaseRepository {
@@ -57,6 +59,15 @@ interface BaseRepository {
         cursor: String,
         size: Int,
     ): Result<ResponseReviewDto>
+
+    suspend fun getReviewDetail(
+        token:String,
+        id:Int,
+    ):Result<ResponseReviewDetailDto>
+
+    suspend fun getEnum(
+        token:String,
+    ):Result<ResponseReviewEnumDto>
 
     suspend fun searchStore(
         token: String,

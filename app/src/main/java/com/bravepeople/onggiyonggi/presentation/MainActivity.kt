@@ -13,15 +13,19 @@ import androidx.core.view.WindowInsetsControllerCompat
 import androidx.core.view.updateLayoutParams
 import com.bravepeople.onggiyonggi.databinding.ActivityMainBinding
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.setupWithNavController
 import com.bravepeople.onggiyonggi.R
+import com.bravepeople.onggiyonggi.extension.home.GetEnumState
 import com.bravepeople.onggiyonggi.presentation.main.my.MyFragment
 import com.bravepeople.onggiyonggi.presentation.main.character.CharacterFragment
 import com.bravepeople.onggiyonggi.presentation.main.home.HomeFragment
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
+import timber.log.Timber
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -64,7 +68,28 @@ class MainActivity : AppCompatActivity() {
         val token=intent.getStringExtra("accessToken")
         if (token != null) {
             mainViewModel.saveToken(token)
-        }else mainViewModel.saveToken("Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJiIiwicm9sZSI6IlJPTEVfQ1VTVE9NRVIiLCJpYXQiOjE3NDc2NTU3MDQsImV4cCI6MTc0Nzc3NjY2NH0.3zNCN-qnSPwbi4P1B-pEhAbwzq8jNi_6mXdjJW4pRfs")
+        }else mainViewModel.saveToken("Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ4Iiwicm9sZSI6IlJPTEVfQ1VTVE9NRVIiLCJpYXQiOjE3NDgwMTQxOTYsImV4cCI6MTc0ODEzNTE1Nn0.W8QYEHdo5kp0v2WmEpVmb8W1WRg-dXAAhXFlSY6xLlA")
+
+        lifecycleScope.launch {
+            mainViewModel.accessToken.observe(this@MainActivity){
+                lifecycleScope.launch {
+                    mainViewModel.getEnumState.collect{state->
+                        when(state){
+                            is GetEnumState.Success->{
+                                Timber.d("get enum state success!")
+                            }
+                            is GetEnumState.Loading->{}
+
+                            is GetEnumState.Error->{
+                                Timber.e("get enum state error!")
+                            }
+                        }
+                    }
+                }
+
+                mainViewModel.getEnum()
+            }
+        }
 
         setFirstFragment()
         clickBNV()

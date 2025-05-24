@@ -1,6 +1,6 @@
 package com.bravepeople.onggiyonggi.extension.home
 
-import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseGetStoreDto
+import com.bravepeople.onggiyonggi.data.response_dto.home.store.ResponseGetStoreDto
 
 sealed class GetStoreState {
     data object Loading: GetStoreState()

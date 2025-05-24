@@ -1,10 +1,10 @@
-package com.bravepeople.onggiyonggi.data.response_dto.home
+package com.bravepeople.onggiyonggi.data.response_dto.home.store
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-class ResponseStoreDetailDto(
+data class ResponseGetStoreDto(
     @SerialName("success")
     val success: Boolean,
     @SerialName("status")
@@ -12,25 +12,21 @@ class ResponseStoreDetailDto(
     @SerialName("message")
     val message: String,
     @SerialName("data")
-    val data: StoreDetailData
+    val data: List<StoreData>
 ) {
     @Serializable
-    data class StoreDetailData(
+    data class StoreData(
         @SerialName("id")
-        val id: Long,
+        val id: Int,
+        @SerialName("name")
+        val name:String,
+        @SerialName("storeRank")
+        val storeRank: String,
         @SerialName("storeType")
         val storeType: String,
         @SerialName("latitude")
         val latitude: Double,
         @SerialName("longitude")
-        val longitude: Double,
-        @SerialName("address")
-        val address: String,
-        @SerialName("name")
-        val name: String,
-        @SerialName("storeRank")
-        val storeRank: String,
-        @SerialName("businessHours")
-        val businessHours: String
+        val longitude: Double
     )
 }

@@ -1,8 +1,6 @@
 package com.bravepeople.onggiyonggi.extension.home.register
 
-import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseReviewDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponseRegisterStoreDto
-import com.bravepeople.onggiyonggi.extension.home.GetReviewState
 
 sealed class RegisterState {
     data object Loading: RegisterState()

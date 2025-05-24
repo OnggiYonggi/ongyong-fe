@@ -1,6 +1,5 @@
 package com.bravepeople.onggiyonggi.extension.home
 
-import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseGetStoreDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseSearchStoreDto
 
 sealed class SearchStoreState {

@@ -5,11 +5,24 @@ import android.os.Bundle
 import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import coil3.load
+import androidx.lifecycle.lifecycleScope
+import coil.load
 import com.bravepeople.onggiyonggi.R
-import com.bravepeople.onggiyonggi.data.Review
+import com.bravepeople.onggiyonggi.data.response_dto.home.store.ResponseReviewDetailDto
+import com.bravepeople.onggiyonggi.data.response_dto.home.store.ResponseReviewEnumDto
+import com.bravepeople.onggiyonggi.data.response_dto.home.store.ResponseStoreDetailDto
 import com.bravepeople.onggiyonggi.databinding.ActivityReviewDetailBinding
+import com.bravepeople.onggiyonggi.extension.home.GetReviewDetailState
+import com.bravepeople.onggiyonggi.extension.home.GetStoreDetailState
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
+import timber.log.Timber
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 
+@AndroidEntryPoint
 class ReviewDetailActivity : AppCompatActivity() {
     private lateinit var binding: ActivityReviewDetailBinding
     private val reviewDetailViewModel: ReviewDetailViewModel by viewModels()
@@ -26,7 +39,6 @@ class ReviewDetailActivity : AppCompatActivity() {
     }
 
     private fun setting() {
-
         window.statusBarColor = Color.WHITE
         window.navigationBarColor = Color.WHITE
 
@@ -35,9 +47,111 @@ class ReviewDetailActivity : AppCompatActivity() {
                         View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
                 )
 
+        val accessToken = intent.getStringExtra("accessToken")
+        val storeId = intent.getIntExtra("storeId", -1)
+        val reviewId = intent.getIntExtra("reviewId", -1)
+        if (accessToken != null) {
+            getInfo(accessToken, storeId, reviewId)
+        }
         clickBackButton()
-        setStore()
-        getUserInfo()
+    }
+
+    private fun getInfo(accessToken: String, storeId: Int, reviewId:Int) {
+        lifecycleScope.launch {
+            reviewDetailViewModel.storeState.collect { state ->
+                when (state) {
+                    is GetStoreDetailState.Success -> {
+                        setStore(state.storeDto)
+                    }
+
+                    is GetStoreDetailState.Loading -> {}
+                    is GetStoreDetailState.Error -> {
+                        Timber.e("get store state error!")
+                    }
+                }
+            }
+        }
+
+        lifecycleScope.launch {
+            reviewDetailViewModel.reviewDetailState.collect { state ->
+                when (state) {
+                    is GetReviewDetailState.Success -> {
+                        getUserInfo(state.reviewDto.data)
+                    }
+
+                    is GetReviewDetailState.Loading -> {}
+                    is GetReviewDetailState.Error -> {
+                        Timber.e(" get review detail state error")
+                    }
+                }
+            }
+        }
+
+        reviewDetailViewModel.getStore(accessToken, storeId)
+        reviewDetailViewModel.getReviewDetail(accessToken, reviewId)
+    }
+
+
+    private fun setStore(storeDto: ResponseStoreDetailDto) {
+        with(binding) {
+            tvStoreName.text = storeDto.data.name
+            tvStoreAddress.text = storeDto.data.address
+        }
+    }
+
+    private fun getUserInfo(review: ResponseReviewDetailDto.Data) {
+        //val review=intent.getParcelableExtra<Review>("review")
+        getFoodInfo(review)
+
+        with(binding) {
+            tvName.text = review.memberId
+            tvDate.text = formatDate(review.createdAt)
+            //ivProfile.load()
+            tvLikeCount.text = review.likes.toString()
+            ivReview.load(review.imageURL)
+
+            tvReview.text = review.content
+
+            btnLike.setOnClickListener {
+                btnLike.isSelected = !btnLike.isSelected
+                if (btnLike.isSelected) {
+                    tvLikeCount.text = (review.likes+1).toString()
+                } else {
+                    tvLikeCount.text = (reviewDetailViewModel.countLike - 1).toString()
+                    reviewDetailViewModel.countLike -= 1
+                }
+            }
+        }
+    }
+
+    private fun getFoodInfo(review: ResponseReviewDetailDto.Data){
+        val enum=intent.getParcelableExtra<ResponseReviewEnumDto.Data>("enum")
+
+        enum?.let {
+            for(i in 0 until enum.fillLevel.size){
+                if(enum.fillLevel[i].key==review.fillLevel) binding.tvSize.text=enum.fillLevel[i].description
+            }
+
+            for(i in 0 until enum.foodTaste.size){
+                if(enum.foodTaste[i].key==review.foodTaste) binding.tvTaste.text=enum.foodTaste[i].description
+            }
+
+            for( i in 0 until enum.containerType.size){
+                if(enum.containerType[i].key == review.reusableContainerType) {
+                    Timber.d("description: ${enum.containerType[i].description}")
+                    binding.tvWhat.text = enum.containerType[i].description
+                }
+            }
+
+            binding.tvAmount.text=review.reusableContainerSize
+        }
+
+    }
+
+    private fun formatDate(dateString: String): String {
+        val parsedDate = LocalDateTime.parse(dateString)
+        val formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd")
+        return parsedDate.format(formatter)
     }
 
     private fun clickBackButton() {
@@ -45,52 +159,6 @@ class ReviewDetailActivity : AppCompatActivity() {
             finish()
             overridePendingTransition(R.anim.stay_still, R.anim.slide_out_right)
         }
-    }
-
-    private fun setStore() {
-        with(binding) {
-            tvStoreName.text = reviewDetailViewModel.getStore().name
-            tvStoreAddress.text = reviewDetailViewModel.getStore().address
-        }
-    }
-
-    private fun getUserInfo() {
-        val review=intent.getParcelableExtra<Review>("review")
-
-        with(binding){
-            if(review!=null){
-                tvName.text=review.userName
-                tvDate.text=review.reviewDate
-            }
-            ivProfile.load(review!!.profile)
-            tvLikeCount.text=reviewDetailViewModel.countLike.toString()
-            ivReview.load(review.food)
-
-            tvWhat.text=reviewDetailViewModel.select[0]
-            tvSize.text=reviewDetailViewModel.select[1]
-            tvAmount.text=reviewDetailViewModel.select[2]
-            tvTaste.text=reviewDetailViewModel.select[3]
-            tvReview.text=reviewDetailViewModel.review
-
-            btnLike.setOnClickListener{
-                btnLike.isSelected=!btnLike.isSelected
-                if(btnLike.isSelected){
-                    tvLikeCount.text=(reviewDetailViewModel.countLike+1).toString()
-                    reviewDetailViewModel.countLike+=1
-                }else{
-                    tvLikeCount.text=(reviewDetailViewModel.countLike-1).toString()
-                    reviewDetailViewModel.countLike-=1
-                }
-            }
-        }
-    }
-
-    private fun displayReviewDetails(review: Review) {
-        binding.tvName.text = review.userName
-        binding.tvDate.text = review.reviewDate
-        binding.ivProfile.load(review.profile)
-        binding.ivFood.load(review.food)
-        binding.tvLikeCount.text = "${review.likeCount}개"
     }
 
     override fun onBackPressed() {
