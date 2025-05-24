@@ -12,14 +12,6 @@ class SignUpActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding= ActivitySignupBinding.inflate(layoutInflater)
-        setContentView(R.layout.activity_signup)
-        setting()
-    }
-
-    private fun setting(){
-        supportFragmentManager.beginTransaction()
-            .replace(R.id.fcv_sign_up, SignUpAgreementFragment())
-            .commit()
-
+        setContentView(binding.root)
     }
 }
