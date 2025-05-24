@@ -9,15 +9,17 @@ import com.bravepeople.onggiyonggi.data.response_dto.ResponseCheckSignUpDto
 import com.bravepeople.onggiyonggi.data.response_dto.character.ResponseCollectionDto
 import com.bravepeople.onggiyonggi.data.response_dto.ResponseLoginDto
 import com.bravepeople.onggiyonggi.data.response_dto.character.ResponseGetPetDto
-import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseGetStoreDto
+import com.bravepeople.onggiyonggi.data.response_dto.home.store.ResponseGetStoreDto
 import com.bravepeople.onggiyonggi.data.response_dto.ResponseSignUpDto
 import com.bravepeople.onggiyonggi.data.response_dto.character.ResponseAllCharacterDto
-import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseReviewDto
+import com.bravepeople.onggiyonggi.data.response_dto.home.store.ResponseReviewDetailDto
+import com.bravepeople.onggiyonggi.data.response_dto.home.store.ResponseReviewDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseSearchStoreDto
-import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseStoreDetailDto
+import com.bravepeople.onggiyonggi.data.response_dto.home.store.ResponseStoreDetailDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponseDeleteStoreDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponseReceiptDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponseRegisterStoreDto
+import com.bravepeople.onggiyonggi.data.response_dto.home.store.ResponseReviewEnumDto
 import com.bravepeople.onggiyonggi.data.service.BaseService
 import okhttp3.MultipartBody
 import javax.inject.Inject
@@ -48,6 +50,9 @@ class BaseDataSourceImpl @Inject constructor(
         cursor: String,
         size: Int
     ): ResponseReviewDto = baseService.getReviews(token, id, cursor, size)
+
+    override suspend fun getReviewDetail(token: String, id: Int): ResponseReviewDetailDto = baseService.getReviewDetail(token,id)
+    override suspend fun getEnum(token: String): ResponseReviewEnumDto = baseService.getEnum(token)
 
     override suspend fun searchStore(token: String, keyword: String): ResponseSearchStoreDto = baseService.searchStore(token,keyword)
 

@@ -6,7 +6,7 @@ import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import coil.transform.RoundedCornersTransformation
 import com.bravepeople.onggiyonggi.data.StoreOrReceipt
-import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseReviewDto
+import com.bravepeople.onggiyonggi.data.response_dto.home.store.ResponseReviewDto
 import com.bravepeople.onggiyonggi.databinding.ItemReviewBinding
 
 class StoreAdapter(

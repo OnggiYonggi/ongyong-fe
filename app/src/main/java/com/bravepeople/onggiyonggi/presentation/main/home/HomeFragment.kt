@@ -32,7 +32,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.bravepeople.onggiyonggi.R
 import com.bravepeople.onggiyonggi.data.Search
-import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseGetStoreDto
+import com.bravepeople.onggiyonggi.data.response_dto.home.store.ResponseGetStoreDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseSearchStoreDto
 import com.bravepeople.onggiyonggi.databinding.FragmentHomeBinding
 import com.bravepeople.onggiyonggi.domain.model.StoreRank
@@ -474,10 +474,12 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
 
     private fun clickMarker(marker: Marker, store: ResponseGetStoreDto.StoreData) {
         selectedMarker?.captionText=""
+        selectedMarker?.zIndex = 0
 
         selectedMarker = marker
         selectedMarker?.let{
-            it.captionText="marker"
+            it.captionText=store.name
+            it.zIndex = 100
         }
 
         // 클릭해도 색상 유지되도록 다시 설정

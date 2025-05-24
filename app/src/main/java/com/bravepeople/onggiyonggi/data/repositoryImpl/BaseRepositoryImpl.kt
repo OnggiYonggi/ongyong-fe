@@ -1,7 +1,5 @@
 package com.bravepeople.onggiyonggi.data.repositoryImpl
 
-import android.content.Context
-import android.net.Uri
 import com.bravepeople.onggiyonggi.data.datasource.BaseDataSource
 import com.bravepeople.onggiyonggi.data.request_dto.RequestLoginDto
 import com.bravepeople.onggiyonggi.data.request_dto.RequestRegisterStoreDto
@@ -11,19 +9,20 @@ import com.bravepeople.onggiyonggi.data.response_dto.ResponseCheckSignUpDto
 import com.bravepeople.onggiyonggi.data.response_dto.character.ResponseCollectionDto
 import com.bravepeople.onggiyonggi.data.response_dto.ResponseLoginDto
 import com.bravepeople.onggiyonggi.data.response_dto.character.ResponseGetPetDto
-import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseGetStoreDto
+import com.bravepeople.onggiyonggi.data.response_dto.home.store.ResponseGetStoreDto
 import com.bravepeople.onggiyonggi.data.response_dto.ResponseSignUpDto
 import com.bravepeople.onggiyonggi.data.response_dto.character.ResponseAllCharacterDto
-import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseReviewDto
+import com.bravepeople.onggiyonggi.data.response_dto.home.store.ResponseReviewDetailDto
+import com.bravepeople.onggiyonggi.data.response_dto.home.store.ResponseReviewDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseSearchStoreDto
-import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseStoreDetailDto
+import com.bravepeople.onggiyonggi.data.response_dto.home.store.ResponseStoreDetailDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponseDeleteStoreDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponseReceiptDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponseRegisterStoreDto
+import com.bravepeople.onggiyonggi.data.response_dto.home.store.ResponseReviewEnumDto
 import com.bravepeople.onggiyonggi.domain.repository.BaseRepository
 import okhttp3.MultipartBody
 import timber.log.Timber
-import java.io.File
 import javax.inject.Inject
 
 class BaseRepositoryImpl @Inject constructor(
@@ -102,6 +101,21 @@ class BaseRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun getReviewDetail(token: String, id: Int): Result<ResponseReviewDetailDto> {
+        return runCatching {
+            baseDataSource.getReviewDetail(token,id)
+        }.onFailure {
+            Timber.e("base repository get review detail fail!!: $it")
+        }
+    }
+
+    override suspend fun getEnum(token: String): Result<ResponseReviewEnumDto> {
+        return runCatching {
+            baseDataSource.getEnum(token)
+        }.onFailure {
+            Timber.e("base repository get enum fail!!: $it")
+        }
+    }
     override suspend fun searchStore(
         token: String,
         keyword: String

@@ -1,4 +1,4 @@
-package com.bravepeople.onggiyonggi.data.response_dto.home
+package com.bravepeople.onggiyonggi.data.response_dto.home.store
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
@@ -49,9 +49,13 @@ data class ResponseReviewDto(
             @SerialName("likes")
             val likes: Int,
             @SerialName("hasLikeByMe")
-            val hasLikeByMe: Boolean,
+            val hasLikeByMe: Boolean?,
             @SerialName("itemResponseDtoList")
-            val itemResponseDtoList: List<ItemResponseDto>
+            val itemResponseDtoList: List<ItemResponseDto>,
+            @SerialName("createdAt")
+            val createdAt:String,
+            @SerialName("updatedAt")
+            val updatedAt:String,
         ) : Parcelable {
             @Parcelize
             @Serializable

@@ -8,15 +8,17 @@ import com.bravepeople.onggiyonggi.data.response_dto.ResponseCheckSignUpDto
 import com.bravepeople.onggiyonggi.data.response_dto.character.ResponseCollectionDto
 import com.bravepeople.onggiyonggi.data.response_dto.ResponseLoginDto
 import com.bravepeople.onggiyonggi.data.response_dto.character.ResponseGetPetDto
-import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseGetStoreDto
+import com.bravepeople.onggiyonggi.data.response_dto.home.store.ResponseGetStoreDto
 import com.bravepeople.onggiyonggi.data.response_dto.ResponseSignUpDto
 import com.bravepeople.onggiyonggi.data.response_dto.character.ResponseAllCharacterDto
-import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseReviewDto
+import com.bravepeople.onggiyonggi.data.response_dto.home.store.ResponseReviewDetailDto
+import com.bravepeople.onggiyonggi.data.response_dto.home.store.ResponseReviewDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseSearchStoreDto
-import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseStoreDetailDto
+import com.bravepeople.onggiyonggi.data.response_dto.home.store.ResponseStoreDetailDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponseDeleteStoreDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponseReceiptDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponseRegisterStoreDto
+import com.bravepeople.onggiyonggi.data.response_dto.home.store.ResponseReviewEnumDto
 import okhttp3.MultipartBody
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -64,7 +66,7 @@ interface BaseService {
     suspend fun storeDetail(
         @Header ("Authorization") token:String,
         @Path("id") id:Int,
-    ):ResponseStoreDetailDto
+    ): ResponseStoreDetailDto
 
     @GET("/store/{storeId}/reviews")
     suspend fun getReviews(
@@ -72,7 +74,18 @@ interface BaseService {
         @Path("storeId") id:Int,
         @Query("cursor") cursor:String,
         @Query("size") size:Int,
-    ):ResponseReviewDto
+    ): ResponseReviewDto
+
+    @GET("/review/{id}")
+    suspend fun getReviewDetail(
+        @Header ("Authorization") token:String,
+        @Path("id") id:Int,
+    ): ResponseReviewDetailDto
+
+    @GET("/review/enum")
+    suspend fun getEnum(
+        @Header ("Authorization") token:String,
+    ):ResponseReviewEnumDto
 
     @GET("/store/search/{keyword}")
     suspend fun searchStore(
