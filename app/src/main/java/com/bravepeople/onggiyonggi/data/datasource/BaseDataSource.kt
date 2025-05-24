@@ -16,6 +16,7 @@ import com.bravepeople.onggiyonggi.data.response_dto.home.store.ResponseReviewDt
 import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseSearchStoreDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.store.ResponseStoreDetailDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponseDeleteStoreDto
+import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponsePhotoDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponseReceiptDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponseRegisterStoreDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.store.ResponseReviewEnumDto
@@ -90,6 +91,11 @@ interface BaseDataSource {
         token:String,
         file: MultipartBody.Part
     ):ResponseReceiptDto
+
+    suspend fun photo(
+        token:String,
+        file:MultipartBody.Part
+    ):ResponsePhotoDto
 
     // character
     suspend fun getPet(

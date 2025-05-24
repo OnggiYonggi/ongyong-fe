@@ -17,6 +17,7 @@ import com.bravepeople.onggiyonggi.data.response_dto.home.store.ResponseReviewDt
 import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseSearchStoreDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.store.ResponseStoreDetailDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponseDeleteStoreDto
+import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponsePhotoDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponseReceiptDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponseRegisterStoreDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.store.ResponseReviewEnumDto
@@ -158,6 +159,14 @@ class BaseRepositoryImpl @Inject constructor(
             baseDataSource.receipt(token,file)
         }.onFailure {
             Timber.e("base repository receipt fail!!: $it")
+        }
+    }
+
+    override suspend fun photo(token: String, file: MultipartBody.Part): Result<ResponsePhotoDto> {
+        return runCatching {
+            baseDataSource.photo(token,file)
+        }.onFailure {
+            Timber.e("base repository photo fail!: $it")
         }
     }
 

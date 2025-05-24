@@ -12,6 +12,7 @@ import com.bravepeople.onggiyonggi.data.SelectQuestion
 import com.bravepeople.onggiyonggi.data.StoreOrReceipt
 import com.bravepeople.onggiyonggi.domain.repository.BaseRepository
 import com.bravepeople.onggiyonggi.extension.home.register.DeleteState
+import com.bravepeople.onggiyonggi.extension.home.register.PhotoState
 import com.bravepeople.onggiyonggi.extension.home.register.ReceiptState
 import dagger.hilt.android.internal.Contexts.getApplication
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -35,14 +36,20 @@ class ReviewRegisterViewModel @Inject constructor(
 ) : ViewModel() {
     private val _accessToken = MutableLiveData<String>()
     private val _storeId = MutableLiveData<Int>()
+    private val _photoId = MutableLiveData<Int>()
 
     val accessToken: LiveData<String> get() = _accessToken
     val storeId: LiveData<Int> get() = _storeId
+    val photoId: LiveData<Int> get() = _photoId
 
     private val _receiptState = MutableStateFlow<ReceiptState>(ReceiptState.Loading)
+    private val _photoState = MutableStateFlow<PhotoState>(PhotoState.Loading)
     private val _deleteState = MutableStateFlow<DeleteState>(DeleteState.Loading)
-    val deleteState: StateFlow<DeleteState> = _deleteState.asStateFlow()
+
     val receiptState: StateFlow<ReceiptState> = _receiptState.asStateFlow()
+    val photoState: StateFlow<PhotoState> = _photoState.asStateFlow()
+    val deleteState: StateFlow<DeleteState> = _deleteState.asStateFlow()
+
 
     private var receipt: Uri? = null
     private var food: Uri? = null
@@ -56,27 +63,13 @@ class ReviewRegisterViewModel @Inject constructor(
         _storeId.value = id
     }
 
-    fun delete() {
-        viewModelScope.launch {
-            if (_accessToken.value != null && _storeId.value != null) {
-                baseRepository.deleteStore(_accessToken.value!!, _storeId.value!!)
-                    .onSuccess { response ->
-                        _deleteState.value = DeleteState.Success(response)
-                    }.onFailure {
-                        _deleteState.value = DeleteState.Error("delete error!")
-                        if (it is HttpException) {
-                            try {
-                                val errorBody: ResponseBody? = it.response()?.errorBody()
-                                val errorBodyString = errorBody?.string() ?: ""
-                                httpError(errorBodyString)
-                            } catch (e: Exception) {
-                                // JSON 파싱 실패 시 로깅
-                                Timber.e("Error parsing error body: ${e}")
-                            }
-                        }
-                    }
-            }
-        }
+    fun savePhotoId(id:Int){
+        Timber.d("save photo id: $id")
+        _photoId.value=id
+    }
+
+    fun setReceiptStateToLoading(){
+        _receiptState.value=ReceiptState.Loading
     }
 
     fun receipt(context: Context, uri: Uri) {
@@ -113,6 +106,56 @@ class ReviewRegisterViewModel @Inject constructor(
             inputStream.copyTo(outputStream)
         }
         return tempFile
+    }
+
+    fun photo(context: Context, uri: Uri){
+        viewModelScope.launch {
+            val file = uriToFile(context, uri)
+            val requestFile =
+                file.asRequestBody("image/*".toMediaTypeOrNull()) // 또는 "multipart/form-data"
+            val multipartBody = MultipartBody.Part.createFormData("file", file.name, requestFile)
+
+            _accessToken.value?.let {
+                baseRepository.photo(_accessToken.value!!, multipartBody).onSuccess { response->
+                    _photoState.value=PhotoState.Success(response)
+                }.onFailure {
+                    _photoState.value=PhotoState.Error("photo error")
+                    if (it is HttpException) {
+                        try {
+                            val errorBody: ResponseBody? = it.response()?.errorBody()
+                            val errorBodyString = errorBody?.string() ?: ""
+                            httpError(errorBodyString)
+                        } catch (e: Exception) {
+                            // JSON 파싱 실패 시 로깅
+                            Timber.e("Error parsing error body: ${e}")
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    fun delete() {
+        viewModelScope.launch {
+            if (_accessToken.value != null && _storeId.value != null) {
+                baseRepository.deleteStore(_accessToken.value!!, _storeId.value!!)
+                    .onSuccess { response ->
+                        _deleteState.value = DeleteState.Success(response)
+                    }.onFailure {
+                        _deleteState.value = DeleteState.Error("delete error!")
+                        if (it is HttpException) {
+                            try {
+                                val errorBody: ResponseBody? = it.response()?.errorBody()
+                                val errorBodyString = errorBody?.string() ?: ""
+                                httpError(errorBodyString)
+                            } catch (e: Exception) {
+                                // JSON 파싱 실패 시 로깅
+                                Timber.e("Error parsing error body: ${e}")
+                            }
+                        }
+                    }
+            }
+        }
     }
 
     private fun httpError(errorBody: String) {
