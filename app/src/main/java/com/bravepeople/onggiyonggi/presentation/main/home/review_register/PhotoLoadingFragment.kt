@@ -11,6 +11,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.addCallback
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
@@ -21,6 +22,7 @@ import coil.load
 import com.bravepeople.onggiyonggi.R
 import com.bravepeople.onggiyonggi.databinding.FragmentPhotoLoadingBinding
 import com.bravepeople.onggiyonggi.extension.home.register.DeleteState
+import com.bravepeople.onggiyonggi.extension.home.register.PhotoState
 import com.bravepeople.onggiyonggi.extension.home.register.ReceiptState
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -46,31 +48,57 @@ class PhotoLoadingFragment:Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         setting()
-        //loadingEffect()
         deleteStore()
         clickCancel()
     }
 
     private fun setting(){
-        lifecycleScope.launch {
-            reviewRegisterViewModel.receiptState.collect{state->
-                when(state){
-                    is ReceiptState.Success->{
-                        showSecondAnimation()
-                    }
-                    is ReceiptState.Loading->{
-                        showFirstAnimation()
-                    }
-                    is ReceiptState.Error->{
-                        Timber.e("receipt state error!")
+        val photoType = args.photoType
+        val uri = args.uri
+
+        if(photoType==PhotoType.RECEIPT){
+            reviewRegisterViewModel.setReceiptStateToLoading()
+
+            lifecycleScope.launch {
+                reviewRegisterViewModel.receiptState.collect{state->
+                    when(state){
+                        is ReceiptState.Success->{
+                            showSecondAnimation(photoType)
+                        }
+                        is ReceiptState.Loading->{
+                            showFirstAnimation()
+                        }
+                        is ReceiptState.Error->{
+                            Timber.e("receipt state error!")
+                            showRetryDialog(photoType)
+                        }
                     }
                 }
             }
-        }
 
-        val uri = args.uri
-        binding.ivReceipt.load(uri)
-        reviewRegisterViewModel.receipt(requireContext(), Uri.parse(uri))
+            binding.ivReceipt.load(uri)
+            reviewRegisterViewModel.receipt(requireContext(), Uri.parse(uri))
+        }else{
+            lifecycleScope.launch {
+                reviewRegisterViewModel.photoState.collect{state->
+                    when(state){
+                        is PhotoState.Success->{
+                            reviewRegisterViewModel.savePhotoId(state.photoDto.data.id)
+                            showSecondAnimation(photoType)
+                        }
+                        is PhotoState.Loading->{
+                            showFirstAnimation()
+                        }
+                        is PhotoState.Error->{
+                            Timber.e("photo state error!")
+                        }
+                    }
+                }
+            }
+
+            binding.ivReceipt.load(uri)
+            reviewRegisterViewModel.photo(requireContext(), Uri.parse(uri))
+        }
     }
 
     private fun showFirstAnimation() {
@@ -93,7 +121,7 @@ class PhotoLoadingFragment:Fragment() {
         }
     }
 
-    private fun showSecondAnimation() {
+    private fun showSecondAnimation(photoType: PhotoType) {
         // 1단계: 첫 번째 로딩 애니메이션 사라지게
         binding.lavLoading.animate()
             .alpha(0f)
@@ -116,7 +144,7 @@ class PhotoLoadingFragment:Fragment() {
 
             addAnimatorListener(object : Animator.AnimatorListener {
                 override fun onAnimationEnd(p0: Animator) {
-                    navigateToNext()
+                    navigateToNext(photoType)
                 }
 
                 override fun onAnimationStart(p0: Animator) {}
@@ -126,8 +154,7 @@ class PhotoLoadingFragment:Fragment() {
         }
     }
 
-    private fun navigateToNext() {
-        val photoType = args.photoType
+    private fun navigateToNext(photoType: PhotoType) {
         val navOptions = NavOptions.Builder()
             .setPopUpTo(R.id.loadingFragment, true)
             .build()
@@ -144,76 +171,30 @@ class PhotoLoadingFragment:Fragment() {
         }
     }
 
-
-    private fun loadingEffect(){
-        binding.ivReceipt.load(reviewRegisterViewModel.getReceipt()) {
-            transformations()
-            listener(
-                onSuccess = { _, _ ->
-                    binding.ivReceipt.setColorFilter(
-                        Color.parseColor("#80000000"), // 반투명 검정 (어둡게)
-                        PorterDuff.Mode.SRC_OVER
-                    )
-                }
-            )
-        }
-
-        Handler(Looper.getMainLooper()).postDelayed({
-
-            binding.lavLoading.animate()
-                .alpha(0f)
-                .setDuration(500) // 서서히 0.5초 동안 사라짐
-                .withEndAction {
-                    binding.lavLoading.visibility = View.INVISIBLE
-                }
-                .start()
-
-            binding.lavComplete.apply {
-                alpha = 0f
-                visibility = View.VISIBLE
-                playAnimation()
-                animate()
-                    .alpha(1f)
-                    .setDuration(500) // 0.5초 동안 나타남
-                    .start()
-
-                addAnimatorListener(object : Animator.AnimatorListener {
-                    override fun onAnimationEnd(p0: Animator) {
-                        val photoType = args.photoType  // enum 값 사용 가능!
-                        Timber.d("photoType: ${photoType}")
-                        when(photoType){
-                            PhotoType.RECEIPT ->{
-                                val navOptions = NavOptions.Builder()
-                                    .setPopUpTo(R.id.loadingFragment, true)
-                                    .build()
-
-                                val action = PhotoLoadingFragmentDirections.actionLoadingToPhoto(
-                                    PhotoType.FOOD
-                                )
-                                findNavController().navigate(action, navOptions)
-                            }
-                            else-> {
-                                val navOptions = NavOptions.Builder()
-                                    .setPopUpTo(R.id.loadingFragment, true)
-                                    .build()
-                                val action = PhotoLoadingFragmentDirections.actionLoadingToWrite()
-                                findNavController().navigate(action, navOptions)
-                            }
-                        }
-
-                    }
-                    override fun onAnimationStart(p0: Animator) {}
-                    override fun onAnimationCancel(p0: Animator) {}
-                    override fun onAnimationRepeat(p0: Animator) {}
-                })
+    private fun showRetryDialog(photoType: PhotoType) {
+        binding.lavLoading.animate()
+            .alpha(0f)
+            .setDuration(500)
+            .withEndAction {
+                binding.lavLoading.visibility = View.INVISIBLE
             }
+            .start()
 
+        val navOptions = NavOptions.Builder()
+            .setPopUpTo(R.id.loadingFragment, true)
+            .build()
 
-
-        }, 3000) // 3초 딜레이
-
-
+        AlertDialog.Builder(requireContext())
+            .setTitle("사진 분석 실패")
+            .setMessage("영수증 사진을 다시 촬영해주세요.")
+            .setPositiveButton("확인") { _, _ ->
+                val action = PhotoLoadingFragmentDirections.actionLoadingToPhoto(photoType)
+                findNavController().navigate(action, navOptions)
+            }
+            .setCancelable(false)
+            .show()
     }
+
 
     private fun deleteStore(){
         lifecycleScope.launch {

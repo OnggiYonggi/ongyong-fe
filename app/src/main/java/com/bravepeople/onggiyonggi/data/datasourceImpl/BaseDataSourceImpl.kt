@@ -17,6 +17,7 @@ import com.bravepeople.onggiyonggi.data.response_dto.home.store.ResponseReviewDt
 import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseSearchStoreDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.store.ResponseStoreDetailDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponseDeleteStoreDto
+import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponsePhotoDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponseReceiptDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponseRegisterStoreDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.store.ResponseReviewEnumDto
@@ -65,6 +66,7 @@ class BaseDataSourceImpl @Inject constructor(
 
     override suspend fun deleteStore(token: String, id: Int): ResponseDeleteStoreDto = baseService.deleteStore(token, id)
     override suspend fun receipt(token: String, file: MultipartBody.Part): ResponseReceiptDto = baseService.receipt(token, file)
+    override suspend fun photo(token: String, file: MultipartBody.Part): ResponsePhotoDto = baseService.photo(token,file)
 
     // character
     override suspend fun getPet(token:String): ResponseGetPetDto = baseService.getPet(token)

@@ -16,6 +16,7 @@ import com.bravepeople.onggiyonggi.data.response_dto.home.store.ResponseReviewDt
 import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseSearchStoreDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.store.ResponseStoreDetailDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponseDeleteStoreDto
+import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponsePhotoDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponseReceiptDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponseRegisterStoreDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.store.ResponseReviewEnumDto
@@ -113,6 +114,13 @@ interface BaseService {
         @Header ("Authorization") token:String,
         @Part file: MultipartBody.Part
     ):ResponseReceiptDto
+
+    @Multipart
+    @POST("/file/")
+    suspend fun photo(
+        @Header ("Authorization") token:String,
+        @Part file: MultipartBody.Part
+    ):ResponsePhotoDto
 
     // character
     @GET("/pet/")
