@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.content.res.Resources
 import android.graphics.Color
+import android.net.Uri
 import android.os.Bundle
 import android.text.Spannable
 import android.text.SpannableString
@@ -66,7 +67,7 @@ class ReviewCompleteFragment:Fragment() {
 
             // 하단 버튼 위 여백 적용
             binding.btnEnd.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                bottomMargin = navBarHeight + 10.dp  // 16dp 정도 추가 마진 권장
+                bottomMargin = navBarHeight + 10.dp
             }
 
             insets
@@ -146,22 +147,24 @@ class ReviewCompleteFragment:Fragment() {
 
     private fun setReview(){
         with(binding){
-            val reviewText = arguments?.getString("text")
-            tvMyReviewStore.text=reviewCompleteViewModel.storeName
+            val reviewText = arguments?.getString("content")
+            val photo = arguments?.getString("uri")
+            tvMyReviewStore.text=arguments?.getString("storeName")
             tvMyReviewContent.text=reviewText
+            ivMyReviewPhoto.load(Uri.parse(photo))
         }
     }
 
     private fun endFragment(){
             val beforeActivity = reviewRegisterViewModel.getBeforeActivity()
-            val store = reviewRegisterViewModel.getStore()
+            val storeId = reviewRegisterViewModel.storeId.value
 
             if (beforeActivity == null) {
                 requireActivity().finish()
             } else {
                 val intent = Intent(requireContext(), MainActivity::class.java).apply {
-                    putExtra("openFragment", "review")
-                    putExtra("store", store)
+                    putExtra("openFragment", "store")
+                    putExtra("storeId", storeId)
                     putExtra("fromReview", true)
                     flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
                 }

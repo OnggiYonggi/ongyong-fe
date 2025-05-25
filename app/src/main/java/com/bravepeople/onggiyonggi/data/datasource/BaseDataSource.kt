@@ -1,6 +1,7 @@
 package com.bravepeople.onggiyonggi.data.datasource
 
 import com.bravepeople.onggiyonggi.data.request_dto.RequestLoginDto
+import com.bravepeople.onggiyonggi.data.request_dto.RequestRegisterReviewDto
 import com.bravepeople.onggiyonggi.data.request_dto.RequestRegisterStoreDto
 import com.bravepeople.onggiyonggi.data.request_dto.RequestSignUpDto
 import com.bravepeople.onggiyonggi.data.response_dto.character.ResponseAddMaxDto
@@ -18,8 +19,10 @@ import com.bravepeople.onggiyonggi.data.response_dto.home.store.ResponseStoreDet
 import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponseDeleteStoreDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponsePhotoDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponseReceiptDto
+import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponseRegisterReviewDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponseRegisterStoreDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.store.ResponseReviewEnumDto
+import com.bravepeople.onggiyonggi.data.response_dto.my.ResponseGetMyReviewsDto
 import okhttp3.MultipartBody
 
 interface BaseDataSource {
@@ -97,6 +100,11 @@ interface BaseDataSource {
         file:MultipartBody.Part
     ):ResponsePhotoDto
 
+    suspend fun registerReview(
+        token:String,
+        requestRegisterReviewDto: RequestRegisterReviewDto
+    ): ResponseRegisterReviewDto
+
     // character
     suspend fun getPet(
         token:String,
@@ -117,4 +125,9 @@ interface BaseDataSource {
     suspend fun allCharacter(token:String):ResponseAllCharacterDto
 
     suspend fun collection(token:String): ResponseCollectionDto
+
+    // my
+    suspend fun getMyReviews(
+        token:String,
+    ):ResponseGetMyReviewsDto
 }

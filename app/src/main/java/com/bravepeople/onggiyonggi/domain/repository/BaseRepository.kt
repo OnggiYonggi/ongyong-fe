@@ -15,8 +15,11 @@ import com.bravepeople.onggiyonggi.data.response_dto.home.store.ResponseStoreDet
 import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponseDeleteStoreDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponsePhotoDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponseReceiptDto
+import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponseRegisterReviewDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponseRegisterStoreDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.store.ResponseReviewEnumDto
+import com.bravepeople.onggiyonggi.data.response_dto.my.ResponseGetMyReviewsDto
+import kotlinx.serialization.SerialName
 import okhttp3.MultipartBody
 
 interface BaseRepository {
@@ -62,13 +65,13 @@ interface BaseRepository {
     ): Result<ResponseReviewDto>
 
     suspend fun getReviewDetail(
-        token:String,
-        id:Int,
-    ):Result<ResponseReviewDetailDto>
+        token: String,
+        id: Int,
+    ): Result<ResponseReviewDetailDto>
 
     suspend fun getEnum(
-        token:String,
-    ):Result<ResponseReviewEnumDto>
+        token: String,
+    ): Result<ResponseReviewEnumDto>
 
     suspend fun searchStore(
         token: String,
@@ -85,22 +88,34 @@ interface BaseRepository {
         address: String,
         name: String,
         businessHours: String,
-    ):Result<ResponseRegisterStoreDto>
+    ): Result<ResponseRegisterStoreDto>
 
     suspend fun deleteStore(
-        token:String,
-        id:Int,
-    ):Result<ResponseDeleteStoreDto>
+        token: String,
+        id: Int,
+    ): Result<ResponseDeleteStoreDto>
 
     suspend fun receipt(
-        token:String,
-        file:MultipartBody.Part,
-    ):Result<ResponseReceiptDto>
+        token: String,
+        file: MultipartBody.Part,
+    ): Result<ResponseReceiptDto>
 
     suspend fun photo(
-        token:String,
-        file:MultipartBody.Part
-    ):Result<ResponsePhotoDto>
+        token: String,
+        file: MultipartBody.Part
+    ): Result<ResponsePhotoDto>
+
+    suspend fun registerReview(
+        token: String,
+        storeId: Int,
+        imageUrl: String,
+        fileId: Int,
+        content: String,
+        reusableContainerType: String,
+        reusableContainerSize: String,
+        fillLevel: String,
+        foodTaste: String
+    ):Result<ResponseRegisterReviewDto>
 
     // character
     suspend fun getPet(
@@ -126,4 +141,9 @@ interface BaseRepository {
     suspend fun collection(
         token: String,
     ): Result<ResponseCollectionDto>
+
+    // my
+    suspend fun getMyReviews(
+        token:String,
+    ):Result<ResponseGetMyReviewsDto>
 }

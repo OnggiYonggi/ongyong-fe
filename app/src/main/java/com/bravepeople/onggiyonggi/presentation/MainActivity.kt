@@ -12,7 +12,6 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.core.view.updateLayoutParams
 import com.bravepeople.onggiyonggi.databinding.ActivityMainBinding
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
@@ -178,10 +177,11 @@ class MainActivity : AppCompatActivity() {
         val fromReview = intent.getBooleanExtra("fromReview", false)
         val goTo = intent.getStringExtra("goTo")
 
-        if (openFragment == "review" && fromReview) {
+        if (openFragment == "store" && fromReview) {
             val fragment = supportFragmentManager.findFragmentById(R.id.fcv_main)
+            val storeId = intent.getIntExtra("storeId", -1)
             if (fragment is HomeFragment) {
-                fragment.openReviewFragment()
+                fragment.openStoreFragment(storeId)
             }
         } else if (goTo == "character") {
             binding.bnvMain.selectedItemId = R.id.characterFragment

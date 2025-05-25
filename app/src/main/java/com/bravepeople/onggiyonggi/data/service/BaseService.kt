@@ -1,6 +1,7 @@
 package com.bravepeople.onggiyonggi.data.service
 
 import com.bravepeople.onggiyonggi.data.request_dto.RequestLoginDto
+import com.bravepeople.onggiyonggi.data.request_dto.RequestRegisterReviewDto
 import com.bravepeople.onggiyonggi.data.request_dto.RequestRegisterStoreDto
 import com.bravepeople.onggiyonggi.data.request_dto.RequestSignUpDto
 import com.bravepeople.onggiyonggi.data.response_dto.character.ResponseAddMaxDto
@@ -18,8 +19,10 @@ import com.bravepeople.onggiyonggi.data.response_dto.home.store.ResponseStoreDet
 import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponseDeleteStoreDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponsePhotoDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponseReceiptDto
+import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponseRegisterReviewDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponseRegisterStoreDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.store.ResponseReviewEnumDto
+import com.bravepeople.onggiyonggi.data.response_dto.my.ResponseGetMyReviewsDto
 import okhttp3.MultipartBody
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -122,6 +125,12 @@ interface BaseService {
         @Part file: MultipartBody.Part
     ):ResponsePhotoDto
 
+    @POST("/review/")
+    suspend fun registerReview(
+        @Header ("Authorization") token:String,
+        @Body requestRegisterReviewDto: RequestRegisterReviewDto
+    ):ResponseRegisterReviewDto
+
     // character
     @GET("/pet/")
     suspend fun getPet(
@@ -152,4 +161,10 @@ interface BaseService {
     suspend fun collection(
         @Header ("Authorization") token:String,
     ): ResponseCollectionDto
+
+    // my
+    @GET("/review/my")
+    suspend fun getMyReviews(
+        @Header ("Authorization") token:String,
+    ):ResponseGetMyReviewsDto
 }

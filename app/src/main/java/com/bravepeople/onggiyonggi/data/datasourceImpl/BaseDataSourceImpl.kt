@@ -2,6 +2,7 @@ package com.bravepeople.onggiyonggi.data.datasourceImpl
 
 import com.bravepeople.onggiyonggi.data.datasource.BaseDataSource
 import com.bravepeople.onggiyonggi.data.request_dto.RequestLoginDto
+import com.bravepeople.onggiyonggi.data.request_dto.RequestRegisterReviewDto
 import com.bravepeople.onggiyonggi.data.request_dto.RequestRegisterStoreDto
 import com.bravepeople.onggiyonggi.data.request_dto.RequestSignUpDto
 import com.bravepeople.onggiyonggi.data.response_dto.character.ResponseAddMaxDto
@@ -19,8 +20,10 @@ import com.bravepeople.onggiyonggi.data.response_dto.home.store.ResponseStoreDet
 import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponseDeleteStoreDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponsePhotoDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponseReceiptDto
+import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponseRegisterReviewDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponseRegisterStoreDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.store.ResponseReviewEnumDto
+import com.bravepeople.onggiyonggi.data.response_dto.my.ResponseGetMyReviewsDto
 import com.bravepeople.onggiyonggi.data.service.BaseService
 import okhttp3.MultipartBody
 import javax.inject.Inject
@@ -67,6 +70,7 @@ class BaseDataSourceImpl @Inject constructor(
     override suspend fun deleteStore(token: String, id: Int): ResponseDeleteStoreDto = baseService.deleteStore(token, id)
     override suspend fun receipt(token: String, file: MultipartBody.Part): ResponseReceiptDto = baseService.receipt(token, file)
     override suspend fun photo(token: String, file: MultipartBody.Part): ResponsePhotoDto = baseService.photo(token,file)
+    override suspend fun registerReview(token: String, requestRegisterReviewDto: RequestRegisterReviewDto): ResponseRegisterReviewDto = baseService.registerReview(token, requestRegisterReviewDto)
 
     // character
     override suspend fun getPet(token:String): ResponseGetPetDto = baseService.getPet(token)
@@ -75,4 +79,7 @@ class BaseDataSourceImpl @Inject constructor(
     override suspend fun addMax(token: String): ResponseAddMaxDto = baseService.addMax(token)
     override suspend fun allCharacter(token: String): ResponseAllCharacterDto = baseService.allCharacter(token)
     override suspend fun collection(token: String): ResponseCollectionDto = baseService.collection(token)
+
+    // my
+    override suspend fun getMyReviews(token: String): ResponseGetMyReviewsDto = baseService.getMyReviews(token)
 }

@@ -486,7 +486,7 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
         marker.iconTintColor = getColorByRank(store.storeRank)
 
         val isBan = marker.tag as? Boolean ?: false
-        showReviewFragment(
+        showStoreFragment(
             store.id, true
         )
     }
@@ -502,7 +502,7 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
 
             searchRecentAdapter = SearchRecentAdapter(requireContext(),
                 clickStore = { search ->
-                    //showReviewFragment(search, false)
+                    //showStoreFragment(search, false)
                 },
                 clickDelete = { search ->
                     removeRecentList(search)
@@ -550,8 +550,8 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
                 rvSearch.visibility = View.VISIBLE
                 tvRecentSearches.visibility = View.VISIBLE
                 tvDeleteAll.visibility = View.VISIBLE
-                fcvReview.layoutParams.height = 0
-                fcvReview.requestLayout()
+                fcvStore.layoutParams.height = 0
+                fcvStore.requestLayout()
             }
 
             //selectedMarker?.map = null
@@ -654,7 +654,7 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
                     is SearchStoreState.Success -> {
                         val searchResultAdapter = SearchResultAdapter(
                             clickStore = { store ->
-                                showReviewFragment(store.id, false)
+                                showStoreFragment(store.id, false)
                                 binding.etSearch.setText(store.name)
                                 binding.etSearch.post {
                                     isUserTyping = true
@@ -683,11 +683,11 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
         searchRecentAdapter.getRecentSearchList(searchViewModel.getRecentSearchList())
     }
 
-    private fun showReviewFragment(id: Int, click: Boolean) {
+    private fun showStoreFragment(id: Int, click: Boolean) {
         hideKeyboard(binding.root)
         val fragmentManager = parentFragmentManager
 
-        val existingFragment = fragmentManager.findFragmentByTag("ReviewFragment")
+        val existingFragment = fragmentManager.findFragmentByTag("StoreFragment")
         Timber.d("fragment: ${existingFragment}")
         if (existingFragment != null) {
             fragmentManager.beginTransaction()
@@ -711,21 +711,16 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
         }
 
         fragmentManager.beginTransaction()
-            .add(R.id.fcv_review, fragment, "ReviewFragment")
+            .add(R.id.fcv_store, fragment, "StoreFragment")
             .commit()
 
-        binding.fcvReview.post {
+        binding.fcvStore.post {
             val newHeight = (resources.displayMetrics.heightPixels * 0.3).toInt()
-            binding.fcvReview.layoutParams.height = newHeight
-            binding.fcvReview.requestLayout()
+            binding.fcvStore.layoutParams.height = newHeight
+            binding.fcvStore.requestLayout()
         }
 
         isUserTyping = false
-        /*binding.etSearch.setText(data.name)
-        binding.etSearch.post {
-            isUserTyping = true
-        }
-        moveToMarker(data, click)*/
     }
 
 
@@ -836,11 +831,11 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
 
     private fun clickBackButton() {
         binding.btnBack.setOnClickListener {
-            val fragment = parentFragmentManager.findFragmentByTag("ReviewFragment")
-            Timber.d("fragment: ${fragment}")
-            if (fragment != null) {
+            val storeFragment = parentFragmentManager.findFragmentByTag("StoreFragment")
+            Timber.d("fragment: ${storeFragment}")
+            if (storeFragment != null) {
                 parentFragmentManager.beginTransaction()
-                    .remove(fragment)
+                    .remove(storeFragment)
                     .commit()
                 with(binding) {
                     ivTextsBackground.visibility = View.VISIBLE
@@ -867,16 +862,16 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
 
     private fun clickSystemBackButton() {
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
-            val reviewFragment = parentFragmentManager.findFragmentByTag("ReviewFragment")
+            val storeFragment = parentFragmentManager.findFragmentByTag("StoreFragment")
 
             Timber.d("markerClick: ${markerClick}")
 
             when {
                 // 1. ReviewFragment가 있으면 제거
-                reviewFragment != null -> {
-                    Timber.d("back: reviewfragment is not null")
+                storeFragment != null -> {
+                    Timber.d("back: StoreFragment is not null")
                     parentFragmentManager.beginTransaction()
-                        .remove(reviewFragment)
+                        .remove(storeFragment)
                         .commitNow()
 
                     markerClick = false
@@ -906,59 +901,6 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
                     }
                 }
             }
-            /*if(!markerClick) {
-                // 검색창에서 결과 또는 최근 리스트를 클릭한 후 화면이라면
-                if (reviewFragment != null) {
-                    Timber.d("ReviewFragment 제거")
-                    parentFragmentManager.beginTransaction()
-                        .remove(reviewFragment)
-                        .commit()
-
-                    if(clickSearch){
-                        with(binding) {
-                            ivTextsBackground.visibility = View.VISIBLE
-                            tvRecentSearches.visibility = View.VISIBLE
-                            tvDeleteAll.visibility = View.VISIBLE
-                            rvSearch.visibility = View.VISIBLE
-                            isUserTyping = false
-                            etSearch.text.clear()
-
-                            etSearch.post {
-                                isUserTyping = true
-                            }
-                            newMarker?.map = null
-                            fcvReview.layoutParams.height = 0
-                            fcvReview.requestLayout()
-                        }
-
-                        clickSearch=false
-                    }
-
-                } else {    // 최근 리스트가 보이는 화면이라면
-                    if(binding.ivTextsBackground.visibility==View.VISIBLE){
-                        setVisibility(false)
-                    }else{  // 초기 화면이라면
-                        val currentTime = System.currentTimeMillis()
-                        if (currentTime - backPressedTime < backPressInterval) {
-                            requireActivity().finish()
-                        } else {
-                            backPressedTime = currentTime
-                            Toast.makeText(requireContext(), "한 번 더 누르면 종료됩니다", Toast.LENGTH_SHORT).show()
-                        }
-                    }
-                }
-            }else{  // 핀 마커 누른 후 화면이라면
-                Timber.d("ReviewFragment 제거")
-                if (reviewFragment != null) {
-                    parentFragmentManager.beginTransaction()
-                        .setCustomAnimations(0, R.anim.slide_out_bottom) // enter, exit
-                        .remove(reviewFragment)
-                        .commit()
-                    markerClick=false
-                    newMarker?.setCaptionText("")
-                }
-            }
-*/
         }
     }
 
@@ -1064,12 +1006,28 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
         override fun onEvent(eventType: Int, params: Bundle) {}
     }
 
-    fun openReviewFragment() {
+    fun openStoreFragment(storeId: Int) {
         resetFabState()
-        val reviewFragment = StoreFragment()
-        parentFragmentManager.beginTransaction()
-            .add(R.id.fcv_review, reviewFragment, "ReviewFragment")
+
+        val token = homeViewModel.accessToken.value ?: return
+        val fragmentManager = parentFragmentManager
+
+        val existing = fragmentManager.findFragmentByTag("StoreFragment")
+        existing?.let {
+            fragmentManager.beginTransaction().remove(it).commitNow()
+        }
+
+        val storeFragment = StoreFragment.newInstance(storeId, token)
+        fragmentManager.beginTransaction()
+            .add(R.id.fcv_store, storeFragment, "StoreFragment")
             .commit()
+
+        /*val token = homeViewModel.accessToken.value ?: return
+        val storeFragment = StoreFragment.newInstance(storeId, token)
+
+        parentFragmentManager.beginTransaction()
+            .add(R.id.fcv_store, storeFragment, "StoreFragment")
+            .commit()*/
     }
 
     fun refreshData(){

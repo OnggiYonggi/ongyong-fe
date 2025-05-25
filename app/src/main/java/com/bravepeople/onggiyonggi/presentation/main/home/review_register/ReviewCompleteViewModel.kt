@@ -23,6 +23,7 @@ class ReviewCompleteViewModel @Inject constructor(
 ) :ViewModel() {
     private val _getPetState = MutableStateFlow<GetPetState>(GetPetState.Loading)
     private val _levelUpState = MutableStateFlow<LevelUpState>(LevelUpState.Loading)
+
     val getPetState:StateFlow<GetPetState> = _getPetState.asStateFlow()
     val levelUpState:StateFlow<LevelUpState> = _levelUpState.asStateFlow()
 

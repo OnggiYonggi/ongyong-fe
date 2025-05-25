@@ -4,7 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class ResponsePhotoDto(
+data class ResponseRegisterReviewDto (
     @SerialName("success")
     val success: Boolean,
     @SerialName("status")
@@ -12,13 +12,5 @@ data class ResponsePhotoDto(
     @SerialName("message")
     val message: String,
     @SerialName("data")
-    val data: Data
-){
-    @Serializable
-    data class Data(
-        @SerialName("id")
-        val id: Int,
-        @SerialName("url")
-        val url: String
-    )
-}
+    val data: Int,
+)

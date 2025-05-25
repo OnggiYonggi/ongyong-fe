@@ -2,6 +2,7 @@ package com.bravepeople.onggiyonggi.data.repositoryImpl
 
 import com.bravepeople.onggiyonggi.data.datasource.BaseDataSource
 import com.bravepeople.onggiyonggi.data.request_dto.RequestLoginDto
+import com.bravepeople.onggiyonggi.data.request_dto.RequestRegisterReviewDto
 import com.bravepeople.onggiyonggi.data.request_dto.RequestRegisterStoreDto
 import com.bravepeople.onggiyonggi.data.request_dto.RequestSignUpDto
 import com.bravepeople.onggiyonggi.data.response_dto.character.ResponseAddMaxDto
@@ -19,8 +20,10 @@ import com.bravepeople.onggiyonggi.data.response_dto.home.store.ResponseStoreDet
 import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponseDeleteStoreDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponsePhotoDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponseReceiptDto
+import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponseRegisterReviewDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponseRegisterStoreDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.store.ResponseReviewEnumDto
+import com.bravepeople.onggiyonggi.data.response_dto.my.ResponseGetMyReviewsDto
 import com.bravepeople.onggiyonggi.domain.repository.BaseRepository
 import okhttp3.MultipartBody
 import timber.log.Timber
@@ -170,6 +173,24 @@ class BaseRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun registerReview(
+        token: String,
+        storeId: Int,
+        imageUrl: String,
+        fileId: Int,
+        content: String,
+        reusableContainerType: String,
+        reusableContainerSize: String,
+        fillLevel: String,
+        foodTaste: String
+    ): Result<ResponseRegisterReviewDto> {
+        return runCatching {
+            baseDataSource.registerReview(token, RequestRegisterReviewDto(storeId, imageUrl, fileId, content, reusableContainerType, reusableContainerSize, fillLevel, foodTaste))
+        }.onFailure {
+            Timber.e("base repository register review fail!: $it")
+        }
+    }
+
     // character
     override suspend fun getPet(token: String): Result<ResponseGetPetDto> {
         return runCatching {
@@ -216,6 +237,15 @@ class BaseRepositoryImpl @Inject constructor(
             baseDataSource.addMax(token)
         }.onFailure {
             Timber.e("base repository add max fail!!: $it")
+        }
+    }
+
+    // my
+    override suspend fun getMyReviews(token: String): Result<ResponseGetMyReviewsDto> {
+        return runCatching {
+            baseDataSource.getMyReviews(token)
+        }.onFailure {
+            Timber.e("base repository get my reviews fail!!: $it")
         }
     }
 }

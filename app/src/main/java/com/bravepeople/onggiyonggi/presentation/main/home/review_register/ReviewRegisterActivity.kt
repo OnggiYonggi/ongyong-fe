@@ -56,9 +56,11 @@ class ReviewRegisterActivity : AppCompatActivity() {
 
         val token = intent.getStringExtra("accessToken")
         val storeId = intent.getIntExtra("storeId", -1)
+        val fromNewRegister = intent.getBooleanExtra("fromNewRegister", false)
         Timber.d("accessToken: $token, activity get id: $storeId")
 
         token?.let { reviewRegisterViewModel.saveToken(token) }
         if(storeId!=-1) reviewRegisterViewModel.saveId(storeId)
+        reviewRegisterViewModel.saveFromReview(fromNewRegister)
     }
 }

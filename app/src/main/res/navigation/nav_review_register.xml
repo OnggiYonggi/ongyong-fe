@@ -51,6 +51,11 @@
         android:name="com.bravepeople.onggiyonggi.presentation.main.home.review_register.WriteReviewFragment"
         android:label="write a review">
 
+        <argument
+            android:name="photo_uri"
+            app:argType="string"
+            app:nullable="false"/>
+
         <action
             android:id="@+id/action_write_to_complete"
             app:destination="@id/reviewCompleteFragment"/>
@@ -66,7 +71,17 @@
         android:label="review complete">
 
         <argument
-            android:name="text"
+            android:name="uri"
+            app:argType="string"
+            app:nullable="false"/>
+
+        <argument
+            android:name="storeName"
+            app:argType="string"
+            app:nullable="false"/>
+
+        <argument
+            android:name="content"
             app:argType="string"
             app:nullable="false"/>
     </fragment>

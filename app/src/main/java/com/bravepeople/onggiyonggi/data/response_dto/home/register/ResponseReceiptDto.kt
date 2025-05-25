@@ -28,7 +28,7 @@ data class ResponseReceiptDto (
             @SerialName("name")
             val name: String,
             @SerialName("price")
-            val price: Int?,
+            val price: Int,
             @SerialName("count")
             val count: Int
         )

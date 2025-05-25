@@ -1,7 +1,6 @@
 package com.bravepeople.onggiyonggi.presentation.main.home.store_register
 
 import android.util.Log
-import android.util.Printer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bravepeople.onggiyonggi.BuildConfig
@@ -11,8 +10,7 @@ import com.bravepeople.onggiyonggi.domain.repository.GoogleMapsRepository
 import com.bravepeople.onggiyonggi.domain.repository.NaverRepository
 import com.bravepeople.onggiyonggi.extension.GetStoreTimeState
 import com.bravepeople.onggiyonggi.extension.SearchState
-import com.bravepeople.onggiyonggi.extension.home.register.DeleteState
-import com.bravepeople.onggiyonggi.extension.home.register.RegisterState
+import com.bravepeople.onggiyonggi.extension.home.register.RegisterStoreState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -32,11 +30,11 @@ class StoreRegisterViewModel @Inject constructor(
 ) :ViewModel() {
     private val _searchState = MutableStateFlow<SearchState>(SearchState.Loading)
     private val _getStoreTimeState = MutableStateFlow<GetStoreTimeState>(GetStoreTimeState.Loading)
-    private val _registerState = MutableStateFlow<RegisterState>(RegisterState.Loading)
+    private val _registerState = MutableStateFlow<RegisterStoreState>(RegisterStoreState.Loading)
 
     val searchState: StateFlow<SearchState> = _searchState.asStateFlow()
     val getStoreTimeState:StateFlow<GetStoreTimeState> = _getStoreTimeState.asStateFlow()
-    val registerState:StateFlow<RegisterState> = _registerState.asStateFlow()
+    val registerState:StateFlow<RegisterStoreState> = _registerState.asStateFlow()
 
     fun searchQueryInfo(inputText: String) {
         viewModelScope.launch {
@@ -90,9 +88,9 @@ class StoreRegisterViewModel @Inject constructor(
     fun register(token:String, storeRank:String, storeType: String, latitude:Double, longitude:Double, address:String, name:String, businessHours:String){
         viewModelScope.launch {
             baseRepository.registerStore(token, storeRank, storeType, latitude, longitude, address, name, businessHours).onSuccess { response->
-                _registerState.value=RegisterState.Success(response)
+                _registerState.value=RegisterStoreState.Success(response)
             }.onFailure {
-                _registerState.value=RegisterState.Error("register error!")
+                _registerState.value=RegisterStoreState.Error("register error!")
                 if (it is HttpException) {
                     try {
                         val errorBody: ResponseBody? = it.response()?.errorBody()

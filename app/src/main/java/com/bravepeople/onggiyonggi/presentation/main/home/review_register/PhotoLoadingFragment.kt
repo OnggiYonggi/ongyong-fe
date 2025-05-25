@@ -63,7 +63,7 @@ class PhotoLoadingFragment:Fragment() {
                 reviewRegisterViewModel.receiptState.collect{state->
                     when(state){
                         is ReceiptState.Success->{
-                            showSecondAnimation(photoType)
+                            showSecondAnimation(photoType, "")
                         }
                         is ReceiptState.Loading->{
                             showFirstAnimation()
@@ -84,7 +84,7 @@ class PhotoLoadingFragment:Fragment() {
                     when(state){
                         is PhotoState.Success->{
                             reviewRegisterViewModel.savePhotoId(state.photoDto.data.id)
-                            showSecondAnimation(photoType)
+                            showSecondAnimation(photoType, state.photoDto.data.url)
                         }
                         is PhotoState.Loading->{
                             showFirstAnimation()
@@ -121,7 +121,7 @@ class PhotoLoadingFragment:Fragment() {
         }
     }
 
-    private fun showSecondAnimation(photoType: PhotoType) {
+    private fun showSecondAnimation(photoType: PhotoType, uri:String) {
         // 1단계: 첫 번째 로딩 애니메이션 사라지게
         binding.lavLoading.animate()
             .alpha(0f)
@@ -144,7 +144,7 @@ class PhotoLoadingFragment:Fragment() {
 
             addAnimatorListener(object : Animator.AnimatorListener {
                 override fun onAnimationEnd(p0: Animator) {
-                    navigateToNext(photoType)
+                    navigateToNext(photoType, uri)
                 }
 
                 override fun onAnimationStart(p0: Animator) {}
@@ -154,7 +154,7 @@ class PhotoLoadingFragment:Fragment() {
         }
     }
 
-    private fun navigateToNext(photoType: PhotoType) {
+    private fun navigateToNext(photoType: PhotoType, uri:String) {
         val navOptions = NavOptions.Builder()
             .setPopUpTo(R.id.loadingFragment, true)
             .build()
@@ -165,7 +165,7 @@ class PhotoLoadingFragment:Fragment() {
                 findNavController().navigate(action, navOptions)
             }
             else -> {
-                val action = PhotoLoadingFragmentDirections.actionLoadingToWrite()
+                val action = PhotoLoadingFragmentDirections.actionLoadingToWrite(uri)
                 findNavController().navigate(action, navOptions)
             }
         }
@@ -215,11 +215,11 @@ class PhotoLoadingFragment:Fragment() {
 
     private fun clickCancel(){
         binding.btnCancel.setOnClickListener {
-            if(reviewRegisterViewModel.storeId.value!= null) reviewRegisterViewModel.delete()
+            if(reviewRegisterViewModel.newStore.value == true) reviewRegisterViewModel.delete()
             else requireActivity().finish()
         }
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner){
-            if(reviewRegisterViewModel.storeId.value!= null) reviewRegisterViewModel.delete()
+            if(reviewRegisterViewModel.newStore.value == true) reviewRegisterViewModel.delete()
             else requireActivity().finish()
         }
     }
