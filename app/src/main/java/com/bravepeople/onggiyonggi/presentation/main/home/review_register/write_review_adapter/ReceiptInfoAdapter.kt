@@ -5,11 +5,11 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bravepeople.onggiyonggi.R
 import com.bravepeople.onggiyonggi.data.StoreOrReceipt
+import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponseReceiptDto
 import com.bravepeople.onggiyonggi.databinding.ItemWriteReceiptBinding
-import okhttp3.internal.notify
 
 class ReceiptInfoAdapter : RecyclerView.Adapter<ReceiptInfoAdapter.ReceiptViewHolder>() {
-    private val receiptInfoList = mutableListOf<StoreOrReceipt.Receipt>()
+    private val receiptInfoList = mutableListOf<ResponseReceiptDto.ReceiptData.ReceiptItem>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ReceiptViewHolder {
         val binding =
@@ -23,7 +23,7 @@ class ReceiptInfoAdapter : RecyclerView.Adapter<ReceiptInfoAdapter.ReceiptViewHo
         holder.bind(receiptInfoList[position])
     }
 
-    fun getList(list: List<StoreOrReceipt.Receipt>) {
+    fun getList(list: List<ResponseReceiptDto.ReceiptData.ReceiptItem>) {
         receiptInfoList.clear()
         receiptInfoList.addAll(list)
         notifyDataSetChanged()
@@ -31,24 +31,19 @@ class ReceiptInfoAdapter : RecyclerView.Adapter<ReceiptInfoAdapter.ReceiptViewHo
 
     inner class ReceiptViewHolder(private val binding: ItemWriteReceiptBinding) :
         RecyclerView.ViewHolder(binding.root) {
-        fun bind(data: StoreOrReceipt) {
+        fun bind(data: ResponseReceiptDto.ReceiptData.ReceiptItem) {
             with(binding) {
-                when (data) {
-                    is StoreOrReceipt.Receipt -> {
-                        tvName.text = data.name
-                        tvUnitPrice.text = binding.root.context.getString(
-                            R.string.write_food_unit_price_input,
-                            data.unitPrice
-                        )
-                        tvCount.text = data.count.toString()
-                        tvTotalPrice.text = binding.root.context.getString(
-                            R.string.write_food_total_price_input,
-                            data.totalPrice
-                        )
-                    }
+                tvName.text = data.name
+                tvUnitPrice.text = binding.root.context.getString(
+                    R.string.write_food_unit_price_input,
+                    data.price
+                )
+                tvCount.text = data.count.toString()
 
-                    else -> {}
-                }
+                tvTotalPrice.text = binding.root.context.getString(
+                    R.string.write_food_total_price_input,
+                    (data.price*data.count)
+                )
             }
         }
     }

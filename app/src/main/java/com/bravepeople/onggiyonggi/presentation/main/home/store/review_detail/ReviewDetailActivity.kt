@@ -128,22 +128,27 @@ class ReviewDetailActivity : AppCompatActivity() {
         val enum=intent.getParcelableExtra<ResponseReviewEnumDto.Data>("enum")
 
         enum?.let {
+            for( i in 0 until enum.containerType.size){
+                if(enum.containerType[i].key == review.reusableContainerType) {
+                    Timber.d("type description: ${enum.containerType[i].description}")
+                    binding.tvWhat.text = enum.containerType[i].description
+                }
+            }
+
+            for(i in 0 until enum.containerSize.size){
+                if(enum.containerSize[i].key == review.reusableContainerSize) {
+                    Timber.d("size description: ${enum.containerSize[i].description}")
+                    binding.tvSize.text = enum.containerSize[i].description
+                }
+            }
+
             for(i in 0 until enum.fillLevel.size){
-                if(enum.fillLevel[i].key==review.fillLevel) binding.tvSize.text=enum.fillLevel[i].description
+                if(enum.fillLevel[i].key==review.fillLevel) binding.tvAmount.text=enum.fillLevel[i].description
             }
 
             for(i in 0 until enum.foodTaste.size){
                 if(enum.foodTaste[i].key==review.foodTaste) binding.tvTaste.text=enum.foodTaste[i].description
             }
-
-            for( i in 0 until enum.containerType.size){
-                if(enum.containerType[i].key == review.reusableContainerType) {
-                    Timber.d("description: ${enum.containerType[i].description}")
-                    binding.tvWhat.text = enum.containerType[i].description
-                }
-            }
-
-            binding.tvAmount.text=review.reusableContainerSize
         }
 
     }

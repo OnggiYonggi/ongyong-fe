@@ -38,6 +38,14 @@ class StoreViewModel @Inject constructor(
     val getDetailState:StateFlow<GetStoreDetailState> = _getDetailState.asStateFlow()
     val getReviewState:StateFlow<GetReviewState> = _getReviewState.asStateFlow()
 
+    fun clearReviewState() {
+        _getReviewState.value = GetReviewState.Loading
+    }
+
+    fun clearStoreDetailState() {
+        _getDetailState.value = GetStoreDetailState.Loading
+    }
+
     fun searchStoreTime(inputText:String){
         viewModelScope.launch {
             googleMapsRepository.getTime(RequestGoogleMapsSearchDto(inputText)).onSuccess { response->

@@ -22,8 +22,7 @@ import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseNaverAddressDt
 import com.bravepeople.onggiyonggi.databinding.ActivityStoreRegisterBinding
 import com.bravepeople.onggiyonggi.extension.GetStoreTimeState
 import com.bravepeople.onggiyonggi.extension.SearchState
-import com.bravepeople.onggiyonggi.extension.home.GetStoreState
-import com.bravepeople.onggiyonggi.extension.home.register.RegisterState
+import com.bravepeople.onggiyonggi.extension.home.register.RegisterStoreState
 import com.bravepeople.onggiyonggi.presentation.main.home.review_register.ReviewRegisterActivity
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.CameraUpdate
@@ -220,14 +219,14 @@ class StoreRegisterActivity : AppCompatActivity(), OnMapReadyCallback {
             lifecycleScope.launch {
                 storeRegisterViewModel.registerState.collect { state ->
                     when (state) {
-                        is RegisterState.Success -> {
+                        is RegisterStoreState.Success -> {
                             if (type == "ROOKIE") {
                                 val intent = Intent(
                                     this@StoreRegisterActivity,
                                     ReviewRegisterActivity::class.java
                                 )
                                 intent.putExtra("registerActivity", "storeRegisterActivity")
-                                intent.putExtra("fromReview", true)
+                                intent.putExtra("fromNewRegister", true)
                                 intent.putExtra("storeId", state.registerDto.data)
                                 intent.putExtra("accessToken", token)
                                 startActivity(intent)
@@ -242,8 +241,8 @@ class StoreRegisterActivity : AppCompatActivity(), OnMapReadyCallback {
                             }
                         }
 
-                        is RegisterState.Loading -> {}
-                        is RegisterState.Error -> {
+                        is RegisterStoreState.Loading -> {}
+                        is RegisterStoreState.Error -> {
                             Timber.e("register state error!")
                         }
                     }

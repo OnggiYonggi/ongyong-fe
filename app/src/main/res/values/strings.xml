@@ -44,6 +44,12 @@
     <string name="write_food_count">수량</string>
     <string name="write_food_total_price">금액</string>
     <string name="write_rephoto">다시 찍기</string>
+
+    <string name="write_select_container_type">어떤 용기를 가져갔나요?</string>
+    <string name="write_select_container_size">용기의 크기는 어땠나요?</string>
+    <string name="write_select_fill_level">음식 양은 어땠나요?</string>
+    <string name="write_select_food_taste">음식 맛은 어땠나요?</string>
+
     <string name="write_review">상세한 리뷰를 적어주세요!</string>
     <string name="write_review_number_of_character">%d/200</string>
     <string name="write_register">등록하기</string>
@@ -92,19 +98,19 @@
     <string name="write_container_type">텀블러</string>
     <string name="write_container_size">중간 사이즈</string>
 
-    <string name="write_select_question">어떤 용기를 가져갔나요?</string>
+
     <string name="write_select_answer0">텀블러</string>
     <string name="write_select_answer1">접시</string>
     <string name="write_select_answer2">락앤락</string>
     <string name="write_select_answer3">냄비</string>
     <string name="write_select_answer4">유리컵</string>
 
-    <string name="write_select_question2">음식 양은 어땠나요?</string>
+
     <string name="write_select_2_answer0">부족해요</string>
     <string name="write_select_2_answer1">적당해요</string>
     <string name="write_select_2_answer2">커요</string>
 
-    <string name="write_select_question3">음식 맛은 어땠나요?</string>
+
     <string name="write_select_3_answer0">맛있어요</string>
     <string name="write_select_3_answer1">신선해요</string>
     <string name="write_select_3_answer2">건강해요</string>

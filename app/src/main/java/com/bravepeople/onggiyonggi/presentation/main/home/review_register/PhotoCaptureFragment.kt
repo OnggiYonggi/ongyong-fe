@@ -345,12 +345,12 @@ class PhotoCaptureFragment : Fragment() {
     private fun clickCancel() {
         binding.btnCancel.setOnClickListener {
             Timber.e("storeId: ${reviewRegisterViewModel.storeId.value}")
-            if (reviewRegisterViewModel.storeId.value != null) reviewRegisterViewModel.delete()
+            if (reviewRegisterViewModel.newStore.value == true) reviewRegisterViewModel.delete()
             else requireActivity().finish()
         }
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
             Timber.e("storeId: ${reviewRegisterViewModel.storeId.value}")
-            if (reviewRegisterViewModel.storeId.value != null) reviewRegisterViewModel.delete()
+            if (reviewRegisterViewModel.newStore.value == true) reviewRegisterViewModel.delete()
             else requireActivity().finish()
         }
     }

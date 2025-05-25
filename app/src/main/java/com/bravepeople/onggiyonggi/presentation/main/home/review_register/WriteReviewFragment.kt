@@ -1,11 +1,13 @@
 package com.bravepeople.onggiyonggi.presentation.main.home.review_register
 
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.addCallback
 import androidx.appcompat.app.AlertDialog
+import androidx.compose.animation.slideIn
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
@@ -15,11 +17,15 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
-import coil3.load
-import com.bravepeople.onggiyonggi.data.StoreAndDateAndPhoto
+import coil.load
+import com.bravepeople.onggiyonggi.data.response_dto.home.store.ResponseReviewEnumDto
 import com.bravepeople.onggiyonggi.databinding.FragmentWriteReviewBinding
 import com.bravepeople.onggiyonggi.extension.character.LevelUpState
+import com.bravepeople.onggiyonggi.extension.home.GetEnumState
+import com.bravepeople.onggiyonggi.extension.home.GetStoreDetailState
 import com.bravepeople.onggiyonggi.extension.home.register.DeleteState
+import com.bravepeople.onggiyonggi.extension.home.register.ReceiptState
+import com.bravepeople.onggiyonggi.extension.home.register.RegisterReviewState
 import com.bravepeople.onggiyonggi.presentation.main.home.review_register.write_review_adapter.ReceiptInfoAdapter
 import com.bravepeople.onggiyonggi.presentation.main.home.review_register.write_review_adapter.WriteReviewAdapter
 import dagger.hilt.android.AndroidEntryPoint
@@ -31,6 +37,8 @@ class WriteReviewFragment : Fragment() {
     private var _binding: FragmentWriteReviewBinding? = null
     private val binding: FragmentWriteReviewBinding
         get() = requireNotNull(_binding) { "receipt fragment is null" }
+
+    private val args: WriteReviewFragmentArgs by navArgs()
 
     private val reviewRegisterViewModel: ReviewRegisterViewModel by activityViewModels()
     private val writeReviewViewModel: WriteReviewViewModel by viewModels()
@@ -64,27 +72,6 @@ class WriteReviewFragment : Fragment() {
                 if (imeVisible) imeHeight else systemBarHeight
             )
 
-            /*if (!imeVisible) {
-                binding.rvWriteReview.findFocus()?.clearFocus()
-                pendingFocusPosition = null // 키보드 내려갔으면 pending 초기화
-            } else {
-                // 키보드 올라오면 이제 스크롤
-                pendingFocusPosition?.let { position ->
-                    binding.rvWriteReview.postDelayed({
-                        val layoutManager = binding.rvWriteReview.layoutManager as? LinearLayoutManager
-                        val view = layoutManager?.findViewByPosition(position)
-
-                        if (view != null) {
-                            val extraPadding = 200 // px
-                            binding.nsvWriteReview.smoothScrollTo(
-                                0,
-                                view.top + binding.rvWriteReview.top - extraPadding
-                            )
-                        }
-                    }, 80) // 약간만 딜레이 주는게 좋아 (키보드 올라올 때까지)
-                    pendingFocusPosition = null // 한번 하고 초기화
-                }
-            }*/
             if (imeVisible) {
                 // 키보드가 올라왔을 때
                 val focusedView = view.findFocus()
@@ -106,7 +93,6 @@ class WriteReviewFragment : Fragment() {
                     }
                 }
             }
-
             insets
         }
 
@@ -119,74 +105,137 @@ class WriteReviewFragment : Fragment() {
     }
 
     private fun setInfos() {
-        val store = reviewRegisterViewModel.getStore()
-        val receipt = reviewRegisterViewModel.getReceiptFoods()
-        with(binding) {
-            ivFood.load(store.image)
-            tvStoreName.text = store.name
-            tvStoreAddress.text = store.address
+        val uri = args.photoUri
+        Timber.d("photoUri: $uri")
+        binding.ivFood.load(Uri.parse(uri))
 
-            tvDate.text = receipt[0].date
-        }
+        setStore()
+        setReceipt()
+        getEnum(uri)
+    }
 
-        val receiptInfoAdapter = ReceiptInfoAdapter()
-        binding.rvItems.adapter = receiptInfoAdapter
-        receiptInfoAdapter.getList(receipt)
-
-        writeReviewAdapter = WriteReviewAdapter(
-            complete = { text ->
-                lifecycleScope.launch {
-                    writeReviewViewModel.levelUpState.collect { state ->
-                        when (state) {
-                            is LevelUpState.Success -> {
-                                val action =
-                                    WriteReviewFragmentDirections.actionWriteToComplete(text)
-                                findNavController().navigate(action)
-                            }
-
-                            is LevelUpState.Loading -> {}
-                            is LevelUpState.Error -> {
-                                Timber.e("level up state error")
-                            }
+    private fun setStore() {
+        lifecycleScope.launch {
+            reviewRegisterViewModel.storeDetailState.collect { state ->
+                when (state) {
+                    is GetStoreDetailState.Success -> {
+                        Timber.d("store name: ${state.storeDto.data.name}, store address: ${state.storeDto.data.address}")
+                        writeReviewViewModel.saveStoreName(state.storeDto.data.name)
+                        with(binding) {
+                            tvStoreName.text = state.storeDto.data.name
+                            tvStoreAddress.text = state.storeDto.data.address
                         }
                     }
+
+                    is GetStoreDetailState.Loading -> {}
+                    is GetStoreDetailState.Error -> {
+                        Timber.e("get store detail state error!")
+                    }
                 }
-                val token = reviewRegisterViewModel.accessToken.value ?: return@WriteReviewAdapter
-                writeReviewViewModel.levelUp(token)
+            }
+        }
+
+        reviewRegisterViewModel.storeDetail()
+    }
+
+    private fun setReceipt() {
+        lifecycleScope.launchWhenCreated {
+            reviewRegisterViewModel.receiptState.collect { state ->
+                if (state is ReceiptState.Success) {
+                    val receipt = state.receiptDto.data
+
+                    binding.tvDate.text = receipt.date
+
+                    val receiptInfoAdapter = ReceiptInfoAdapter()
+                    binding.rvItems.adapter = receiptInfoAdapter
+                    receiptInfoAdapter.getList(receipt.items)
+                }
+            }
+        }
+    }
+
+    private fun getEnum(uri: String) {
+        val accesstoken = reviewRegisterViewModel.accessToken.value!!
+
+        lifecycleScope.launch {
+            writeReviewViewModel.enumState.collect{state->
+                when(state){
+                    is GetEnumState.Success->{
+                        setReview(state.enumDto.data, uri)
+                    }
+                    is GetEnumState.Loading->{
+
+                    }
+                    is GetEnumState.Error->{
+
+                    }
+                }
+            }
+        }
+        writeReviewViewModel.getEnum(accesstoken)
+    }
+
+    private fun setReview(data: ResponseReviewEnumDto.Data, uri: String) {
+        writeReviewAdapter = WriteReviewAdapter(
+            complete = { selectedAnswer, text ->
+                registerReview(uri, selectedAnswer, text)
             },
             onFocusKeyBoard = { position ->
                 pendingFocusPosition = position
-                /* binding.rvWriteReview.post {
-                     val layoutManager = binding.rvWriteReview.layoutManager as? LinearLayoutManager
-                     val view = layoutManager?.findViewByPosition(position)
-
-                     if (view != null) {
-                         // 키보드 때문에 가려지는 걸 막기 위해 약간 더 여유있게 내려줌
-                         val extraPadding = 200 // ← 이 값 조정 가능 (px단위)
-
-                         binding.nsvWriteReview.smoothScrollTo(
-                             0,
-                             view.top + binding.rvWriteReview.top - extraPadding
-                         )
-                     }
-                 }*/
             }
         )
         binding.rvWriteReview.adapter = writeReviewAdapter
-        writeReviewAdapter.getList(reviewRegisterViewModel.getSelectQuestion(requireContext()))
-        writeReviewAdapter.setOnScrollRequestListener { position ->
-            val targetView = binding.rvWriteReview.layoutManager?.findViewByPosition(position)
-            if (targetView != null) {
-                binding.nsvWriteReview.smoothScrollTo(
-                    0,
-                    targetView.top + binding.rvWriteReview.top
-                )
-            }
-        }
+        writeReviewAdapter.setEnumData(data)
+        writeReviewAdapter.setInitialQuestion(requireContext(), data)
 
         scrollFragment()
     }
 
+   private fun registerReview(uri: String, selectedAnswer: MutableMap<Int, String?>, content: String){
+       lifecycleScope.launch {
+           writeReviewViewModel.registerReviewState.collect{state->
+               when(state){
+                   is RegisterReviewState.Success->{
+                       levelUp(content, uri)
+                   }
+                   is RegisterReviewState.Loading->{
+
+                   }
+                   is RegisterReviewState.Error->{
+                       Timber.e("register review state error!")
+                   }
+               }
+           }
+       }
+
+       val accessToken = reviewRegisterViewModel.accessToken.value
+       val storeId = reviewRegisterViewModel.storeId.value
+       val photoId = reviewRegisterViewModel.photoId.value
+
+       writeReviewViewModel.registerReview(accessToken!!, storeId!!, uri, photoId!!, content, selectedAnswer[0]!!, selectedAnswer[1]!!, selectedAnswer[2]!!, selectedAnswer[3]!! )
+   }
+
+    private fun levelUp(content: String, uri:String){
+        lifecycleScope.launch {
+            writeReviewViewModel.levelUpState.collect { state ->
+                when (state) {
+                    is LevelUpState.Success -> {
+                        val storeName = writeReviewViewModel.storeName.value
+                        val action =
+                            WriteReviewFragmentDirections.actionWriteToComplete(uri, storeName!!, content)
+                        findNavController().navigate(action)
+                    }
+
+                    is LevelUpState.Loading -> {}
+                    is LevelUpState.Error -> {
+                        Timber.e("level up state error")
+                    }
+                }
+            }
+        }
+        val token = reviewRegisterViewModel.accessToken.value ?: return
+        writeReviewViewModel.levelUp(token)
+    }
     private fun scrollFragment() {
         writeReviewAdapter.setOnScrollRequestListener { position ->
             binding.rvWriteReview.post {
@@ -214,27 +263,6 @@ class WriteReviewFragment : Fragment() {
                 }
             }
         }
-
-        /*writeReviewAdapter.setOnScrollLockRequestListener {
-            val layoutManager = binding.rvWrite.layoutManager as LinearLayoutManager
-            val firstView = layoutManager.getChildAt(0)
-            val topPosition = layoutManager.findFirstVisibleItemPosition()
-            val offset = firstView?.top ?: 0
-
-            binding.rvWrite.post {
-                layoutManager.scrollToPositionWithOffset(topPosition, offset)
-
-                // NestedScrollView도 같이 이동
-                binding.nestedScrollView.post {
-                    binding.nestedScrollView.smoothScrollTo(
-                        0,
-                        (binding.rvWrite.top + (firstView?.top ?: 0))
-                    )
-                }
-            }
-        }*/
-
-
     }
 
     private fun retakePhoto() {
@@ -265,14 +293,14 @@ class WriteReviewFragment : Fragment() {
     private fun clickCancel() {
         binding.btnCancel.setOnClickListener {
             Timber.e("storeId: ${reviewRegisterViewModel.storeId.value}")
-            if (reviewRegisterViewModel.storeId.value != null)
+            if (reviewRegisterViewModel.newStore.value == true)
                 showDeleteConfirmDialog()
             else requireActivity().finish()
         }
 
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
             Timber.e("storeId: ${reviewRegisterViewModel.storeId.value}")
-            if (reviewRegisterViewModel.storeId.value != null)
+            if (reviewRegisterViewModel.newStore.value == true)
                 showDeleteConfirmDialog()
             else requireActivity().finish()
         }

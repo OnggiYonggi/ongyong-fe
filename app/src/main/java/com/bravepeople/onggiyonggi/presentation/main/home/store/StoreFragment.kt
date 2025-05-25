@@ -12,9 +12,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import com.bravepeople.onggiyonggi.R
 import com.bravepeople.onggiyonggi.databinding.FragmentReviewBinding
 import com.bravepeople.onggiyonggi.domain.model.StoreRank
@@ -27,7 +25,6 @@ import com.bravepeople.onggiyonggi.presentation.main.home.store_register.StoreRe
 import com.bravepeople.onggiyonggi.presentation.main.home.store.review_detail.ReviewDetailActivity
 import com.bravepeople.onggiyonggi.presentation.main.home.review_register.ReviewRegisterActivity
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.observeOn
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -71,8 +68,12 @@ class StoreFragment : Fragment() {
     }
 
     private fun setting() {
+        storeViewModel.clearReviewState()
+        storeViewModel.clearStoreDetailState()
+
         val storeId = arguments?.getInt("storeId")
         val token=arguments?.getString("accessToken")
+
         setupBottomSheetBehavior()
         getStoreTime()
         if (token != null && storeId!=null) {
@@ -201,6 +202,7 @@ class StoreFragment : Fragment() {
     }
 
     private fun setupUI(accessToken:String, id:Int) {
+        Timber.d("store id in set up ui: $id")
         lifecycleScope.launch {
             storeViewModel.getDetailState.collect{state->
                 when(state){
@@ -220,12 +222,12 @@ class StoreFragment : Fragment() {
                             if (isBan) {
                                 clBan.minHeight = (resources.displayMetrics.heightPixels * 0.6).toInt()
                                 btnRegister.setOnClickListener {
-                                    clickNewRegister()
+                                    clickNewRegister(id)
                                 }
                             } else {
                                 setupRecyclerView(accessToken, id)
                                 btnAdd.setOnClickListener{
-                                    writeReview(accessToken)
+                                    writeReview(accessToken, id)
                                 }
                             }
                         }
@@ -239,60 +241,47 @@ class StoreFragment : Fragment() {
         }
 
         storeViewModel.getDetail(accessToken,id)
-       /* if (data == null) return
-        val isBan = data.isBan
-
-        with(binding) {
-            clBan.visibility = if (isBan) View.VISIBLE else View.GONE
-            clReviews.visibility = if (isBan) View.GONE else View.VISIBLE
-
-            if (isBan) {
-                clBan.minHeight = (resources.displayMetrics.heightPixels * 0.6).toInt()
-                btnRegister.setOnClickListener {
-                    clickNewRegister()
-                }
-            } else {
-                setupRecyclerView(data)
-                btnAdd.setOnClickListener{
-                    writeReview()
-                }
-            }
-        }
-
-        storeViewModel.searchStoreTime(data.name)*/
     }
 
 
     private fun setupRecyclerView(accessToken: String, id: Int) {
-        lifecycleScope.launch {
-            storeViewModel.getReviewState.collect{state->
-                when(state){
-                    is GetReviewState.Success->{
+        storeViewModel.getReviews(accessToken, id)
+
+        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+            storeViewModel.getReviewState.collect { state ->
+                Timber.d("🌀 reviewState collected: $state")
+
+                when (state) {
+                    is GetReviewState.Success -> {
                         reviewAdapter = StoreAdapter(
-                            clickReview = {review -> clickReview(accessToken, review.id, id)},
+                            clickReview = { review -> clickReview(accessToken, review.id, id) }
                         )
                         binding.rvReviews.adapter = reviewAdapter
-                        binding.rvReviews.setOnTouchListener { _, event ->
-                            !isExpanded  // isExpanded가 false면 true를 반환해서 터치 막음
-                        }
+                        binding.rvReviews.setOnTouchListener { _, _ -> !isExpanded }
 
-                        state.reviewDto.data.contents?.let { reviewAdapter.setReviewList(it) }
+                        state.reviewDto.data.contents?.let {
+                            reviewAdapter.setReviewList(it)
+                        }
                     }
-                    is GetReviewState.Loading->{}
-                    is GetReviewState.Error->{
+
+                    is GetReviewState.Loading -> {
+                        Timber.d("review state loading...")
+                    }
+
+                    is GetReviewState.Error -> {
                         Timber.e("get review state error!!")
                     }
                 }
             }
         }
-
-        storeViewModel.getReviews(accessToken, id)
     }
 
-    private fun clickNewRegister() {
+    private fun clickNewRegister(id: Int) {
         Timber.d("clicknemregister")
+
         val intent = Intent(requireContext(), StoreRegisterActivity::class.java)
         intent.putExtra("type", "new")
+        intent.putExtra("storeId", id)
         startActivity(intent)
         requireActivity().overridePendingTransition(R.anim.slide_in_right, R.anim.stay_still)
     }
@@ -313,13 +302,26 @@ class StoreFragment : Fragment() {
         }
     }
 
-    private fun writeReview(accessToken: String) {
+    private fun writeReview(accessToken: String, storeId:Int) {
         Timber.d("writeReview")
         val intent = Intent(requireContext(), ReviewRegisterActivity::class.java)
         intent.putExtra("type", "registerActivity")
         intent.putExtra("accessToken", accessToken)
+        intent.putExtra("storeId", storeId)
+        intent.putExtra("fromNewRegister", false)
         startActivity(intent)
         requireActivity().overridePendingTransition(R.anim.slide_in_right, R.anim.stay_still)
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        val accessToken = arguments?.getString("accessToken")
+        val storeId = arguments?.getInt("storeId")
+
+        if (accessToken != null && storeId != null) {
+            storeViewModel.getReviews(accessToken, storeId)
+        }
     }
 
     override fun onDestroyView() {
