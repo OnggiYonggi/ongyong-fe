@@ -21,8 +21,10 @@ import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponsePhoto
 import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponseReceiptDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponseRegisterReviewDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponseRegisterStoreDto
+import com.bravepeople.onggiyonggi.data.response_dto.home.store.ResponseLikeDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.store.ResponseReviewEnumDto
 import com.bravepeople.onggiyonggi.data.response_dto.my.ResponseGetMyReviewsDto
+import com.bravepeople.onggiyonggi.data.response_dto.my.ResponseMyDto
 import okhttp3.MultipartBody
 
 interface BaseDataSource {
@@ -68,6 +70,11 @@ interface BaseDataSource {
         token:String,
         id:Int,
     ): ResponseReviewDetailDto
+
+    suspend fun like(
+        token:String,
+        reviewId:Int,
+    ):ResponseLikeDto
 
     suspend fun getEnum(
         token:String,
@@ -127,6 +134,10 @@ interface BaseDataSource {
     suspend fun collection(token:String): ResponseCollectionDto
 
     // my
+    suspend fun getMyInfo(
+        token:String,
+    ):ResponseMyDto
+
     suspend fun getMyReviews(
         token:String,
     ):ResponseGetMyReviewsDto

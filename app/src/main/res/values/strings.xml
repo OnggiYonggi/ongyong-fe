@@ -89,6 +89,9 @@
     <string name="character_collection">컬렉션</string>
     <string name="character_max_collection">%s가 컬렉션에 추가되었습니다!</string>
 
+    <!--character-->
+    <string name="my_review_count">%d개</string>
+
     <!-- mock data -->
 
     <string name="write_food_name_mock">스타벅스 프렌치 바닐라 라떼</string>

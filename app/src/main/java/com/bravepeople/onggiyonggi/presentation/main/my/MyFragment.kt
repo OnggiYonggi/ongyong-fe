@@ -9,16 +9,26 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
-import coil3.load
-import coil3.transform.CircleCropTransformation
-import coil3.request.transformations
+import coil.load
+import coil.transform.CircleCropTransformation
 import com.bravepeople.onggiyonggi.R
-import com.bravepeople.onggiyonggi.data.Review
+import com.bravepeople.onggiyonggi.data.response_dto.my.ResponseGetMyReviewsDto
 import com.bravepeople.onggiyonggi.databinding.FragmentMyBinding
+import com.bravepeople.onggiyonggi.extension.home.GetEnumState
+import com.bravepeople.onggiyonggi.extension.my.GetMyInfoState
+import com.bravepeople.onggiyonggi.extension.my.GetMyReviewsState
+import com.bravepeople.onggiyonggi.presentation.MainViewModel
 import com.bravepeople.onggiyonggi.presentation.main.home.store.review_detail.ReviewDetailActivity
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
+import timber.log.Timber
 
-class MyFragment : Fragment(R.layout.fragment_my) {
+@AndroidEntryPoint
+class MyFragment : Fragment() {
     private var _binding: FragmentMyBinding? = null
     private val binding get() = _binding!!
 
@@ -27,39 +37,8 @@ class MyFragment : Fragment(R.layout.fragment_my) {
     private var currentSort = SortType.LATEST
     private lateinit var myReviewAdapter: MyReviewAdapter
 
-    private val dummyReviews = listOf(
-        Review(
-            id = 1,
-            imageResId = R.drawable.img_review1,
-            likeCount = 12,
-            date = "2024-04-18",
-            userName = "유찬연",
-            reviewDate = "2024.04.18",
-            profile = R.drawable.img_user2,
-            food = R.drawable.img_review1
-        ),
-        Review(
-            id = 2,
-            imageResId = R.drawable.img_review2,
-            likeCount = 5,
-            date = "2024-04-16",
-            userName = "유찬연",
-            reviewDate = "2024.04.16",
-            profile = R.drawable.img_user2,
-            food = R.drawable.img_review2
-        ),
-        Review(
-            id = 3,
-            imageResId = R.drawable.img_review3,
-            likeCount = 22,
-            date = "2024-04-12",
-            userName = "유찬연",
-            reviewDate = "2024.04.12",
-            profile = R.drawable.img_user2,
-            food = R.drawable.img_review3
-        )
-    )
-
+    private val mainViewModel:MainViewModel by activityViewModels()
+    private val myViewModel:MyViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -71,7 +50,6 @@ class MyFragment : Fragment(R.layout.fragment_my) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         setting()
     }
 
@@ -88,39 +66,82 @@ class MyFragment : Fragment(R.layout.fragment_my) {
             startActivity(Intent(requireContext(), SettingActivity::class.java))
         }
 
-        myReviewAdapter = MyReviewAdapter { review ->
-            val intent = Intent(requireContext(), ReviewDetailActivity::class.java)
-            intent.putExtra("review", review)
-            startActivity(intent)
+        getReviewList()
+        clickSort()
+
+        highlightSelected(binding.tvSortLatest, binding.tvSortLike)
+    }
+
+    private fun getReviewList() {
+        val token = mainViewModel.accessToken.value
+        lifecycleScope.launch {
+            myViewModel.myInfoState.collect{state->
+                when(state){
+                    is GetMyInfoState.Success->{
+                        binding.tvNickname.text=state.myDto.data
+                    }
+                    is GetMyInfoState.Loading->{
+
+                    }
+                    is GetMyInfoState.Error->{
+
+                    }
+                }
+            }
+        }
+        lifecycleScope.launch {
+            myViewModel.myReviewsState.collect{state->
+                when(state){
+                    is GetMyReviewsState.Success->{
+                        updateReviewList(token, state.reviewDto.data)
+                    }
+                    is GetMyReviewsState.Loading->{}
+                    is GetMyReviewsState.Error->{
+                        Timber.e("my reviews state error!")
+                    }
+                }
+            }
+        }
+
+        myViewModel.getMyInfo(token!!)
+        myViewModel.getMyReviews(token!!)
+    }
+
+    private fun updateReviewList(token: String?, data: List<ResponseGetMyReviewsDto.ReviewData>) {
+        val enum = mainViewModel.getEnumState.value
+        myReviewAdapter = MyReviewAdapter { reviewId, storeId ->
+            if(enum is GetEnumState.Success){
+                val intent = Intent(requireContext(), ReviewDetailActivity::class.java)
+                intent.putExtra("accessToken", token)
+                intent.putExtra("reviewId", reviewId)
+                intent.putExtra("storeId", storeId)
+                intent.putExtra("enum", enum.enumDto.data)
+                startActivity(intent)
+                requireActivity().overridePendingTransition(R.anim.slide_in_right, R.anim.stay_still)
+            }
         }
         binding.rvReviewImages.adapter = myReviewAdapter
         binding.rvReviewImages.layoutManager = GridLayoutManager(requireContext(), 3)
 
+        val sortedList = when (currentSort) {
+            SortType.LATEST -> data.sortedByDescending { it.createdAt }
+            SortType.LIKE -> data.sortedByDescending { it.storeId }
+        }
+        myReviewAdapter.setReviewList(sortedList)
+        binding.tvReviewCount.text=getString(R.string.my_review_count, sortedList.size)
+    }
+
+    private fun clickSort(){
         binding.tvSortLatest.setOnClickListener {
             currentSort = SortType.LATEST
-            updateReviewList()
+            //updateReviewList(token, state.reviewDto.data)
             highlightSelected(binding.tvSortLatest, binding.tvSortLike)
         }
 
         binding.tvSortLike.setOnClickListener {
             currentSort = SortType.LIKE
-            updateReviewList()
+            //updateReviewList(token, state.reviewDto.data)
             highlightSelected(binding.tvSortLike, binding.tvSortLatest)
-        }
-
-
-        binding.root.post {
-            myReviewAdapter = MyReviewAdapter { review ->
-                val intent = Intent(requireContext(), ReviewDetailActivity::class.java)
-                intent.putExtra("review", review)
-                startActivity(intent)
-            }
-            binding.rvReviewImages.adapter = myReviewAdapter
-            binding.rvReviewImages.layoutManager = GridLayoutManager(requireContext(), 3)
-            updateReviewList()
-            binding.tvReviewTitle.text = "내 리뷰 ${dummyReviews.size}개"
-
-            highlightSelected(binding.tvSortLatest, binding.tvSortLike)
         }
     }
 
@@ -130,14 +151,6 @@ class MyFragment : Fragment(R.layout.fragment_my) {
 
         unselected.setTypeface(null, Typeface.NORMAL)
         unselected.setTextColor(Color.parseColor("#888888"))
-    }
-
-    private fun updateReviewList() {
-        val sortedList = when (currentSort) {
-            SortType.LATEST -> dummyReviews.sortedByDescending { it.date }
-            SortType.LIKE -> dummyReviews.sortedByDescending { it.likeCount }
-        }
-        myReviewAdapter.setReviewList(sortedList)
     }
 
     fun refreshData(){

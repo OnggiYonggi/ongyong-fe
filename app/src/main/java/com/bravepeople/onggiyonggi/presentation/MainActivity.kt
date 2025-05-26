@@ -67,7 +67,7 @@ class MainActivity : AppCompatActivity() {
         val token=intent.getStringExtra("accessToken")
         if (token != null) {
             mainViewModel.saveToken(token)
-        }else mainViewModel.saveToken("Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ4Iiwicm9sZSI6IlJPTEVfQ1VTVE9NRVIiLCJpYXQiOjE3NDgwOTUxOTQsImV4cCI6MTc0ODIxNjE1NH0.UIgiZynqJSP145PHSZnwiffnRY-kKjfxQzSODYJvhcM")
+        }else mainViewModel.saveToken("Bearer ")
 
         lifecycleScope.launch {
             mainViewModel.accessToken.observe(this@MainActivity){

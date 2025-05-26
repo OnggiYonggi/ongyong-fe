@@ -22,8 +22,10 @@ import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponsePhoto
 import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponseReceiptDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponseRegisterReviewDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponseRegisterStoreDto
+import com.bravepeople.onggiyonggi.data.response_dto.home.store.ResponseLikeDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.store.ResponseReviewEnumDto
 import com.bravepeople.onggiyonggi.data.response_dto.my.ResponseGetMyReviewsDto
+import com.bravepeople.onggiyonggi.data.response_dto.my.ResponseMyDto
 import com.bravepeople.onggiyonggi.domain.repository.BaseRepository
 import okhttp3.MultipartBody
 import timber.log.Timber
@@ -110,6 +112,14 @@ class BaseRepositoryImpl @Inject constructor(
             baseDataSource.getReviewDetail(token,id)
         }.onFailure {
             Timber.e("base repository get review detail fail!!: $it")
+        }
+    }
+
+    override suspend fun like(token: String, id: Int): Result<ResponseLikeDto> {
+        return runCatching {
+            baseDataSource.like(token,id)
+        }.onFailure {
+            Timber.e("base repository like fail!!: $it")
         }
     }
 
@@ -241,6 +251,14 @@ class BaseRepositoryImpl @Inject constructor(
     }
 
     // my
+    override suspend fun getMyInfo(token: String): Result<ResponseMyDto> {
+        return runCatching {
+            baseDataSource.getMyInfo(token)
+        }.onFailure {
+            Timber.e("base repository get my info fail!!: $it")
+        }
+    }
+
     override suspend fun getMyReviews(token: String): Result<ResponseGetMyReviewsDto> {
         return runCatching {
             baseDataSource.getMyReviews(token)

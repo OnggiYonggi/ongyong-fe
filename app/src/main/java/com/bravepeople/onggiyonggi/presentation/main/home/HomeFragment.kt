@@ -44,6 +44,7 @@ import com.bravepeople.onggiyonggi.presentation.main.home.store.StoreFragment
 import com.bravepeople.onggiyonggi.presentation.main.home.search.SearchRecentAdapter
 import com.bravepeople.onggiyonggi.presentation.main.home.search.SearchResultAdapter
 import com.bravepeople.onggiyonggi.presentation.main.home.search.SearchViewModel
+import com.bravepeople.onggiyonggi.presentation.main.my.MyViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest

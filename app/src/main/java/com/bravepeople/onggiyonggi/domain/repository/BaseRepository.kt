@@ -17,8 +17,10 @@ import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponsePhoto
 import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponseReceiptDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponseRegisterReviewDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponseRegisterStoreDto
+import com.bravepeople.onggiyonggi.data.response_dto.home.store.ResponseLikeDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.store.ResponseReviewEnumDto
 import com.bravepeople.onggiyonggi.data.response_dto.my.ResponseGetMyReviewsDto
+import com.bravepeople.onggiyonggi.data.response_dto.my.ResponseMyDto
 import kotlinx.serialization.SerialName
 import okhttp3.MultipartBody
 
@@ -68,6 +70,11 @@ interface BaseRepository {
         token: String,
         id: Int,
     ): Result<ResponseReviewDetailDto>
+
+    suspend fun like(
+        token:String,
+        id:Int,
+    ):Result<ResponseLikeDto>
 
     suspend fun getEnum(
         token: String,
@@ -143,6 +150,10 @@ interface BaseRepository {
     ): Result<ResponseCollectionDto>
 
     // my
+    suspend fun getMyInfo(
+        token:String,
+    ):Result<ResponseMyDto>
+
     suspend fun getMyReviews(
         token:String,
     ):Result<ResponseGetMyReviewsDto>

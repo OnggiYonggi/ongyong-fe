@@ -21,8 +21,10 @@ import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponsePhoto
 import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponseReceiptDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponseRegisterReviewDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponseRegisterStoreDto
+import com.bravepeople.onggiyonggi.data.response_dto.home.store.ResponseLikeDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.store.ResponseReviewEnumDto
 import com.bravepeople.onggiyonggi.data.response_dto.my.ResponseGetMyReviewsDto
+import com.bravepeople.onggiyonggi.data.response_dto.my.ResponseMyDto
 import okhttp3.MultipartBody
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -85,6 +87,12 @@ interface BaseService {
         @Header ("Authorization") token:String,
         @Path("id") id:Int,
     ): ResponseReviewDetailDto
+
+    @POST("/like/likes/{reviewId}")
+    suspend fun like(
+        @Header ("Authorization") token:String,
+        @Path("reviewId") reviewId:Int,
+    ):ResponseLikeDto
 
     @GET("/review/enum")
     suspend fun getEnum(
@@ -163,6 +171,11 @@ interface BaseService {
     ): ResponseCollectionDto
 
     // my
+    @GET("/auth/me")
+    suspend fun getMyInfo(
+        @Header ("Authorization") token:String,
+    ):ResponseMyDto
+
     @GET("/review/my")
     suspend fun getMyReviews(
         @Header ("Authorization") token:String,

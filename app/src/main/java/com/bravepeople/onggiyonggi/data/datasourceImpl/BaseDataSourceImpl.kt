@@ -22,8 +22,10 @@ import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponsePhoto
 import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponseReceiptDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponseRegisterReviewDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.register.ResponseRegisterStoreDto
+import com.bravepeople.onggiyonggi.data.response_dto.home.store.ResponseLikeDto
 import com.bravepeople.onggiyonggi.data.response_dto.home.store.ResponseReviewEnumDto
 import com.bravepeople.onggiyonggi.data.response_dto.my.ResponseGetMyReviewsDto
+import com.bravepeople.onggiyonggi.data.response_dto.my.ResponseMyDto
 import com.bravepeople.onggiyonggi.data.service.BaseService
 import okhttp3.MultipartBody
 import javax.inject.Inject
@@ -56,6 +58,7 @@ class BaseDataSourceImpl @Inject constructor(
     ): ResponseReviewDto = baseService.getReviews(token, id, cursor, size)
 
     override suspend fun getReviewDetail(token: String, id: Int): ResponseReviewDetailDto = baseService.getReviewDetail(token,id)
+    override suspend fun like(token: String, reviewId: Int): ResponseLikeDto = baseService.like(token,reviewId)
     override suspend fun getEnum(token: String): ResponseReviewEnumDto = baseService.getEnum(token)
 
     override suspend fun searchStore(token: String, keyword: String): ResponseSearchStoreDto = baseService.searchStore(token,keyword)
@@ -81,5 +84,6 @@ class BaseDataSourceImpl @Inject constructor(
     override suspend fun collection(token: String): ResponseCollectionDto = baseService.collection(token)
 
     // my
+    override suspend fun getMyInfo(token: String): ResponseMyDto = baseService.getMyInfo(token)
     override suspend fun getMyReviews(token: String): ResponseGetMyReviewsDto = baseService.getMyReviews(token)
 }

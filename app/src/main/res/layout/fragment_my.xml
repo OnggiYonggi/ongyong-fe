@@ -58,10 +58,20 @@
         android:layout_height="wrap_content"
         android:text="내 리뷰"
         android:textSize="16sp"
-        android:textStyle="bold"
         app:layout_constraintTop_toBottomOf="@id/iv_profile"
         app:layout_constraintStart_toStartOf="parent"
         android:layout_marginTop="32dp"/>
+
+    <TextView
+        android:id="@+id/tv_review_count"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="@color/black"
+        app:layout_constraintTop_toTopOf="@id/tv_review_title"
+        app:layout_constraintBottom_toBottomOf="@id/tv_review_title"
+        app:layout_constraintStart_toEndOf="@id/tv_review_title"/>
 
     <LinearLayout
         android:id="@+id/layout_btn_sort"
