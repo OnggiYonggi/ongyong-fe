@@ -4,11 +4,14 @@ import android.app.Activity
 import android.content.Intent
 import android.content.res.Resources
 import android.graphics.Color
+import android.graphics.Typeface
 import android.net.Uri
 import android.os.Bundle
 import android.text.Spannable
 import android.text.SpannableString
+import android.text.style.AbsoluteSizeSpan
 import android.text.style.ForegroundColorSpan
+import android.text.style.StyleSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -25,16 +28,17 @@ import com.bravepeople.onggiyonggi.R
 import com.bravepeople.onggiyonggi.databinding.FragmentReviewCompleteBinding
 import com.bravepeople.onggiyonggi.extension.character.GetPetState
 import com.bravepeople.onggiyonggi.presentation.MainActivity
+import com.bravepeople.onggiyonggi.presentation.main.character.CharacterMaxActivity
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
 @AndroidEntryPoint
-class ReviewCompleteFragment:Fragment() {
-    private var _binding:FragmentReviewCompleteBinding?=null
-    private val binding:FragmentReviewCompleteBinding
-        get()= requireNotNull(_binding){"receipt fragment is null"}
+class ReviewCompleteFragment : Fragment() {
+    private var _binding: FragmentReviewCompleteBinding? = null
+    private val binding: FragmentReviewCompleteBinding
+        get() = requireNotNull(_binding) { "receipt fragment is null" }
 
     private val reviewCompleteViewModel: ReviewCompleteViewModel by viewModels()
     private val reviewRegisterViewModel: ReviewRegisterViewModel by activityViewModels()
@@ -55,7 +59,7 @@ class ReviewCompleteFragment:Fragment() {
         setting()
     }
 
-    private fun setting(){
+    private fun setting() {
         Timber.d("review complete fragment!")
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, insets ->
@@ -88,7 +92,7 @@ class ReviewCompleteFragment:Fragment() {
             startActivity(intent)
         }
 
-        binding.btnEnd.setOnClickListener{
+        binding.btnEnd.setOnClickListener {
             endFragment()
         }
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
@@ -96,19 +100,66 @@ class ReviewCompleteFragment:Fragment() {
         }
     }
 
-    private fun setCharacter(){
+    private fun setCharacter() {
         lifecycleScope.launch {
-            reviewCompleteViewModel.getPetState.collect{state->
-                when(state){
-                    is GetPetState.Success->{
+            reviewCompleteViewModel.getPetState.collect { state ->
+                when (state) {
+                    is GetPetState.Success -> {
                         val pet = state.getPetDto.data!!.naturalMonumentCharacter
                         val name = pet.name
-                        val percentage = "7%"
-                        val text=context?.getString(R.string.review_complete_character_likeability, name, percentage)
-                        val spannable=SpannableString(text)
+                        var percentage: String = ""
+                        var text: String = ""
+                        var spannable: SpannableString? =null
 
-                        val start=text!!.indexOf(percentage)
-                        val end=start + percentage.length
+                        if (state.getPetDto.data!!.affinity >= 100) {
+                            Timber.d("affinity: ${state.getPetDto.data!!.affinity.toInt()}")
+                            val characterButtonText = "캐릭터 보러가기"
+                            percentage = "100"
+
+                            text = getString(
+                                R.string.review_complete_character_complete,
+                                state.getPetDto.data.naturalMonumentCharacter.name,
+                                percentage
+                            )
+
+                            spannable = SpannableString(text)
+                            val buttonStart = text.indexOf(characterButtonText)
+                            if (buttonStart >= 0) {
+                                val buttonEnd = buttonStart + characterButtonText.length
+                                spannable.setSpan(
+                                    ForegroundColorSpan(Color.BLACK),
+                                    buttonStart,
+                                    buttonEnd,
+                                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                                )
+                                spannable.setSpan(
+                                    StyleSpan(Typeface.BOLD),
+                                    buttonStart,
+                                    buttonEnd,
+                                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                                )
+                                spannable.setSpan(
+                                    AbsoluteSizeSpan(16, true),  // true: sp 단위
+                                    buttonStart,
+                                    buttonEnd,
+                                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                                )
+                            }
+
+
+                        } else {
+                            percentage = "7%"
+                            text = context?.getString(
+                                R.string.review_complete_character_likeability,
+                                name,
+                                percentage
+                            )
+                                .toString()
+                        }
+                        spannable = SpannableString(text)
+
+                        val start = text!!.indexOf(percentage)
+                        val end = start + percentage.length
 
                         spannable.setSpan(
                             ForegroundColorSpan(Color.RED),
@@ -116,65 +167,51 @@ class ReviewCompleteFragment:Fragment() {
                             Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
                         )
 
-                        binding.tvReviewCharacter.text=spannable
+                        binding.tvReviewCharacter.text = spannable
                         binding.ivCharacter.load(pet.imageUrl)
                     }
-                    is GetPetState.Loading->{}
-                    is GetPetState.Error->{
+
+                    is GetPetState.Loading -> {}
+                    is GetPetState.Error -> {
                         Timber.e("get pet state error!!")
                     }
                 }
             }
         }
-        val token = reviewRegisterViewModel.accessToken.value?:return
+        val token = reviewRegisterViewModel.accessToken.value ?: return
         reviewCompleteViewModel.getPet(token)
-        /*val name=reviewCompleteViewModel.name
-        val percentage = "7%"
-        val text=context?.getString(R.string.review_complete_character_likeability, name, percentage)
-        val spannable=SpannableString(text)
-
-        val start=text!!.indexOf(percentage)
-        val end=start + percentage.length
-
-        spannable.setSpan(
-            ForegroundColorSpan(Color.RED),
-            start, end,
-            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-        )
-
-        binding.tvReviewCharacter.text=spannable*/
     }
 
-    private fun setReview(){
-        with(binding){
+    private fun setReview() {
+        with(binding) {
             val reviewText = arguments?.getString("content")
             val photo = arguments?.getString("uri")
-            tvMyReviewStore.text=arguments?.getString("storeName")
-            tvMyReviewContent.text=reviewText
+            tvMyReviewStore.text = arguments?.getString("storeName")
+            tvMyReviewContent.text = reviewText
             ivMyReviewPhoto.load(Uri.parse(photo))
         }
     }
 
-    private fun endFragment(){
-            val beforeActivity = reviewRegisterViewModel.getBeforeActivity()
-            val storeId = reviewRegisterViewModel.storeId.value
+    private fun endFragment() {
+        val beforeActivity = reviewRegisterViewModel.getBeforeActivity()
+        val storeId = reviewRegisterViewModel.storeId.value
 
-            if (beforeActivity == null) {
-                requireActivity().finish()
-            } else {
-                val intent = Intent(requireContext(), MainActivity::class.java).apply {
-                    putExtra("openFragment", "store")
-                    putExtra("storeId", storeId)
-                    putExtra("fromReview", true)
-                    flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-                }
-                startActivity(intent)
-                requireActivity().finish()
+        if (beforeActivity == null) {
+            requireActivity().finish()
+        } else {
+            val intent = Intent(requireContext(), MainActivity::class.java).apply {
+                putExtra("openFragment", "store")
+                putExtra("storeId", storeId)
+                putExtra("fromReview", true)
+                flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
             }
+            startActivity(intent)
+            requireActivity().finish()
+        }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        _binding=null
+        _binding = null
     }
 }
