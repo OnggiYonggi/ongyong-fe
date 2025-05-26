@@ -46,11 +46,6 @@ class StoreAdapter(
 
         fun bind(data: ResponseReviewDto.Data.ReviewContent) {
             with(binding) {
-                /*ivProfile.load(data.profile){
-                    transformations(CircleCropTransformation())
-                }
-                tvUserName.text=data.userName
-                tvReviewDate.text=data.reviewDate*/
                 ivFood.load(data.imageURL){
                     transformations(RoundedCornersTransformation(16f))
                 }

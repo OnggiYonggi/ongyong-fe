@@ -1,5 +1,6 @@
 package com.bravepeople.onggiyonggi.presentation.main.home.store.review_detail
 
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -10,8 +11,11 @@ import com.bravepeople.onggiyonggi.domain.repository.BaseRepository
 import com.bravepeople.onggiyonggi.extension.home.GetReviewDetailState
 import com.bravepeople.onggiyonggi.extension.home.GetStoreDetailState
 import com.bravepeople.onggiyonggi.extension.home.GetStoreState
+import com.bravepeople.onggiyonggi.extension.home.LikeState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -26,49 +30,92 @@ class ReviewDetailViewModel @Inject constructor(
     private val baseRepository: BaseRepository
 ) :ViewModel() {
     val reviewLiveData = MutableLiveData<Review>()
+    private val _accessToken = MutableLiveData<String>()
+    private val _reviewId = MutableLiveData<Int>()
     private val _storeState = MutableStateFlow<GetStoreDetailState>(GetStoreDetailState.Loading)
     private val _reviewDetailState = MutableStateFlow<GetReviewDetailState>(GetReviewDetailState.Loading)
+    private val _likeState = MutableSharedFlow<LikeState>()
 
+    val accessToken:LiveData<String> = _accessToken
+    val reviewId:LiveData<Int> = _reviewId
     val storeState:StateFlow<GetStoreDetailState> = _storeState.asStateFlow()
     val reviewDetailState:StateFlow<GetReviewDetailState> = _reviewDetailState.asStateFlow()
+    val likeState: SharedFlow<LikeState> = _likeState
 
-    fun getStore(token:String, id:Int){
+    fun saveToken(token:String){
+        _accessToken.value=token
+    }
+
+    fun saveReviewId(id:Int){
+        _reviewId.value=id
+    }
+
+    fun getStore(id:Int){
         viewModelScope.launch {
-            baseRepository.storeDetail(token, id).onSuccess { response->
-                _storeState.value=GetStoreDetailState.Success(response)
-            }.onFailure {
-                _storeState.value=GetStoreDetailState.Error("get store error")
-                if (it is HttpException) {
-                    try {
-                        val errorBody: ResponseBody? = it.response()?.errorBody()
-                        val errorBodyString = errorBody?.string() ?: ""
-                        httpError(errorBodyString)
-                    } catch (e: Exception) {
-                        // JSON 파싱 실패 시 로깅
-                        Timber.e("Error parsing error body: ${e}")
+            _accessToken.value?.let{
+                baseRepository.storeDetail(_accessToken.value!!, id).onSuccess { response->
+                    _storeState.value=GetStoreDetailState.Success(response)
+                }.onFailure {
+                    _storeState.value=GetStoreDetailState.Error("get store error")
+                    if (it is HttpException) {
+                        try {
+                            val errorBody: ResponseBody? = it.response()?.errorBody()
+                            val errorBodyString = errorBody?.string() ?: ""
+                            httpError(errorBodyString)
+                        } catch (e: Exception) {
+                            // JSON 파싱 실패 시 로깅
+                            Timber.e("Error parsing error body: ${e}")
+                        }
                     }
                 }
             }
+
         }
     }
 
-    fun getReviewDetail(token:String, id:Int){
+    fun getReviewDetail(){
         viewModelScope.launch {
-            baseRepository.getReviewDetail(token,id).onSuccess { response->
-                _reviewDetailState.value=GetReviewDetailState.Success(response)
-            }.onFailure {
-                _reviewDetailState.value=GetReviewDetailState.Error("get review detail error!!")
-                if (it is HttpException) {
-                    try {
-                        val errorBody: ResponseBody? = it.response()?.errorBody()
-                        val errorBodyString = errorBody?.string() ?: ""
-                        httpError(errorBodyString)
-                    } catch (e: Exception) {
-                        // JSON 파싱 실패 시 로깅
-                        Timber.e("Error parsing error body: ${e}")
+            if(_accessToken.value!=null && _reviewId.value!=null){
+                baseRepository.getReviewDetail(_accessToken.value!!,_reviewId.value!!).onSuccess { response->
+                    _reviewDetailState.value=GetReviewDetailState.Success(response)
+                }.onFailure {
+                    _reviewDetailState.value=GetReviewDetailState.Error("get review detail error!!")
+                    if (it is HttpException) {
+                        try {
+                            val errorBody: ResponseBody? = it.response()?.errorBody()
+                            val errorBodyString = errorBody?.string() ?: ""
+                            httpError(errorBodyString)
+                        } catch (e: Exception) {
+                            // JSON 파싱 실패 시 로깅
+                            Timber.e("Error parsing error body: ${e}")
+                        }
                     }
                 }
             }
+
+        }
+    }
+
+    fun setLike(){
+        viewModelScope.launch {
+            if(_accessToken.value!=null && _reviewId.value!=null){
+                baseRepository.like(_accessToken.value!!,_reviewId.value!!).onSuccess { response->
+                    _likeState.emit(LikeState.Success(response))
+                }.onFailure {
+                    _likeState.emit(LikeState.Error("set like error"))
+                    if (it is HttpException) {
+                        try {
+                            val errorBody: ResponseBody? = it.response()?.errorBody()
+                            val errorBodyString = errorBody?.string() ?: ""
+                            httpError(errorBodyString)
+                        } catch (e: Exception) {
+                            // JSON 파싱 실패 시 로깅
+                            Timber.e("Error parsing error body: ${e}")
+                        }
+                    }
+                }
+            }
+
         }
     }
 

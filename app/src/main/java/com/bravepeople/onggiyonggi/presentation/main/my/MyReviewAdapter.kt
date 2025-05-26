@@ -1,19 +1,22 @@
 package com.bravepeople.onggiyonggi.presentation.main.my
 
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import coil3.load
+import coil.load
+import coil.transform.RoundedCornersTransformation
 import com.bravepeople.onggiyonggi.data.Review
+import com.bravepeople.onggiyonggi.data.response_dto.my.ResponseGetMyReviewsDto
 import com.bravepeople.onggiyonggi.databinding.ItemReviewImageBinding
 
 class MyReviewAdapter(
-    private val onItemClick: (Review) -> Unit
+    private val onItemClick: (Int, Int) -> Unit
 ) : RecyclerView.Adapter<MyReviewAdapter.MyReviewViewHolder>() {
 
-    private val reviewList = mutableListOf<Review>()
+    private val reviewList = mutableListOf<ResponseGetMyReviewsDto.ReviewData>()
 
-    fun setReviewList(list: List<Review>) {
+    fun setReviewList(list: List<ResponseGetMyReviewsDto.ReviewData>) {
         reviewList.clear()
         reviewList.addAll(list)
         notifyDataSetChanged()
@@ -22,11 +25,13 @@ class MyReviewAdapter(
     inner class MyReviewViewHolder(private val binding: ItemReviewImageBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(review: Review) {
-            binding.ivReviewImage.load(review.food)
+        fun bind(review: ResponseGetMyReviewsDto.ReviewData) {
+            binding.ivReviewImage.load(review.imageUrl){
+                transformations(RoundedCornersTransformation(16f))
+            }
 
             binding.root.setOnClickListener {
-                onItemClick(review)
+                onItemClick(review.id, review.storeId)
             }
         }
     }

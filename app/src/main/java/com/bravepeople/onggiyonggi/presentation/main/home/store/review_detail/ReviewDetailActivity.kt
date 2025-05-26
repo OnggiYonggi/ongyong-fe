@@ -14,6 +14,7 @@ import com.bravepeople.onggiyonggi.data.response_dto.home.store.ResponseStoreDet
 import com.bravepeople.onggiyonggi.databinding.ActivityReviewDetailBinding
 import com.bravepeople.onggiyonggi.extension.home.GetReviewDetailState
 import com.bravepeople.onggiyonggi.extension.home.GetStoreDetailState
+import com.bravepeople.onggiyonggi.extension.home.LikeState
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -51,12 +52,14 @@ class ReviewDetailActivity : AppCompatActivity() {
         val storeId = intent.getIntExtra("storeId", -1)
         val reviewId = intent.getIntExtra("reviewId", -1)
         if (accessToken != null) {
-            getInfo(accessToken, storeId, reviewId)
+            reviewDetailViewModel.saveToken(accessToken)
+            reviewDetailViewModel.saveReviewId(reviewId)
+            getInfo(storeId)
         }
         clickBackButton()
     }
 
-    private fun getInfo(accessToken: String, storeId: Int, reviewId:Int) {
+    private fun getInfo(storeId: Int) {
         lifecycleScope.launch {
             reviewDetailViewModel.storeState.collect { state ->
                 when (state) {
@@ -87,8 +90,8 @@ class ReviewDetailActivity : AppCompatActivity() {
             }
         }
 
-        reviewDetailViewModel.getStore(accessToken, storeId)
-        reviewDetailViewModel.getReviewDetail(accessToken, reviewId)
+        reviewDetailViewModel.getStore(storeId)
+        reviewDetailViewModel.getReviewDetail()
     }
 
 
@@ -102,6 +105,7 @@ class ReviewDetailActivity : AppCompatActivity() {
     private fun getUserInfo(review: ResponseReviewDetailDto.Data) {
         //val review=intent.getParcelableExtra<Review>("review")
         getFoodInfo(review)
+        Timber.d("like select?: ${review.hasLikeByMe}")
 
         with(binding) {
             tvName.text = review.memberId
@@ -111,16 +115,8 @@ class ReviewDetailActivity : AppCompatActivity() {
             ivReview.load(review.imageURL)
 
             tvReview.text = review.content
-
-            btnLike.setOnClickListener {
-                btnLike.isSelected = !btnLike.isSelected
-                if (btnLike.isSelected) {
-                    tvLikeCount.text = (review.likes+1).toString()
-                } else {
-                    tvLikeCount.text = (reviewDetailViewModel.countLike - 1).toString()
-                    reviewDetailViewModel.countLike -= 1
-                }
-            }
+            btnLike.isSelected=review.hasLikeByMe
+            clickLikeButton()
         }
     }
 
@@ -157,6 +153,30 @@ class ReviewDetailActivity : AppCompatActivity() {
         val parsedDate = LocalDateTime.parse(dateString)
         val formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd")
         return parsedDate.format(formatter)
+    }
+
+    private fun clickLikeButton(){
+        lifecycleScope.launch {
+            reviewDetailViewModel.likeState.collect{state->
+                if(state is LikeState.Success){
+                    with(binding){
+                        tvLikeCount.text= state.likeDto.data.likes.toString()
+                    }
+                }
+                else if(state is LikeState.Error){
+                    Timber.e("like state error!")
+                }
+            }
+        }
+
+        with(binding){
+            btnLike.setOnClickListener{
+                reviewDetailViewModel.setLike()
+
+                btnLike.isSelected = (if (btnLike.isSelected) false else true)
+            }
+        }
+
     }
 
     private fun clickBackButton() {
