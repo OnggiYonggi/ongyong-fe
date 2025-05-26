@@ -36,6 +36,7 @@ import com.bravepeople.onggiyonggi.data.response_dto.home.store.ResponseGetStore
 import com.bravepeople.onggiyonggi.data.response_dto.home.ResponseSearchStoreDto
 import com.bravepeople.onggiyonggi.databinding.FragmentHomeBinding
 import com.bravepeople.onggiyonggi.domain.model.StoreRank
+import com.bravepeople.onggiyonggi.domain.model.StoreType
 import com.bravepeople.onggiyonggi.extension.home.GetStoreState
 import com.bravepeople.onggiyonggi.extension.home.SearchStoreState
 import com.bravepeople.onggiyonggi.presentation.MainViewModel
@@ -91,11 +92,11 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
     private var lastRequestedPosition: LatLng? = null
     private val serverFetchThreshold = 500.0 // 500m 이상 이동 시 다시 서버 요청
     private val storeDataList = mutableListOf<ResponseGetStoreDto.StoreData>()
-    private val displayedMarkers = mutableMapOf<String, Marker>()  // key = "lat:lng"
+    private val displayedMarkers = mutableMapOf<String, Marker>()  // key = "lat:lng:type"
+    private var selectedType:StoreType = StoreType.FOOD
     private var lastZoomLevel = -1.0  // 기존 줌 저장용
 
     private lateinit var speechRecognizer: SpeechRecognizer
-    private lateinit var recognizerIntent: Intent
 
     private var backPressedTime: Long = 0L
     private val backPressInterval = 2000L // 2초
@@ -162,6 +163,7 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
         }
 
         permissionCheck()
+        setupTypeButtons()
         getResultList()
 
         clickCurrentBtn()
@@ -236,42 +238,6 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
                     Timber.d("위치 수신 → 최초 자동 이동 실행")
                     map.moveCamera(CameraUpdate.scrollTo(position))
                     isFirstCameraMove = false
-
-                   /* map.addOnCameraIdleListener {
-                        val center = naverMap?.cameraPosition?.target ?: return@addOnCameraIdleListener
-                        val zoom = naverMap?.cameraPosition?.zoom ?: return@addOnCameraIdleListener
-                        Timber.d("zoom: $zoom")
-
-                        if (isAutoMoveEnabled) {
-                            isAutoMoveEnabled = false
-                            Timber.d("사용자 조작 감지 → 자동 이동 비활성화")
-                        }
-
-                        // 서버 요청 및 마커 필터링
-                        val radius = getRadiusFromZoom(zoom)
-                        Timber.d("radius: $radius")
-                        val shouldUpdateZoom = (zoom != lastZoomLevel)
-
-                        if (zoom >= 17) {
-                            if (shouldFetchFromServer(center)) {
-                                lastRequestedPosition = center
-                                lastZoomLevel = zoom
-                                requestStoreFromServer(center, 1)
-                            } else if (shouldUpdateZoom) {
-                                lastZoomLevel = zoom
-                                filterMarkers(center, radius)  // 🔥 줌 변경 시에도 마커 다시 그리기
-                            }
-                        } else {
-                            if (shouldFetchFromServer(center)) {
-                                lastRequestedPosition = center
-                                lastZoomLevel = zoom
-                                requestStoreFromServer(center, radius)
-                            } else if (shouldUpdateZoom) {
-                                lastZoomLevel = zoom
-                                filterMarkers(center, radius)  // 🔥 줌 변경 시에도 마커 다시 그리기
-                            }
-                        }
-                    }*/
                 }
             }
         }
@@ -366,7 +332,7 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
         val storesInRange = storeDataList.filter {
             val result = FloatArray(1)
             distanceBetween(center.latitude, center.longitude, it.latitude, it.longitude, result)
-            result[0] <= filterRadiusMeter
+            result[0] <= filterRadiusMeter && it.storeType == selectedType.type
         }
 
         val zoom = naverMap?.cameraPosition?.zoom ?: 17.0
@@ -382,14 +348,18 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
         val finalStores = clusterStores(storesInRange, clusterDistanceMeter)
 
         val newMarkers = mutableListOf<Marker>()
-        val existingPositions = displayedMarkers.values.map { it.position }.toSet()
+        val finalKeys = finalStores.map {
+            "${it.latitude}:${it.longitude}:${it.storeType}"
+        }.toSet()
 
-        val finalPositions = finalStores.map { LatLng(it.latitude, it.longitude) }.toSet()
+        val existingKeys = displayedMarkers.keys.toSet()
 
         // 새로운 마커 추가 (fade-in)
         for (store in finalStores) {
             val pos = LatLng(store.latitude, store.longitude)
-            if (!existingPositions.contains(pos)) {
+            val key = "${store.latitude}:${store.longitude}:${store.storeType}"
+
+            if (key !in existingKeys) {
                 val marker = Marker().apply {
                     position = pos
                     icon = MarkerIcons.BLACK
@@ -409,13 +379,13 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
                     start()
                 }
                 newMarkers.add(marker)
+                displayedMarkers[key] = marker
             }
         }
 
         // 기존 마커 중 필요 없는 것 제거 (fade-out)
-        // 제거 대상 필터링 (key + marker 함께 보존)
-        val markersToRemove = displayedMarkers.filter { (_, marker) ->
-            marker.position !in finalPositions
+        val markersToRemove = displayedMarkers.filter { (key, _) ->
+            key !in finalKeys
         }
 
         // fade-out 애니메이션 + 지도에서 제거 + Map에서 제거
@@ -470,6 +440,38 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
             StoreRank.SILVER -> requireContext().getColor(R.color.home_silver_green)
             StoreRank.GOLD -> requireContext().getColor(R.color.home_gold_green)
             StoreRank.BAN -> requireContext().getColor(R.color.red)
+        }
+    }
+
+    private fun setupTypeButtons() {
+        val typeButtons = mapOf(
+            StoreType.FOOD to binding.btnRestaurant,
+            StoreType.CAFE to binding.btnCafe,
+            StoreType.BAN to binding.btnBan
+        )
+
+        fun updateSelectedType(type: StoreType) {
+            selectedType = type
+
+            typeButtons.forEach { (key, button) ->
+                val isSelected = key == type
+                button.isSelected = isSelected
+            }
+
+            // 마커 필터링 재실행
+            val currentLatLng = naverMap?.cameraPosition?.target ?: return
+            val zoom = naverMap?.cameraPosition?.zoom ?: 17.0
+            filterMarkers(currentLatLng, getRadiusFromZoom(zoom))
+        }
+
+        // 초기 상태 설정
+        updateSelectedType(StoreType.FOOD)
+
+        // 버튼 클릭 이벤트 등록
+        typeButtons.forEach { (category, button) ->
+            button.setOnClickListener {
+                updateSelectedType(category)
+            }
         }
     }
 
@@ -582,6 +584,9 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
                 cvSearch.visibility = View.INVISIBLE
                 btnCurrent.visibility = View.INVISIBLE
                 tvSearch.visibility = View.INVISIBLE
+                btnRestaurant.visibility = View.INVISIBLE
+                btnCafe.visibility = View.INVISIBLE
+                btnBan.visibility = View.INVISIBLE
             }
         } else {// 검색창 닫기
             with(binding) {
@@ -601,7 +606,9 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
                 cvSearch.visibility = View.VISIBLE
                 btnCurrent.visibility = View.VISIBLE
                 tvSearch.visibility = View.VISIBLE
-
+                btnRestaurant.visibility = View.VISIBLE
+                btnCafe.visibility = View.VISIBLE
+                btnBan.visibility = View.VISIBLE
             }
         }
     }
