@@ -55,7 +55,8 @@
     <string name="write_register">등록하기</string>
 
     <string name="review_complete_text">리뷰 등록 완료!</string>
-    <string name="review_complete_character_likeability">%s의 호감도가 %s 증가했어요!</string>
+    <string name="review_complete_character_likeability">%1s의 호감도가 %2s 증가했어요!</string>
+    <string name="review_complete_character_complete">축하합니다! %s의 호감도가 %s%%가 되었어요! &#10;\'캐릭터 보러가기\'를 터치하여 컬렉션에 추가해볼까요?</string>
     <string name="review_complete_go_character">캐릭터 보러가기</string>
     <string name="review_complete_good_life">일회용기 NO! \n다회용기로 친환경 라이프 실천 중!</string>
     <string name="review_complete_my_review">내가 작성한 리뷰</string>
@@ -89,7 +90,7 @@
     <string name="character_collection">컬렉션</string>
     <string name="character_max_collection">%s가 컬렉션에 추가되었습니다!</string>
 
-    <!--character-->
+    <!--my-->
     <string name="my_review_count">%d개</string>
 
     <!-- mock data -->

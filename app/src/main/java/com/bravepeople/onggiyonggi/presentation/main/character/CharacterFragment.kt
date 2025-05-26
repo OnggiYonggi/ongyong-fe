@@ -74,7 +74,7 @@ class CharacterFragment : Fragment() {
                 characterViewModel.getPet()
                 cachedAnimatorSet = createAnimatorSet(token)
                 startGachaAnimation()
-                increaseAffection(token)
+                increaseAffection()
                 clickCollection(token)
             }
         }
@@ -86,7 +86,11 @@ class CharacterFragment : Fragment() {
                 when (state) {
                     is GetPetState.Success -> {
                         Timber.d("setupui - get pet state success~")
-                        showCharacter(state.getPetDto.data!!)
+                        if (state.getPetDto.data!!.affinity >= 100) {
+                            maxAnimation(state.getPetDto.data!!)
+                        } else {
+                            showCharacter(state.getPetDto.data!!)
+                        }
                     }
 
                     is GetPetState.Loading -> {}
@@ -140,6 +144,27 @@ class CharacterFragment : Fragment() {
         }
     }
 
+    private fun maxAnimation(data: ResponseGetPetDto.Data) {
+        Timber.d("affinity: ${data.affinity}")
+        affectionLevel = data.affinity.toInt()
+
+        setAffectionProgressWithAnimation(affectionLevel) {
+            if (affectionLevel >= 100 && !isLaunchingMaxActivity) {
+                isLaunchingMaxActivity = true
+                val accesstoken = mainViewModel.accessToken.value
+                val intent = Intent(
+                    requireContext(),
+                    CharacterMaxActivity::class.java
+                )
+                intent.putExtra("character", data)
+                intent.putExtra("accessToken", accesstoken)
+                startActivityForResult(intent, REQUEST_CODE_MAX)
+            }
+        }
+        binding.tvAffectionPercent.text =
+            getString(R.string.character_affection_percent, affectionLevel)
+    }
+
     private fun setupSkeletonUI() {
         with(binding) {
             // 처음에는 가챠 머신만
@@ -156,7 +181,7 @@ class CharacterFragment : Fragment() {
             tvAffectionTitle.visibility = View.GONE
             tvAffectionPercent.visibility = View.GONE
             pbAffection.visibility = View.GONE
-            btnIncrease.visibility = View.GONE
+            btnIncrease.visibility=View.GONE
         }
 
         // Fragment가 화면에 올라오고 나서 (1프레임 후)
@@ -260,7 +285,11 @@ class CharacterFragment : Fragment() {
             characterViewModel.getPetState.collect { state ->
                 when (state) {
                     is GetPetState.Success -> {
-                        showCharacter(state.getPetDto.data!!)
+                        if (state.getPetDto.data!!.affinity >= 100) {
+                            maxAnimation(state.getPetDto.data!!)
+                        } else {
+                            showCharacter(state.getPetDto.data!!)
+                        }
                     }
 
                     is GetPetState.Loading -> {}
@@ -283,13 +312,13 @@ class CharacterFragment : Fragment() {
                 ivEggBlue.visibility = View.VISIBLE
                 ivEggYellow.visibility = View.VISIBLE
                 btnGacha.visibility = View.VISIBLE
+                btnIncrease.visibility=View.GONE
 
                 tvName.visibility = View.INVISIBLE
                 clCardFront.visibility = View.INVISIBLE
                 tvAffectionTitle.visibility = View.INVISIBLE
                 tvAffectionPercent.visibility = View.INVISIBLE
                 pbAffection.visibility = View.INVISIBLE
-                btnIncrease.visibility = View.INVISIBLE
             } else {
                 ivGachaMachine.visibility = View.INVISIBLE
                 ivEggPurple.visibility = View.INVISIBLE
@@ -298,13 +327,13 @@ class CharacterFragment : Fragment() {
                 ivEggBlue.visibility = View.INVISIBLE
                 ivEggYellow.visibility = View.INVISIBLE
                 btnGacha.visibility = View.INVISIBLE
+                btnIncrease.visibility=View.VISIBLE
 
                 tvName.visibility = View.VISIBLE
                 clCardFront.visibility = View.VISIBLE
                 tvAffectionTitle.visibility = View.VISIBLE
                 tvAffectionPercent.visibility = View.VISIBLE
                 pbAffection.visibility = View.VISIBLE
-                btnIncrease.visibility = View.VISIBLE
             }
         }
     }
@@ -348,59 +377,8 @@ class CharacterFragment : Fragment() {
         }
     }
 
-    private fun increaseAffection(token: String) {
-        observeLevelUpState(token)
-        setupButton()
-    }
 
-    private fun observeLevelUpState(token: String) {
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                characterViewModel.levelUpState.collect { state ->
-                    when (state) {
-                        is LevelUpState.Loading -> {
-                        }
-
-                        is LevelUpState.Success -> {
-                            if (affectionLevel < 100) {
-                                Timber.d("affinity: ${state.randomPetDto.data!!.affinity.toInt()}")
-                                affectionLevel = state.randomPetDto.data!!.affinity.toInt()
-
-                                setAffectionProgressWithAnimation(affectionLevel) {
-                                    if (affectionLevel >= 100 && !isLaunchingMaxActivity) {
-                                        isLaunchingMaxActivity=true
-                                        val intent = Intent(
-                                            requireContext(),
-                                            CharacterMaxActivity::class.java
-                                        )
-                                        intent.putExtra("character", state.randomPetDto.data)
-                                        intent.putExtra("accessToken", token)
-                                        startActivityForResult(intent, REQUEST_CODE_MAX)
-                                    }
-                                }
-                                binding.tvAffectionPercent.text =
-                                    getString(R.string.character_affection_percent, affectionLevel)
-                            }
-                        }
-
-                        is LevelUpState.Error -> {
-                            Timber.e("level up state error!!")
-                        }
-                    }
-                }
-            }
-
-        }
-    }
-
-    private fun setupButton() {
-        binding.btnIncrease.setOnClickListener {
-            characterViewModel.levelUp()  // 버튼 누를 때만 호출
-        }
-    }
-
-
-    /*  private fun increaseAffection() {
+      private fun increaseAffection() {
           lifecycleScope.launch {
               characterViewModel.levelUpState.collect{state->
                   when(state){
@@ -416,7 +394,7 @@ class CharacterFragment : Fragment() {
           binding.btnIncrease.setOnClickListener {
               characterViewModel.levelUp()
               if (affectionLevel < 100) {
-                  affectionLevel += 20
+                  affectionLevel += 7
                   if (affectionLevel > 100) affectionLevel = 100
                   if (affectionLevel >= 100) {
                       setAffectionProgressWithAnimation(affectionLevel) {
@@ -431,7 +409,7 @@ class CharacterFragment : Fragment() {
                       getString(R.string.character_affection_percent, affectionLevel)
               }
           }
-      }*/
+      }
 
     private fun setAffectionProgressWithAnimation(
         targetProgress: Int,
