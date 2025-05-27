@@ -58,18 +58,18 @@ class MyFragment : Fragment() {
             transformations(CircleCropTransformation())
         }
 
-        binding.ivEditProfile.setOnClickListener {
+       /* binding.ivEditProfile.setOnClickListener {
             startActivity(Intent(requireContext(), EditProfileActivity::class.java))
         }
 
         binding.ivSetting.setOnClickListener {
             startActivity(Intent(requireContext(), SettingActivity::class.java))
-        }
+        }*/
 
         getReviewList()
         clickSort()
 
-        highlightSelected(binding.tvSortLatest, binding.tvSortLike)
+        //highlightSelected(binding.tvSortLatest, binding.tvSortLike)
     }
 
     private fun getReviewList() {
@@ -132,7 +132,7 @@ class MyFragment : Fragment() {
     }
 
     private fun clickSort(){
-        binding.tvSortLatest.setOnClickListener {
+       /* binding.tvSortLatest.setOnClickListener {
             currentSort = SortType.LATEST
             //updateReviewList(token, state.reviewDto.data)
             highlightSelected(binding.tvSortLatest, binding.tvSortLike)
@@ -142,7 +142,7 @@ class MyFragment : Fragment() {
             currentSort = SortType.LIKE
             //updateReviewList(token, state.reviewDto.data)
             highlightSelected(binding.tvSortLike, binding.tvSortLatest)
-        }
+        }*/
     }
 
     private fun highlightSelected(selected: TextView, unselected: TextView) {

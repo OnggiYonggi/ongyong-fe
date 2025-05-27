@@ -6,6 +6,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.annotation.RawRes
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.bravepeople.onggiyonggi.R
@@ -26,12 +29,22 @@ class SignUpAgreementFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        ViewCompat.setOnApplyWindowInsetsListener(binding.btnNext) { view, insets ->
+            val navBarHeight = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
+            val additionalMargin = (5 * resources.displayMetrics.density).toInt()
+            view.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                bottomMargin = navBarHeight + additionalMargin
+            }
+            insets
+        }
+
         binding.btnNext.isEnabled = false
         binding.btnNext.alpha = 0.5f
 
         binding.item1.tvTitle.text = getString(R.string.sign_up_agreement_terms_of_use)
         binding.item2.tvTitle.text = getString(R.string.sign_up_agreement_user_info_agree)
-        binding.item3.tvTitle.text = getString(R.string.sign_up_agreement_user_third_party_info_agree)
+        binding.item3.tvTitle.text =
+            getString(R.string.sign_up_agreement_user_third_party_info_agree)
         binding.item4.tvTitle.text = getString(R.string.sign_up_agreement_location_agree)
 
         binding.item1.tvView.setOnClickListener {
@@ -131,17 +144,15 @@ class SignUpAgreementFragment : Fragment() {
     }
 
     private fun navigateToTerms(title: String, content: String) {
-        val fragment = TermsFragment().apply {
-            arguments = Bundle().apply {
-                putString("title", title)
-                putString("content", content)
-            }
+        val arguments = Bundle().apply {
+            putString("title", title)
+            putString("content", content)
         }
 
-        parentFragmentManager.beginTransaction()
-            .replace(R.id.fcv_sign_up, fragment)
-            .addToBackStack(null)
-            .commit()
+        findNavController().navigate(
+            R.id.action_signUpAgreementFragment_to_termsFragment,
+            arguments
+        )
     }
 
     override fun onDestroyView() {

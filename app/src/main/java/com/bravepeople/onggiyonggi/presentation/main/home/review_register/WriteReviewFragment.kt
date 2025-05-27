@@ -122,7 +122,7 @@ class WriteReviewFragment : Fragment() {
                         Timber.d("store name: ${state.storeDto.data.name}, store address: ${state.storeDto.data.address}")
                         writeReviewViewModel.saveStoreName(state.storeDto.data.name)
                         with(binding) {
-                            tvStoreName.text = state.storeDto.data.name
+                            tvStoreName.text = state.storeDto.data.name.replace(Regex("<.*?>"), "")
                             tvStoreAddress.text = state.storeDto.data.address
                         }
                     }
@@ -220,9 +220,9 @@ class WriteReviewFragment : Fragment() {
             writeReviewViewModel.levelUpState.collect { state ->
                 when (state) {
                     is LevelUpState.Success -> {
-                        val storeName = writeReviewViewModel.storeName.value
+                        val storeName = writeReviewViewModel.storeName.value!!.replace(Regex("<.*?>"), "")
                         val action =
-                            WriteReviewFragmentDirections.actionWriteToComplete(uri, storeName!!, content)
+                            WriteReviewFragmentDirections.actionWriteToComplete(uri, storeName, content)
                         findNavController().navigate(action)
                     }
 

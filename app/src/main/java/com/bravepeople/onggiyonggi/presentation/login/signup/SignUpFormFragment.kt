@@ -10,6 +10,9 @@ import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import androidx.activity.OnBackPressedCallback
 import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.viewModels
@@ -40,6 +43,15 @@ class SignUpFormFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.btnDone) { view, insets ->
+            val navBarHeight = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
+            val additionalMargin = (5 * resources.displayMetrics.density).toInt()
+            view.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                bottomMargin = navBarHeight + additionalMargin
+            }
+            insets
+        }
 
         binding.btnBack.setOnClickListener {
             showExitWarning()

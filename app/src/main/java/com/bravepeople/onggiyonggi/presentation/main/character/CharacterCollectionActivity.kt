@@ -1,10 +1,17 @@
 package com.bravepeople.onggiyonggi.presentation.main.character
 
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
+import android.view.ViewGroup
 import androidx.activity.addCallback
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
+import androidx.core.view.updateLayoutParams
 import androidx.lifecycle.lifecycleScope
 import com.bravepeople.onggiyonggi.R
 import com.bravepeople.onggiyonggi.data.response_dto.character.ResponseCollectionDto
@@ -33,6 +40,14 @@ class CharacterCollectionActivity:AppCompatActivity() {
     }
 
     private fun setting(){
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        window.navigationBarColor = Color.WHITE     // 하단 네비게이션 바 배경 흰색
+
+        WindowInsetsControllerCompat(window, window.decorView).apply {
+            isAppearanceLightStatusBars = true  // 아이콘을 어둡게 (밝은 배경일 때)
+            isAppearanceLightNavigationBars = true  // 네비게이션 바 아이콘도 어둡게
+        }
+
         showCollections()
         clickBackButton()
     }
@@ -68,21 +83,6 @@ class CharacterCollectionActivity:AppCompatActivity() {
                 }
             }
         }
-
-
-        /*lifecycleScope.launch {
-            characterCollectionViewModel.collectionState.collect{state->
-                when(state){
-                    is CollectionState.Success->{
-                        collectionAdapter.getList(state.collectionDto.data)
-                    }
-                    is CollectionState.Loading->{}
-                    is CollectionState.Error->{
-                        Timber.e("collection state error!")
-                    }
-                }
-            }
-        }*/
 
         val token=intent.getStringExtra("accessToken")
         token?.let {

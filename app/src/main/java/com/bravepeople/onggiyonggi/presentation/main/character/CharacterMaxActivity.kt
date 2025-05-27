@@ -4,12 +4,15 @@ import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
+import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import android.view.animation.AccelerateDecelerateInterpolator
 import androidx.activity.addCallback
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.lifecycleScope
 import coil.load
 import com.bravepeople.onggiyonggi.R
@@ -38,6 +41,14 @@ class CharacterMaxActivity : AppCompatActivity() {
     }
 
     private fun setting() {
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        window.navigationBarColor = Color.WHITE     // 하단 네비게이션 바 배경 흰색
+
+        WindowInsetsControllerCompat(window, window.decorView).apply {
+            isAppearanceLightStatusBars = true  // 아이콘을 어둡게 (밝은 배경일 때)
+            isAppearanceLightNavigationBars = true  // 네비게이션 바 아이콘도 어둡게
+        }
+
         playRewardAnimation()
         onBackPressedDispatcher.addCallback(this) {
             // 아무 것도 하지 않으면 뒤로가기 무시됨

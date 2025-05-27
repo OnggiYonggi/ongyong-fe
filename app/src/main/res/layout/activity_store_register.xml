@@ -45,27 +45,27 @@
         app:layout_constraintTop_toBottomOf="@id/tv_title"/>
 
     <androidx.appcompat.widget.AppCompatImageButton
-        android:id="@+id/btn_cafe"
+        android:id="@+id/btn_restaurant"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="15dp"
         android:layout_marginStart="-10dp"
-        android:background="@drawable/btn_cafe"
+        android:background="@drawable/btn_restaurant"
         app:layout_constraintDimensionRatio="1:1"
         app:layout_constraintWidth_percent="0.18"
         app:layout_constraintStart_toStartOf="@id/tv_what"
         app:layout_constraintTop_toBottomOf="@id/tv_what"/>
 
     <androidx.appcompat.widget.AppCompatImageButton
-        android:id="@+id/btn_restaurant"
+        android:id="@+id/btn_cafe"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:background="@drawable/btn_restaurant"
+        android:background="@drawable/btn_cafe"
         android:layout_marginStart="10dp"
         app:layout_constraintDimensionRatio="1:1"
         app:layout_constraintWidth_percent="0.18"
-        app:layout_constraintStart_toEndOf="@id/btn_cafe"
-        app:layout_constraintTop_toTopOf="@id/btn_cafe"/>
+        app:layout_constraintStart_toEndOf="@id/btn_restaurant"
+        app:layout_constraintTop_toTopOf="@id/btn_restaurant"/>
 
     <TextView
         android:id="@+id/tv_where"

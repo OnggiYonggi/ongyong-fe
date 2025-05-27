@@ -3,6 +3,7 @@ package com.bravepeople.onggiyonggi.presentation.main.home
 import android.Manifest
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location.distanceBetween
@@ -18,6 +19,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
+import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.activity.addCallback
 import androidx.core.animation.doOnEnd
@@ -74,14 +76,15 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
     private val searchViewModel: SearchViewModel by viewModels()
     private lateinit var searchRecentAdapter: SearchRecentAdapter
 
-    private val mainViewModel:MainViewModel by activityViewModels()
-    private val homeViewModel:HomeViewModel by viewModels()
+    private val mainViewModel: MainViewModel by activityViewModels()
+    private val homeViewModel: HomeViewModel by viewModels()
 
     private lateinit var mapView: MapView
     private var naverMap: NaverMap? = null
     private var currentPosition: LatLng? = null
-    private var isAutoMoveEnabled = true
-    private var isFirstCameraMove = true
+    private var isAutoMoveEnabled = true    // 사용자가 현재 위치 버튼 눌렀을 때만 true
+    private var isFirstCameraMove = true    // 앱 처음 시작 시, 최초 위치 수신 시 자동 이동 허용
+    private var isFetching = false          // 가게 정보 불러올 때 true
 
     //private var newMarker: Marker? = null
     private var isUserTyping = true
@@ -92,8 +95,8 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
     private var lastRequestedPosition: LatLng? = null
     private val serverFetchThreshold = 500.0 // 500m 이상 이동 시 다시 서버 요청
     private val storeDataList = mutableListOf<ResponseGetStoreDto.StoreData>()
-    private val displayedMarkers = mutableMapOf<String, Marker>()  // key = "lat:lng:type"
-    private var selectedType:StoreType = StoreType.FOOD
+    private val displayedMarkers = mutableMapOf<Int, Marker>()  // key = "id"
+    private var selectedType: StoreType = StoreType.FOOD
     private var lastZoomLevel = -1.0  // 기존 줌 저장용
 
     private lateinit var speechRecognizer: SpeechRecognizer
@@ -139,7 +142,7 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
         }
 
         lifecycleScope.launch {
-            mainViewModel.accessToken.observe(viewLifecycleOwner){token->
+            mainViewModel.accessToken.observe(viewLifecycleOwner) { token ->
                 homeViewModel.saveToken(token)
                 setting()
                 clickSearchBar(token)
@@ -183,6 +186,18 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
             Manifest.permission.ACCESS_FINE_LOCATION
         )
 
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext())
+
+        if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
+            mapView.getMapAsync(this)
+        } else {
+            requestPermissions(REQUIRED_PERMISSIONS, PERMISSIONS_REQUEST_CODE)
+        }
+       /* val permissionCheck = ContextCompat.checkSelfPermission(
+            requireContext(),
+            Manifest.permission.ACCESS_FINE_LOCATION
+        )
+
         Timber.d("권한 상태: $permissionCheck") // 0이면 권한 허용, -1이면 거부
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext())
@@ -221,7 +236,7 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
         } else {
             Timber.d("위치 권한 거부됨 → 권한 요청 실행")
             requestPermissions(REQUIRED_PERMISSIONS, PERMISSIONS_REQUEST_CODE)
-        }
+        }*/
     }
 
     // 시스템으로 부터 위치 정보를 콜백으로 받음
@@ -258,6 +273,26 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
         this.naverMap = naverMap
         naverMap.locationOverlay.isVisible = true
 
+        val permissionCheck = ContextCompat.checkSelfPermission(
+            requireContext(),
+            Manifest.permission.ACCESS_FINE_LOCATION
+        )
+
+        if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
+            fusedLocationClient.lastLocation.addOnSuccessListener { location ->
+                if (location != null) {
+                    val position = LatLng(location.latitude, location.longitude)
+                    currentPosition = position
+
+                    naverMap.moveCamera(CameraUpdate.scrollTo(position))
+                    naverMap.locationOverlay.position = position
+                } else {
+                    requestAccurateLocation()
+                }
+            }
+        }
+
+
         naverMap.addOnCameraIdleListener {
             val center = naverMap.cameraPosition.target
             val zoom = naverMap.cameraPosition.zoom
@@ -267,8 +302,15 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
             val shouldUpdateZoom = (zoom != lastZoomLevel)
             val radius = getRadiusFromZoom(zoom)
 
+            if (isFetching) {
+                Timber.d("onCameraIdle - 요청 중으로 스킵")
+                return@addOnCameraIdleListener
+            }
+
+
             if (zoom >= 17) {
                 if (shouldFetchFromServer(center)) {
+                    isFetching = true
                     lastRequestedPosition = center
                     lastZoomLevel = zoom
                     requestStoreFromServer(center, 1)
@@ -278,6 +320,7 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
                 }
             } else {
                 if (shouldFetchFromServer(center)) {
+                    isFetching = true
                     lastRequestedPosition = center
                     lastZoomLevel = zoom
                     requestStoreFromServer(center, radius)
@@ -288,6 +331,42 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
             }
         }
     }
+
+    private fun requestAccurateLocation() {
+        if (ContextCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            Timber.e("🚫 위치 권한 없음 → 위치 요청 취소됨")
+            return
+        }
+
+        val locationRequest = LocationRequest.create().apply {
+            priority = Priority.PRIORITY_HIGH_ACCURACY
+            interval = 1000L
+            fastestInterval = 500L
+            numUpdates = 1
+        }
+
+        fusedLocationClient.requestLocationUpdates(
+            locationRequest,
+            object : LocationCallback() {
+                override fun onLocationResult(locationResult: LocationResult) {
+                    val location = locationResult.lastLocation ?: return
+                    val position = LatLng(location.latitude, location.longitude)
+                    currentPosition = position
+
+                    naverMap?.moveCamera(CameraUpdate.scrollTo(position))
+                    naverMap?.locationOverlay?.position = position
+
+                    fusedLocationClient.removeLocationUpdates(this)
+                }
+            },
+            Looper.getMainLooper()
+        )
+    }
+
 
     private fun getRadiusFromZoom(zoom: Double): Int = when {
         zoom >= 17 -> 1    // 1km
@@ -307,17 +386,23 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
 
     private fun requestStoreFromServer(center: LatLng, radius: Int) {
         lifecycleScope.launch {
-            homeViewModel.getStoreState.collect{state->
-                when(state){
-                    is GetStoreState.Success->{
+            homeViewModel.getStoreState.collect { state ->
+                when (state) {
+                    is GetStoreState.Success -> {
                         storeDataList.clear()
                         storeDataList.addAll(state.storeDto.data)
                         Timber.d("storedatalist: $storeDataList")
-                        filterMarkers(center, getRadiusFromZoom(naverMap?.cameraPosition?.zoom ?: 17.0))
+                        filterMarkers(
+                            center,
+                            getRadiusFromZoom(naverMap?.cameraPosition?.zoom ?: 17.0)
+                        )
+                        isFetching = false
                     }
-                    is GetStoreState.Loading->{}
-                    is GetStoreState.Error->{
+
+                    is GetStoreState.Loading -> {}
+                    is GetStoreState.Error -> {
                         Timber.e("get store state error!")
+                        isFetching = false
                     }
                 }
             }
@@ -332,7 +417,19 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
         val storesInRange = storeDataList.filter {
             val result = FloatArray(1)
             distanceBetween(center.latitude, center.longitude, it.latitude, it.longitude, result)
-            result[0] <= filterRadiusMeter && it.storeType == selectedType.type
+
+            val withinRange = result[0] <= filterRadiusMeter
+
+            val matchesType = if (selectedType == StoreType.BAN) {
+                it.storeRank.equals("BAN", ignoreCase = true)
+            } else {
+                it.storeType.equals(
+                    selectedType.type,
+                    ignoreCase = true
+                ) && !it.storeRank.equals("BAN", ignoreCase = true)
+            }
+
+            withinRange && matchesType
         }
 
         val zoom = naverMap?.cameraPosition?.zoom ?: 17.0
@@ -348,18 +445,15 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
         val finalStores = clusterStores(storesInRange, clusterDistanceMeter)
 
         val newMarkers = mutableListOf<Marker>()
-        val finalKeys = finalStores.map {
-            "${it.latitude}:${it.longitude}:${it.storeType}"
-        }.toSet()
-
+        val finalKeys = finalStores.map { it.id }.toSet()
         val existingKeys = displayedMarkers.keys.toSet()
 
         // 새로운 마커 추가 (fade-in)
         for (store in finalStores) {
             val pos = LatLng(store.latitude, store.longitude)
-            val key = "${store.latitude}:${store.longitude}:${store.storeType}"
+            val key = store.id
 
-            if (key !in existingKeys) {
+            if (!existingKeys.contains(key)) {
                 val marker = Marker().apply {
                     position = pos
                     icon = MarkerIcons.BLACK
@@ -374,7 +468,8 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
                 ValueAnimator.ofFloat(0f, 1f).apply {
                     duration = 300
                     addUpdateListener {
-                        marker.alpha = it.animatedValue as Float // 여기서 marker는 위에서 만든 Marker 인스턴스여야 함
+                        marker.alpha =
+                            it.animatedValue as Float // 여기서 marker는 위에서 만든 Marker 인스턴스여야 함
                     }
                     start()
                 }
@@ -415,7 +510,8 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
             val key = makeClusterKey(store.latitude, store.longitude, clusterDistanceMeter)
             val existing = clustered[key]
             if (existing == null ||
-                rankToPriority(store.storeRank) > rankToPriority(existing.storeRank)) {
+                rankToPriority(store.storeRank) > rankToPriority(existing.storeRank)
+            ) {
                 clustered[key] = store
             }
         }
@@ -471,17 +567,29 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
         typeButtons.forEach { (category, button) ->
             button.setOnClickListener {
                 updateSelectedType(category)
+
+                val storeFragment = parentFragmentManager.findFragmentByTag("StoreFragment")
+                if (storeFragment != null) {
+                    Timber.d("back: StoreFragment is not null")
+                    parentFragmentManager.beginTransaction()
+                        .remove(storeFragment)
+                        .commitNow()
+
+                    markerClick = false
+                    //selectedMarker?.map = null
+                    selectedMarker?.captionText = ""
+                }
             }
         }
     }
 
     private fun clickMarker(marker: Marker, store: ResponseGetStoreDto.StoreData) {
-        selectedMarker?.captionText=""
+        selectedMarker?.captionText = ""
         selectedMarker?.zIndex = 0
 
         selectedMarker = marker
-        selectedMarker?.let{
-            it.captionText=store.name
+        selectedMarker?.let {
+            it.captionText = store.name.replace(Regex("<.*?>"), "")
             it.zIndex = 100
         }
 
@@ -494,13 +602,17 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
         )
     }
 
-    private fun clickSearchBar(token:String) {
+    private fun clickSearchBar(token: String) {
         binding.cvSearch.setOnClickListener {
             setVisibility(true)
             getEditText(token)
 
             with(binding) {
                 etSearch.text.clear()
+
+                etSearch.requestFocus()
+                val imm = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                imm.showSoftInput(etSearch, InputMethodManager.SHOW_IMPLICIT)
             }
 
             searchRecentAdapter = SearchRecentAdapter(requireContext(),
@@ -545,7 +657,7 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
 
             setVisibility(true)
             clickSearch = true
-            isUserTyping= true
+            isUserTyping = true
 
             searchRecentAdapter.getRecentSearchList(searchViewModel.getRecentSearchList())
             with(binding) {
@@ -613,7 +725,7 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
         }
     }
 
-    private fun getEditText(token:String) {
+    private fun getEditText(token: String) {
         binding.etSearch.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
 
@@ -703,7 +815,7 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
                 .commitNow() // 확실하게 제거 완료 후 진행
         }
 
-        val token=homeViewModel.accessToken.value?:return
+        val token = homeViewModel.accessToken.value ?: return
         val fragment = StoreFragment.newInstance(id, token)
         with(binding.rvResult) {
             adapter = null
@@ -813,8 +925,8 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
         }
     }
 
-    private fun registerStore(type:String){
-        val accessToken = homeViewModel.accessToken.value?:return
+    private fun registerStore(type: String) {
+        val accessToken = homeViewModel.accessToken.value ?: return
         val intent = Intent(requireContext(), StoreRegisterActivity::class.java)
         intent.putExtra("type", type)
         intent.putExtra("accessToken", accessToken)
@@ -857,7 +969,7 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
                         isUserTyping = true
                     }
                 }
-                selectedMarker!!.captionText=""
+                selectedMarker!!.captionText = ""
                 //selectedMarker?.map = null
             } else {
                 setVisibility(false)
@@ -884,7 +996,7 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
 
                     markerClick = false
                     //selectedMarker?.map = null
-                    selectedMarker?.captionText=""
+                    selectedMarker?.captionText = ""
 
                     if (clickSearch) setVisibility(true)
                 }
@@ -930,7 +1042,7 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
 
     // 말하기 버튼 클릭
     private fun clickMicButton() {
-        binding.btnMic.setOnClickListener{
+        binding.btnMic.setOnClickListener {
             speechRecognizer = SpeechRecognizer.createSpeechRecognizer(context).apply {
                 setRecognitionListener(recognitionListener)
                 // RecognizerIntent 생성
@@ -1003,7 +1115,7 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
                 isUserTyping = true
                 binding.etSearch.setText(text.toString())
 
-                Timber.d( "인식된 메시지: $text")
+                Timber.d("인식된 메시지: $text")
             }
         }
 
@@ -1038,7 +1150,7 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
             .commit()*/
     }
 
-    fun refreshData(){
+    fun refreshData() {
         setting()
     }
 
