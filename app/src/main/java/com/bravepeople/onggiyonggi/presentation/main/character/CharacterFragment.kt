@@ -181,7 +181,7 @@ class CharacterFragment : Fragment() {
             tvAffectionTitle.visibility = View.GONE
             tvAffectionPercent.visibility = View.GONE
             pbAffection.visibility = View.GONE
-            btnIncrease.visibility=View.GONE
+            //btnIncrease.visibility=View.GONE
         }
 
         // Fragment가 화면에 올라오고 나서 (1프레임 후)
@@ -312,7 +312,7 @@ class CharacterFragment : Fragment() {
                 ivEggBlue.visibility = View.VISIBLE
                 ivEggYellow.visibility = View.VISIBLE
                 btnGacha.visibility = View.VISIBLE
-                btnIncrease.visibility=View.GONE
+                //btnIncrease.visibility=View.GONE
 
                 tvName.visibility = View.INVISIBLE
                 clCardFront.visibility = View.INVISIBLE
@@ -327,7 +327,7 @@ class CharacterFragment : Fragment() {
                 ivEggBlue.visibility = View.INVISIBLE
                 ivEggYellow.visibility = View.INVISIBLE
                 btnGacha.visibility = View.INVISIBLE
-                btnIncrease.visibility=View.VISIBLE
+                //btnIncrease.visibility=View.VISIBLE
 
                 tvName.visibility = View.VISIBLE
                 clCardFront.visibility = View.VISIBLE
@@ -391,7 +391,7 @@ class CharacterFragment : Fragment() {
               }
           }
 
-          binding.btnIncrease.setOnClickListener {
+         /* binding.btnIncrease.setOnClickListener {
               characterViewModel.levelUp()
               if (affectionLevel < 100) {
                   affectionLevel += 7
@@ -408,7 +408,7 @@ class CharacterFragment : Fragment() {
                   binding.tvAffectionPercent.text =
                       getString(R.string.character_affection_percent, affectionLevel)
               }
-          }
+          }*/
       }
 
     private fun setAffectionProgressWithAnimation(

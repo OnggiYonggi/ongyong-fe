@@ -1,8 +1,11 @@
 package com.bravepeople.onggiyonggi.presentation.main.character
 
+import android.graphics.Color
 import android.os.Bundle
 import androidx.activity.addCallback
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.viewpager2.widget.ViewPager2
 import com.bravepeople.onggiyonggi.R
 import com.bravepeople.onggiyonggi.data.response_dto.character.ResponseCollectionDto
@@ -25,6 +28,14 @@ class CharacterCollectionDetailActivity : AppCompatActivity() {
     }
 
     private fun setting() {
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        window.navigationBarColor = Color.WHITE     // 하단 네비게이션 바 배경 흰색
+
+        WindowInsetsControllerCompat(window, window.decorView).apply {
+            isAppearanceLightStatusBars = true  // 아이콘을 어둡게 (밝은 배경일 때)
+            isAppearanceLightNavigationBars = true  // 네비게이션 바 아이콘도 어둡게
+        }
+
         val index = intent.getIntExtra("index", -1)
         setLists(index)
         clickBackButton()

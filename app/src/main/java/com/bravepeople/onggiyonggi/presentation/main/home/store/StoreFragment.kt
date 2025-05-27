@@ -14,7 +14,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.bravepeople.onggiyonggi.R
-import com.bravepeople.onggiyonggi.databinding.FragmentReviewBinding
+import com.bravepeople.onggiyonggi.databinding.FragmentStoreBinding
 import com.bravepeople.onggiyonggi.domain.model.StoreRank
 import com.bravepeople.onggiyonggi.extension.GetStoreTimeState
 import com.bravepeople.onggiyonggi.extension.home.GetEnumState
@@ -30,18 +30,14 @@ import timber.log.Timber
 
 @AndroidEntryPoint
 class StoreFragment : Fragment() {
-    private var _binding: FragmentReviewBinding? = null
-    private val binding: FragmentReviewBinding
+    private var _binding: FragmentStoreBinding? = null
+    private val binding: FragmentStoreBinding
         get() = requireNotNull(_binding) { "review fragment is null" }
 
     private val mainViewModel: MainViewModel by activityViewModels()
     private val storeViewModel: StoreViewModel by viewModels()
     private lateinit var reviewAdapter: StoreAdapter
     private var isExpanded = false
-
-    private var initialY = 0f
-    private var downY = 0f
-    private val minHeightToShow = 300f
 
     companion object {
         fun newInstance(storeId: Int, token:String): StoreFragment {
@@ -58,7 +54,7 @@ class StoreFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentReviewBinding.inflate(inflater, container, false)
+        _binding = FragmentStoreBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -75,7 +71,7 @@ class StoreFragment : Fragment() {
         val token=arguments?.getString("accessToken")
 
         setupBottomSheetBehavior()
-        getStoreTime()
+        //getStoreTime()
         if (token != null && storeId!=null) {
                 setupUI(token, storeId)
         }
@@ -160,47 +156,6 @@ class StoreFragment : Fragment() {
         return (this * resources.displayMetrics.density).toInt()
     }
 
-    // 추후 가게 추가 api까지 끝나면 서버에서 time도 받아오므로 없어질 메서드.
-    private fun getStoreTime(){
-        val dayMap = mapOf(
-            "Monday" to "월요일",
-            "Tuesday" to "화요일",
-            "Wednesday" to "수요일",
-            "Thursday" to "목요일",
-            "Friday" to "금요일",
-            "Saturday" to "토요일",
-            "Sunday" to "일요일"
-        )
-
-        lifecycleScope.launch {
-            storeViewModel.getStoreTimeState.collect{getStoreTimeState->
-                when(getStoreTimeState){
-                    is GetStoreTimeState.Success->{
-                        val time = getStoreTimeState.searchDto.places
-                            .firstOrNull { it.regularOpeningHours != null }
-                            ?.regularOpeningHours?.weekdayDescriptions
-
-                        val translatedTime = time?.map { line ->
-                            var newLine = line
-                            dayMap.forEach { (eng, kor) ->
-                                newLine = newLine.replace(eng, kor)
-                            }
-                            newLine
-                        }
-
-                        binding.tvStoreHours.text = translatedTime?.joinToString("\n")
-                    }
-                    is GetStoreTimeState.Error->{
-                        Timber.e("error: ${getStoreTimeState.message}")
-                    }
-                    is GetStoreTimeState.Loading->{
-                        Timber.d("get store time state loading")
-                    }
-                }
-            }
-        }
-    }
-
     private fun setupUI(accessToken:String, id:Int) {
         Timber.d("store id in set up ui: $id")
         lifecycleScope.launch {
@@ -216,13 +171,13 @@ class StoreFragment : Fragment() {
                             clBan.visibility = if (isBan) View.VISIBLE else View.GONE
                             clReviews.visibility = if (isBan) View.GONE else View.VISIBLE
 
-                            tvStoreName.text=store.name
+                            tvStoreName.text=store.name.replace(Regex("<.*?>"), "")
                             tvStoreAddress.text=store.address
 
                             if (isBan) {
                                 clBan.minHeight = (resources.displayMetrics.heightPixels * 0.6).toInt()
                                 btnRegister.setOnClickListener {
-                                    clickNewRegister(id)
+                                    clickFirstReview(accessToken, id)
                                 }
                             } else {
                                 setupRecyclerView(accessToken, id)
@@ -276,12 +231,13 @@ class StoreFragment : Fragment() {
         }
     }
 
-    private fun clickNewRegister(id: Int) {
-        Timber.d("clicknemregister")
+    private fun clickFirstReview(accessToken:String, storeId: Int) {
+        Timber.d("clicknewregister")
 
-        val intent = Intent(requireContext(), StoreRegisterActivity::class.java)
-        intent.putExtra("type", "new")
-        intent.putExtra("storeId", id)
+        val intent = Intent(requireContext(), ReviewRegisterActivity::class.java)
+        intent.putExtra("fromNewRegister", "new")
+        intent.putExtra("storeId", storeId)
+        intent.putExtra("accessToken", accessToken)
         startActivity(intent)
         requireActivity().overridePendingTransition(R.anim.slide_in_right, R.anim.stay_still)
     }

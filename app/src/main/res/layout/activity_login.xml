@@ -7,7 +7,7 @@
     android:background="@android:color/white">
 
     <!-- 스크롤 가능한 영역 -->
-    <ScrollView
+    <androidx.core.widget.NestedScrollView
         android:id="@+id/scrollContent"
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -27,7 +27,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:gravity="center_vertical">
+                android:gravity="center_vertical"
+                android:layout_marginTop="10dp">
 
                 <!--<ImageView
                     android:id="@+id/btn_back"
@@ -116,7 +117,7 @@
                 android:textSize="14sp"
                 android:visibility="gone" />
         </LinearLayout>
-    </ScrollView>
+    </androidx.core.widget.NestedScrollView>
 
     <!-- 회원가입 유도 문구 (고정) -->
     <TextView

@@ -93,6 +93,9 @@ class StoreRegisterActivity : AppCompatActivity(), OnMapReadyCallback {
             insets
         }
 
+        val type = intent.getStringExtra("type")
+        binding.tvTitle.text= ( if(type=="ROOKIE") getString(R.string.store_register_new) else getString(R.string.store_register_ban))
+
         mapReset(savedInstanceState)
         searchStore()
         clickTypeButton()

@@ -10,9 +10,15 @@ import android.text.method.LinkMovementMethod
 import android.text.style.ClickableSpan
 import android.text.style.ForegroundColorSpan
 import android.view.View
+import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
+import androidx.core.view.updateLayoutParams
 import androidx.lifecycle.lifecycleScope
 import com.bravepeople.onggiyonggi.R
 import com.bravepeople.onggiyonggi.databinding.ActivityLoginBinding
@@ -34,6 +40,28 @@ class LoginActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        setting()
+    }
+
+    private fun setting() {
+        WindowCompat.setDecorFitsSystemWindows(window, true)
+        window.navigationBarColor = Color.WHITE     // 하단 네비게이션 바 배경 흰색
+        window.statusBarColor = Color.WHITE
+
+        WindowInsetsControllerCompat(window, window.decorView).apply {
+            isAppearanceLightStatusBars = true  // 아이콘을 어둡게 (밝은 배경일 때)
+            isAppearanceLightNavigationBars = true  // 네비게이션 바 아이콘도 어둡게
+        }
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.btnLogin) { view, insets ->
+            val navBarHeight = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
+            val additionalMargin = (5 * resources.displayMetrics.density).toInt()
+            view.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                bottomMargin = navBarHeight + additionalMargin
+            }
+            insets
+        }
 
         doLogin()
         setupListeners()

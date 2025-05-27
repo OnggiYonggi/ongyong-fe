@@ -71,6 +71,7 @@ class ReviewDetailActivity : AppCompatActivity() {
                     is GetStoreDetailState.Error -> {
                         Timber.e("get store state error!")
                     }
+                    else->{}
                 }
             }
         }
@@ -86,6 +87,7 @@ class ReviewDetailActivity : AppCompatActivity() {
                     is GetReviewDetailState.Error -> {
                         Timber.e(" get review detail state error")
                     }
+                    else->{}
                 }
             }
         }
@@ -97,7 +99,7 @@ class ReviewDetailActivity : AppCompatActivity() {
 
     private fun setStore(storeDto: ResponseStoreDetailDto) {
         with(binding) {
-            tvStoreName.text = storeDto.data.name
+            tvStoreName.text = storeDto.data.name.replace(Regex("<.*?>"), "")
             tvStoreAddress.text = storeDto.data.address
         }
     }
