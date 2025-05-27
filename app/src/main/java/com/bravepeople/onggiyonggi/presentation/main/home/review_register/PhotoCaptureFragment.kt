@@ -296,10 +296,10 @@ class PhotoCaptureFragment : Fragment() {
                         placeholder(
                             ContextCompat.getDrawable(
                                 requireContext(),
-                                R.drawable.placeholder
+                                R.drawable.img_onggiyonggi
                             )
                         )
-                        error(ContextCompat.getDrawable(requireContext(), R.drawable.error))
+                        error(ContextCompat.getDrawable(requireContext(), R.drawable.ic_ban_red_48))
                     }
 
                     binding.ivGalary.setOnClickListener {
