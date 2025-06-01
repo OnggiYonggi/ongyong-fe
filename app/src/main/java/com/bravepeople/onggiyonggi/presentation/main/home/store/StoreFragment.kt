@@ -3,6 +3,7 @@ package com.bravepeople.onggiyonggi.presentation.main.home.store
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.MotionEvent
@@ -156,6 +157,47 @@ class StoreFragment : Fragment() {
         return (this * resources.displayMetrics.density).toInt()
     }
 
+    private fun getStoreTime(){
+        val dayMap = mapOf(
+            "Monday" to "월요일",
+            "Tuesday" to "화요일",
+            "Wednesday" to "수요일",
+            "Thursday" to "목요일",
+            "Friday" to "금요일",
+            "Saturday" to "토요일",
+            "Sunday" to "일요일"
+        )
+
+        lifecycleScope.launch {
+            storeViewModel.getStoreTimeState.collect{getStoreTimeState->
+                when(getStoreTimeState){
+                    is GetStoreTimeState.Success->{
+                        val time = getStoreTimeState.searchDto.places
+                            .firstOrNull { it.regularOpeningHours != null }
+                            ?.regularOpeningHours?.weekdayDescriptions
+
+                        val translatedTime = time?.map { line ->
+                            var newLine = line
+                            dayMap.forEach { (eng, kor) ->
+                                newLine = newLine.replace(eng, kor)
+                            }
+                            newLine
+                        }
+
+                        binding.tvStoreHours.text = translatedTime?.joinToString("\n")
+                    }
+                    is GetStoreTimeState.Error->{
+                        Timber.e("error: ${getStoreTimeState.message}")
+                    }
+                    is GetStoreTimeState.Loading->{
+                        Timber.d("get store time state loading")
+                    }
+                }
+            }
+        }
+    }
+
+
     private fun setupUI(accessToken:String, id:Int) {
         Timber.d("store id in set up ui: $id")
         lifecycleScope.launch {
@@ -173,6 +215,9 @@ class StoreFragment : Fragment() {
 
                             tvStoreName.text=store.name.replace(Regex("<.*?>"), "")
                             tvStoreAddress.text=store.address
+                            tvStoreHours.text=store.businessHours
+
+                            stopSkeletonForStoreInfo()
 
                             if (isBan) {
                                 clBan.minHeight = (resources.displayMetrics.heightPixels * 0.6).toInt()
@@ -196,6 +241,20 @@ class StoreFragment : Fragment() {
         }
 
         storeViewModel.getDetail(accessToken,id)
+    }
+
+    private fun stopSkeletonForStoreInfo() = with(binding) {
+        tvStoreName.setBackgroundColor(Color.TRANSPARENT)
+        shimmerStoreName.stopShimmer()
+        shimmerStoreName.hideShimmer()
+
+        tvStoreAddress.setBackgroundColor(Color.TRANSPARENT)
+        shimmerStoreAddress.stopShimmer()
+        shimmerStoreAddress.hideShimmer()
+
+        tvStoreHours.setBackgroundColor(Color.TRANSPARENT)
+        shimmerStoreHours.stopShimmer()
+        shimmerStoreHours.hideShimmer()
     }
 
 

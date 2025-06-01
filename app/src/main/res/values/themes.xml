@@ -25,5 +25,10 @@
         <item name="cornerSize">50%</item>
     </style>
 
-
+    <style name="MyCircularProgressStyle" parent="Widget.Material3.CircularProgressIndicator">
+        <item name="trackThickness">6dp</item>
+        <item name="trackColor">#E0E0E0</item>
+        <item name="indicatorColor">@color/home_fab_green</item>
+        <item name="indicatorInset">6dp</item>
+    </style>
 </resources>
