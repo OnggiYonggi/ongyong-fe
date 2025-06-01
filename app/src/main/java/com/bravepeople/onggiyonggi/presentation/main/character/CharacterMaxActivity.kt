@@ -77,6 +77,9 @@ class CharacterMaxActivity : AppCompatActivity() {
 
                     is AddMaxState.Loading -> {}
                     is AddMaxState.Error -> {
+                        if(state.message=="COLLECTION409"){
+                            slideUpCard()
+                        }
                         Timber.e("add max state error!!")
                     }
                 }

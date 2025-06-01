@@ -27,11 +27,23 @@ class CharacterMaxViewModel @Inject constructor(
             baseRepositoryImpl.addMax(token).onSuccess { response->
                 _addMaxState.value=AddMaxState.Success(response)
             }.onFailure {
-                _addMaxState.value=AddMaxState.Error("addMax fail")
                 if (it is HttpException) {
                     try {
                         val errorBody: ResponseBody? = it.response()?.errorBody()
                         val errorBodyString = errorBody?.string() ?: ""
+
+                        val json = JSONObject(errorBodyString)
+                        val status = json.optString("status")
+
+                        if (status == "COLLECTION409") {
+                            _addMaxState.value=AddMaxState.Error(status)
+                            Timber.d("COLLECTION409 감지됨 → slideUpCard() 호출")
+                        } else {
+                            _addMaxState.value=AddMaxState.Error("add max error!")
+                            Timber.e("Unhandled error status: $status")
+
+                        }
+
                         httpError(errorBodyString)
                     } catch (e: Exception) {
                         // JSON 파싱 실패 시 로깅

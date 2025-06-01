@@ -23,45 +23,101 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintWidth_percent="0.3" />
 
-        <TextView
-            android:id="@+id/tv_store_name"
+        <com.facebook.shimmer.ShimmerFrameLayout
+            android:id="@+id/shimmer_store_name"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="40dp"
             android:layout_marginStart="20dp"
-            android:layout_marginEnd="10dp"
-            android:text="@string/store_name"
-            android:textSize="14sp"
-            android:textStyle="bold"
+            android:layout_marginTop="40dp"
+            android:layout_marginEnd="20dp"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/bar"
-            app:layout_constraintEnd_toStartOf="@id/iv_pin"/>
+            app:shimmer_auto_start="true"
+            app:shimmer_duration="1000">
 
-        <TextView
-            android:id="@+id/tv_store_address"
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/tv_store_name"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text=""
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+        </com.facebook.shimmer.ShimmerFrameLayout>
+
+        <com.facebook.shimmer.ShimmerFrameLayout
+            android:id="@+id/shimmer_store_address"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="3dp"
-            android:layout_marginEnd="20dp"
-            android:text="@string/store_address"
-            android:textColor="@color/store_address_gray"
-            android:textSize="12sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="@id/tv_store_name"
-            app:layout_constraintTop_toBottomOf="@id/tv_store_name" />
+            app:layout_constraintEnd_toEndOf="@id/shimmer_store_name"
+            app:layout_constraintStart_toStartOf="@id/shimmer_store_name"
+            app:layout_constraintTop_toBottomOf="@id/shimmer_store_name"
+            app:shimmer_auto_start="true"
+            app:shimmer_duration="1000">
 
-        <TextView
-            android:id="@+id/tv_store_hours"
-            android:layout_width="wrap_content"
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/tv_store_address"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="3dp"
+                    android:layout_marginEnd="20dp"
+                    android:text=""
+                    android:textColor="@color/store_address_gray"
+                    android:textSize="12sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </com.facebook.shimmer.ShimmerFrameLayout>
+
+        <com.facebook.shimmer.ShimmerFrameLayout
+            android:id="@+id/shimmer_store_hours"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="3dp"
-            android:text="@string/store_time"
-            android:textColor="@color/store_address_gray"
-            android:textSize="12sp"
-            app:layout_constraintStart_toStartOf="@id/tv_store_name"
-            app:layout_constraintTop_toBottomOf="@id/tv_store_address" />
+            android:minHeight="100dp"
+            app:layout_constraintEnd_toEndOf="@id/shimmer_store_name"
+            app:layout_constraintStart_toStartOf="@id/shimmer_store_name"
+            app:layout_constraintTop_toBottomOf="@id/shimmer_store_address"
+            app:shimmer_auto_start="true"
+            app:shimmer_duration="1000">
 
-        <ImageView
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/tv_store_hours"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="3dp"
+                    android:text=""
+                    android:textColor="@color/store_address_gray"
+                    android:textSize="12sp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+        </com.facebook.shimmer.ShimmerFrameLayout>
+
+        <!--<ImageView
             android:id="@+id/iv_pin"
             android:layout_width="0dp"
             android:layout_height="0dp"
@@ -72,7 +128,7 @@
             app:layout_constraintBottom_toBottomOf="@id/tv_store_name"
             app:layout_constraintDimensionRatio="1:1"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintWidth_percent="0.06" />
+            app:layout_constraintWidth_percent="0.06" />-->
 
         <View
             android:id="@+id/v_line"
@@ -82,15 +138,15 @@
             android:background="@color/store_line_gray"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tv_store_hours"
+            app:layout_constraintTop_toBottomOf="@id/shimmer_store_hours"
             app:layout_constraintWidth_percent="1" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/cl_reviews"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="15dp"
             android:layout_marginStart="20dp"
+            android:layout_marginTop="15dp"
             android:layout_marginEnd="20dp"
             android:visibility="visible"
             app:layout_constraintStart_toStartOf="parent"
@@ -107,29 +163,29 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-          <!--  <TextView
-                android:id="@+id/tv_sort"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:background="?attr/selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true"
-                android:text="최신순"
-                android:textSize="12sp"
-                app:layout_constraintBottom_toBottomOf="@id/tv_review_title"
-                app:layout_constraintStart_toEndOf="@id/tv_review_title"
-                app:layout_constraintTop_toTopOf="@id/tv_review_title" />
--->
+            <!--  <TextView
+                  android:id="@+id/tv_sort"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:layout_marginStart="10dp"
+                  android:background="?attr/selectableItemBackground"
+                  android:clickable="true"
+                  android:focusable="true"
+                  android:text="최신순"
+                  android:textSize="12sp"
+                  app:layout_constraintBottom_toBottomOf="@id/tv_review_title"
+                  app:layout_constraintStart_toEndOf="@id/tv_review_title"
+                  app:layout_constraintTop_toTopOf="@id/tv_review_title" />
+  -->
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btn_add"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:background="@drawable/ic_add_green_100"
-                app:layout_constraintBottom_toBottomOf="@id/tv_sort"
+                app:layout_constraintBottom_toBottomOf="@id/tv_review_title"
                 app:layout_constraintDimensionRatio="1:1"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@id/tv_sort"
+                app:layout_constraintTop_toTopOf="@id/tv_review_title"
                 app:layout_constraintWidth_percent="0.08" />
 
             <androidx.recyclerview.widget.RecyclerView

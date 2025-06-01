@@ -49,4 +49,35 @@
         app:layout_constraintWidth_percent="0.1"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
+
+   <com.google.android.material.progressindicator.CircularProgressIndicator
+       android:id="@+id/pb_circular"
+       android:layout_width="0dp"
+       android:layout_height="0dp"
+       android:layout_gravity="center"
+       app:indicatorSize="100dp"
+       app:indicatorDirectionCircular="clockwise"
+       app:showAnimationBehavior="none"
+       app:hideAnimationBehavior="none"
+       style="@style/MyCircularProgressStyle"
+       app:layout_constraintDimensionRatio="1:1"
+       app:layout_constraintWidth_percent="0.7"
+       app:layout_constraintTop_toTopOf="parent"
+       app:layout_constraintStart_toStartOf="parent"
+       app:layout_constraintEnd_toEndOf="parent"
+       app:layout_constraintBottom_toBottomOf="parent"/>
+
+    <TextView
+        android:id="@+id/tvPercentage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="0%"
+        android:textSize="20sp"
+        android:textColor="@color/home_fab_green"
+        android:textStyle="bold"
+        app:layout_constraintTop_toTopOf="@id/pb_circular"
+        app:layout_constraintBottom_toBottomOf="@id/pb_circular"
+        app:layout_constraintStart_toStartOf="@id/pb_circular"
+        app:layout_constraintEnd_toEndOf="@id/pb_circular"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

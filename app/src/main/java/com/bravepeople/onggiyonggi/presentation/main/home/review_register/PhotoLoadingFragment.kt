@@ -1,6 +1,7 @@
 package com.bravepeople.onggiyonggi.presentation.main.home.review_register
 
 import android.animation.Animator
+import android.animation.ValueAnimator
 import android.graphics.Color
 import android.graphics.PorterDuff
 import android.net.Uri
@@ -27,13 +28,29 @@ import com.bravepeople.onggiyonggi.extension.home.register.ReceiptState
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
-class PhotoLoadingFragment:Fragment() {
-    private var _binding:FragmentPhotoLoadingBinding?=null
-    private val binding:FragmentPhotoLoadingBinding
-        get()= requireNotNull(_binding){"receipt fragment is null"}
+class PhotoLoadingFragment : Fragment() {
+    private var _binding: FragmentPhotoLoadingBinding? = null
+    private val binding: FragmentPhotoLoadingBinding
+        get() = requireNotNull(_binding) { "receipt fragment is null" }
 
     private val reviewRegisterViewModel: ReviewRegisterViewModel by activityViewModels()
     private val args: PhotoLoadingFragmentArgs by navArgs()
+
+    private val handler = Handler(Looper.getMainLooper())
+    private val progressRunnable = object : Runnable {
+        var progress = 0
+
+        override fun run() {
+            _binding?.let { binding ->
+                if (progress <= 100) {
+                    binding.pbCircular.setProgress(progress, false)
+                    binding.tvPercentage.text = "$progress%"
+                    progress += 1
+                    handler.postDelayed(this, 350)
+                }
+            }
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -52,23 +69,31 @@ class PhotoLoadingFragment:Fragment() {
         clickCancel()
     }
 
-    private fun setting(){
+    private fun setting() {
         val photoType = args.photoType
         val uri = args.uri
 
-        if(photoType==PhotoType.RECEIPT){
+        if (photoType == PhotoType.RECEIPT) {
             reviewRegisterViewModel.setReceiptStateToLoading()
 
             lifecycleScope.launch {
-                reviewRegisterViewModel.receiptState.collect{state->
-                    when(state){
-                        is ReceiptState.Success->{
-                            showSecondAnimation(photoType, "")
+                reviewRegisterViewModel.receiptState.collect { state ->
+                    when (state) {
+                        is ReceiptState.Success -> {
+                            finishProgressBar {
+                                showSecondAnimation(
+                                    photoType,
+                                    "state.photoDto.data.url"
+                                )
+                            }
                         }
-                        is ReceiptState.Loading->{
+
+                        is ReceiptState.Loading -> {
                             showFirstAnimation()
+                            startProgressBar()
                         }
-                        is ReceiptState.Error->{
+
+                        is ReceiptState.Error -> {
                             Timber.e("receipt state error!")
                             showRetryDialog(photoType)
                         }
@@ -78,18 +103,23 @@ class PhotoLoadingFragment:Fragment() {
 
             binding.ivReceipt.load(uri)
             reviewRegisterViewModel.receipt(requireContext(), Uri.parse(uri))
-        }else{
+        } else {
             lifecycleScope.launch {
-                reviewRegisterViewModel.photoState.collect{state->
-                    when(state){
-                        is PhotoState.Success->{
+                reviewRegisterViewModel.photoState.collect { state ->
+                    when (state) {
+                        is PhotoState.Success -> {
                             reviewRegisterViewModel.savePhotoId(state.photoDto.data.id)
-                            showSecondAnimation(photoType, state.photoDto.data.url)
+                            showSecondAnimation(
+                                photoType,
+                                state.photoDto.data.url
+                            )
                         }
-                        is PhotoState.Loading->{
+
+                        is PhotoState.Loading -> {
                             showFirstAnimation()
                         }
-                        is PhotoState.Error->{
+
+                        is PhotoState.Error -> {
                             Timber.e("photo state error!")
                         }
                     }
@@ -121,8 +151,69 @@ class PhotoLoadingFragment:Fragment() {
         }
     }
 
-    private fun showSecondAnimation(photoType: PhotoType, uri:String) {
-        // 1단계: 첫 번째 로딩 애니메이션 사라지게
+    private fun startProgressBar() {
+        val percentText = binding.tvPercentage
+
+        percentText.visibility = View.VISIBLE
+        binding.pbCircular.apply {
+            visibility = View.VISIBLE
+            progress = 0
+            max = 100
+        }
+
+        handler.post(progressRunnable)
+    }
+
+    private fun finishProgressBar(onFinished: () -> Unit) {
+        val progressBar = binding.pbCircular
+        val percentText = binding.tvPercentage
+
+        val startProgress = progressBar.progress
+        val endProgress = 100
+
+        val valueAnimator = ValueAnimator.ofInt(startProgress, endProgress)
+        valueAnimator.duration = 1000
+
+        valueAnimator.addUpdateListener { animation ->
+            val animatedValue = animation.animatedValue as Int
+            progressBar.setProgress(animatedValue, false)
+            progressBar.invalidate()
+            percentText.text = "$animatedValue%"
+            percentText.invalidate()
+        }
+
+        valueAnimator.addListener(object : Animator.AnimatorListener {
+            override fun onAnimationEnd(animation: Animator) {
+                progressBar.animate()
+                    .alpha(0f)
+                    .setDuration(500)
+                    .withEndAction {
+                        progressBar.visibility = View.GONE
+                        progressBar.alpha = 1f
+                    }
+                    .start()
+
+                percentText.animate()
+                    .alpha(0f)
+                    .setDuration(500)
+                    .withEndAction {
+                        percentText.visibility = View.GONE
+                        percentText.alpha = 1f
+                        onFinished()
+                    }
+                    .start()
+            }
+
+            override fun onAnimationStart(animation: Animator) {}
+            override fun onAnimationCancel(animation: Animator) {}
+            override fun onAnimationRepeat(animation: Animator) {}
+        })
+
+        valueAnimator.start()
+    }
+
+
+    private fun showSecondAnimation(photoType: PhotoType, uri: String) {
         binding.lavLoading.animate()
             .alpha(0f)
             .setDuration(500)
@@ -131,7 +222,6 @@ class PhotoLoadingFragment:Fragment() {
             }
             .start()
 
-        // 2단계: 완료 애니메이션 나타나게
         binding.lavComplete.apply {
             alpha = 0f
             visibility = View.VISIBLE
@@ -154,7 +244,7 @@ class PhotoLoadingFragment:Fragment() {
         }
     }
 
-    private fun navigateToNext(photoType: PhotoType, uri:String) {
+    private fun navigateToNext(photoType: PhotoType, uri: String) {
         val navOptions = NavOptions.Builder()
             .setPopUpTo(R.id.loadingFragment, true)
             .build()
@@ -164,6 +254,7 @@ class PhotoLoadingFragment:Fragment() {
                 val action = PhotoLoadingFragmentDirections.actionLoadingToPhoto(PhotoType.FOOD)
                 findNavController().navigate(action, navOptions)
             }
+
             else -> {
                 val action = PhotoLoadingFragmentDirections.actionLoadingToWrite(uri)
                 findNavController().navigate(action, navOptions)
@@ -196,15 +287,16 @@ class PhotoLoadingFragment:Fragment() {
     }
 
 
-    private fun deleteStore(){
+    private fun deleteStore() {
         lifecycleScope.launch {
-            reviewRegisterViewModel.deleteState.collect{state->
-                when(state){
-                    is DeleteState.Success->{
+            reviewRegisterViewModel.deleteState.collect { state ->
+                when (state) {
+                    is DeleteState.Success -> {
                         requireActivity().finish()
                     }
-                    is DeleteState.Loading->{}
-                    is DeleteState.Error->{
+
+                    is DeleteState.Loading -> {}
+                    is DeleteState.Error -> {
                         Timber.e("delete state error!")
                     }
                 }
@@ -213,19 +305,20 @@ class PhotoLoadingFragment:Fragment() {
 
     }
 
-    private fun clickCancel(){
+    private fun clickCancel() {
         binding.btnCancel.setOnClickListener {
-            if(reviewRegisterViewModel.newStore.value == true) reviewRegisterViewModel.delete()
+            if (reviewRegisterViewModel.newStore.value == true) reviewRegisterViewModel.delete()
             else requireActivity().finish()
         }
-        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner){
-            if(reviewRegisterViewModel.newStore.value == true) reviewRegisterViewModel.delete()
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
+            if (reviewRegisterViewModel.newStore.value == true) reviewRegisterViewModel.delete()
             else requireActivity().finish()
         }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
+        handler.removeCallbacks(progressRunnable)
         _binding = null
     }
 }

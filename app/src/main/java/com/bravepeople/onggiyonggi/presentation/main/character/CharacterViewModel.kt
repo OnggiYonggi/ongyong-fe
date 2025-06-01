@@ -18,31 +18,32 @@ import okhttp3.ResponseBody
 import org.json.JSONObject
 import retrofit2.HttpException
 import timber.log.Timber
+import java.lang.Thread.State
 import javax.inject.Inject
 
 @HiltViewModel
 class CharacterViewModel @Inject constructor(
     private val baseRepositoryImpl: BaseRepositoryImpl
-):ViewModel() {
-    private lateinit var token:String
+) : ViewModel() {
+    private lateinit var token: String
 
-    private val _getPetState = MutableStateFlow<GetPetState>(GetPetState.Loading)
+    private val _getPetState = MutableSharedFlow<GetPetState>()
     private val _randomPetState = MutableStateFlow<RandomPetState>(RandomPetState.Loading)
     private val _levelUpState = MutableSharedFlow<LevelUpState>()
 
-    val getPetState:StateFlow<GetPetState> = _getPetState.asStateFlow()
+    val getPetState = _getPetState.asSharedFlow()
     val randomPetState:StateFlow<RandomPetState> = _randomPetState.asStateFlow()
     val levelUpState = _levelUpState.asSharedFlow()
 
-    fun saveToken(accessToken:String){
-        token=accessToken
+    fun saveToken(accessToken: String) {
+        token = accessToken
     }
 
-    fun getPet(){
+    fun getPet() {
         token?.let {
             viewModelScope.launch {
-                baseRepositoryImpl.getPet(token).onSuccess { response->
-                    _getPetState.value=GetPetState.Success(response)
+                baseRepositoryImpl.getPet(token).onSuccess { response ->
+                    _getPetState.emit(GetPetState.Success(response))
                 }.onFailure {
                     if (it is HttpException) {
                         val code = it.code()  // ← status code 추출
@@ -55,27 +56,27 @@ class CharacterViewModel @Inject constructor(
                                 else -> "UNKNOWN"
                             }
 
-                            _getPetState.value = GetPetState.Error(status)
+                            _getPetState.emit(GetPetState.Error(status))
 
                         } catch (e: Exception) {
                             Timber.e("Error parsing error body: $e")
-                            _getPetState.value = GetPetState.Error("예외 발생: ${e.message}")
+                            _getPetState.emit(GetPetState.Error("예외 발생: ${e.message}"))
                         }
                     } else {
-                        _getPetState.value = GetPetState.Error("get pet state error!")
+                        _getPetState.emit(GetPetState.Error("get pet state error!"))
                     }
                 }
             }
         }
     }
 
-    fun randomPet(){
+    fun randomPet() {
         token?.let {
             viewModelScope.launch {
-                baseRepositoryImpl.randomPet(token).onSuccess {response->
-                    _randomPetState.value=RandomPetState.Success(response)
+                baseRepositoryImpl.randomPet(token).onSuccess { response ->
+                    _randomPetState.value = RandomPetState.Success(response)
                 }.onFailure {
-                    _randomPetState.value=RandomPetState.Error("random pet error!!")
+                    _randomPetState.value = RandomPetState.Error("random pet error!!")
                     if (it is HttpException) {
                         try {
                             val errorBody: ResponseBody? = it.response()?.errorBody()
@@ -91,10 +92,10 @@ class CharacterViewModel @Inject constructor(
         }
     }
 
-    fun levelUp(){
+    fun levelUp() {
         token?.let {
             viewModelScope.launch {
-                baseRepositoryImpl.levelUp(token).onSuccess { response->
+                baseRepositoryImpl.levelUp(token).onSuccess { response ->
                     _levelUpState.emit(LevelUpState.Success(response))
                 }.onFailure {
                     _levelUpState.emit(LevelUpState.Error("level up error!!"))

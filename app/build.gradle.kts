@@ -175,6 +175,9 @@ dependencies {
 
     // 이미지 crop
     implementation ("com.github.yalantis:ucrop:2.2.8")
+
+    // skeleton ui
+    implementation ("com.facebook.shimmer:shimmer:0.5.0")
 }
 
 kapt {

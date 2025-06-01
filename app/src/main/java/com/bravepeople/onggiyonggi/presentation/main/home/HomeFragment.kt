@@ -82,7 +82,6 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
     private lateinit var mapView: MapView
     private var naverMap: NaverMap? = null
     private var currentPosition: LatLng? = null
-    private var isAutoMoveEnabled = true    // 사용자가 현재 위치 버튼 눌렀을 때만 true
     private var isFirstCameraMove = true    // 앱 처음 시작 시, 최초 위치 수신 시 자동 이동 허용
     private var isFetching = false          // 가게 정보 불러올 때 true
 
@@ -261,7 +260,6 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
     private fun clickCurrentBtn() {
         binding.btnCurrent.setOnClickListener {
             currentPosition?.let { position ->
-                isAutoMoveEnabled = true
                 isFirstCameraMove = true
                 naverMap?.moveCamera(CameraUpdate.scrollTo(position))
                 Timber.d("current button click!")
@@ -338,7 +336,7 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
                 Manifest.permission.ACCESS_FINE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED
         ) {
-            Timber.e("🚫 위치 권한 없음 → 위치 요청 취소됨")
+            Timber.e("위치 권한 없음 → 위치 요청 취소됨")
             return
         }
 

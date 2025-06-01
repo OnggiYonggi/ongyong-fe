@@ -181,7 +181,7 @@ class CharacterFragment : Fragment() {
             tvAffectionTitle.visibility = View.GONE
             tvAffectionPercent.visibility = View.GONE
             pbAffection.visibility = View.GONE
-            //btnIncrease.visibility=View.GONE
+            btnIncrease.visibility=View.GONE
         }
 
         // Fragment가 화면에 올라오고 나서 (1프레임 후)
@@ -259,7 +259,7 @@ class CharacterFragment : Fragment() {
 
 
     private fun startGachaAnimation() {
-        lifecycleScope.launch {
+       /* lifecycleScope.launch {
             characterViewModel.randomPetState.collect { state ->
                 when (state) {
                     is RandomPetState.Success -> {
@@ -272,10 +272,11 @@ class CharacterFragment : Fragment() {
                     }
                 }
             }
-        }
+        }*/
 
         binding.btnGacha.setOnClickListener {
-            characterViewModel.randomPet()
+            cachedAnimatorSet.start()
+            //characterViewModel.randomPet()
         }
     }
 
@@ -312,7 +313,7 @@ class CharacterFragment : Fragment() {
                 ivEggBlue.visibility = View.VISIBLE
                 ivEggYellow.visibility = View.VISIBLE
                 btnGacha.visibility = View.VISIBLE
-                //btnIncrease.visibility=View.GONE
+                btnIncrease.visibility=View.GONE
 
                 tvName.visibility = View.INVISIBLE
                 clCardFront.visibility = View.INVISIBLE
@@ -327,7 +328,7 @@ class CharacterFragment : Fragment() {
                 ivEggBlue.visibility = View.INVISIBLE
                 ivEggYellow.visibility = View.INVISIBLE
                 btnGacha.visibility = View.INVISIBLE
-                //btnIncrease.visibility=View.VISIBLE
+                btnIncrease.visibility=View.VISIBLE
 
                 tvName.visibility = View.VISIBLE
                 clCardFront.visibility = View.VISIBLE
@@ -379,7 +380,7 @@ class CharacterFragment : Fragment() {
 
 
       private fun increaseAffection() {
-          lifecycleScope.launch {
+          /*lifecycleScope.launch {
               characterViewModel.levelUpState.collect{state->
                   when(state){
                       is LevelUpState.Success->{
@@ -389,11 +390,13 @@ class CharacterFragment : Fragment() {
                       is LevelUpState.Error->{}
                   }
               }
-          }
+          }*/
 
-         /* binding.btnIncrease.setOnClickListener {
+          binding.btnIncrease.setOnClickListener {
+              updateCharacterData()
               characterViewModel.levelUp()
-              if (affectionLevel < 100) {
+              characterViewModel.getPet()
+             /* if (affectionLevel < 100) {
                   affectionLevel += 7
                   if (affectionLevel > 100) affectionLevel = 100
                   if (affectionLevel >= 100) {
@@ -407,8 +410,8 @@ class CharacterFragment : Fragment() {
                   setAffectionProgressWithAnimation(affectionLevel)
                   binding.tvAffectionPercent.text =
                       getString(R.string.character_affection_percent, affectionLevel)
-              }
-          }*/
+              }*/
+          }
       }
 
     private fun setAffectionProgressWithAnimation(
@@ -469,8 +472,8 @@ class CharacterFragment : Fragment() {
         super.onActivityResult(requestCode, resultCode, data)
 
         if (resultCode == Activity.RESULT_OK && requestCode == REQUEST_CODE_GACHA && data != null) {
-            characterViewModel.getPet()
             updateCharacterData()
+            characterViewModel.getPet()
         } else if (resultCode == Activity.RESULT_OK && requestCode == REQUEST_CODE_MAX) {
             isLaunchingMaxActivity = false
             isGacha(true)

@@ -31,7 +31,6 @@
             android:id="@+id/iv_character"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:src="@drawable/character_flying_squirrel"
             app:layout_constraintWidth_percent="0.8"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
