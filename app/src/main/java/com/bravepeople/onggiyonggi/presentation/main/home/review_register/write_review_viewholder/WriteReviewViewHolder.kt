@@ -27,6 +27,9 @@ class WriteReviewViewHolder(val binding: ItemWriteReviewBinding) :
             override fun afterTextChanged(s: Editable?) {
                 if (s != null) {
                     updateTextCount(s.length)
+                    binding.btnRegister.isSelected=true
+                }else{
+                    binding.btnRegister.isSelected=false
                 }
             }
 

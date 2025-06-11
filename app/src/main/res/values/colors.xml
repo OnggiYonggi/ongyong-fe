@@ -27,6 +27,7 @@
     <color name="write_select_gray">#DBDBDB</color>
     <color name="write_select_green">#A0C878</color>
     <color name="write_register_green">#66A55B</color>
+    <color name="write_register_clickable_green">#629c58</color>
     <color name="write_register_darkgreen">#588E4F</color>
   
     <color name="red">#FF0000</color>

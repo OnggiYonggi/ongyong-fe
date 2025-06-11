@@ -10,6 +10,8 @@ import android.view.MotionEvent
 import android.view.VelocityTracker
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.addCallback
+import androidx.core.animation.doOnEnd
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
@@ -326,6 +328,37 @@ class StoreFragment : Fragment() {
         intent.putExtra("fromNewRegister", false)
         startActivity(intent)
         requireActivity().overridePendingTransition(R.anim.slide_in_right, R.anim.stay_still)
+    }
+
+    private fun collapseFragment() {
+        // 애니메이션 효과로 Fragment를 아래로 사라지게 처리
+        val parentView = view?.parent as? View ?: return
+        val targetHeight = 0 // 아래로 사라지게 하기 위해 height를 0으로 설정
+
+        // 애니메이션 시작
+        val animator = ValueAnimator.ofInt(parentView.height, targetHeight)
+        animator.duration = 300 // 애니메이션 지속 시간 설정 (300ms)
+        animator.addUpdateListener { animation ->
+            val animatedValue = animation.animatedValue as Int
+            parentView.layoutParams.height = animatedValue
+            parentView.requestLayout()
+        }
+        animator.start()
+
+        // 애니메이션 종료 후 Fragment 제거
+        animator.doOnEnd {
+            val fragmentManager = parentFragmentManager // HomeFragment의 FragmentManager
+            val fragmentTransaction = fragmentManager.beginTransaction()
+
+            // "StoreFragment"가 이미 존재하는지 확인
+            val fragment = fragmentManager.findFragmentByTag("StoreFragment")
+            if (fragment != null && fragment.isAdded) {
+                fragmentTransaction.remove(fragment)
+                fragmentTransaction.commitNow()
+            } else {
+                Timber.e("Fragment not found or not added yet")
+            }
+        }
     }
 
     override fun onResume() {

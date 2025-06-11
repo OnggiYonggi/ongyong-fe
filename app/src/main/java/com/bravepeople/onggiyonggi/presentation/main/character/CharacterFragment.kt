@@ -313,7 +313,7 @@ class CharacterFragment : Fragment() {
                 ivEggBlue.visibility = View.VISIBLE
                 ivEggYellow.visibility = View.VISIBLE
                 btnGacha.visibility = View.VISIBLE
-                btnIncrease.visibility=View.GONE
+                //btnIncrease.visibility=View.GONE
 
                 tvName.visibility = View.INVISIBLE
                 clCardFront.visibility = View.INVISIBLE
@@ -328,7 +328,7 @@ class CharacterFragment : Fragment() {
                 ivEggBlue.visibility = View.INVISIBLE
                 ivEggYellow.visibility = View.INVISIBLE
                 btnGacha.visibility = View.INVISIBLE
-                btnIncrease.visibility=View.VISIBLE
+                //btnIncrease.visibility=View.VISIBLE
 
                 tvName.visibility = View.VISIBLE
                 clCardFront.visibility = View.VISIBLE

@@ -104,6 +104,8 @@ class PhotoLoadingFragment : Fragment() {
             binding.ivReceipt.load(uri)
             reviewRegisterViewModel.receipt(requireContext(), Uri.parse(uri))
         } else {
+            binding.pbCircular.visibility=View.GONE
+            binding.tvPercentage.visibility=View.GONE
             lifecycleScope.launch {
                 reviewRegisterViewModel.photoState.collect { state ->
                     when (state) {

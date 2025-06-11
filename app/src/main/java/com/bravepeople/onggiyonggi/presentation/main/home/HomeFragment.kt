@@ -192,50 +192,6 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
         } else {
             requestPermissions(REQUIRED_PERMISSIONS, PERMISSIONS_REQUEST_CODE)
         }
-       /* val permissionCheck = ContextCompat.checkSelfPermission(
-            requireContext(),
-            Manifest.permission.ACCESS_FINE_LOCATION
-        )
-
-        Timber.d("권한 상태: $permissionCheck") // 0이면 권한 허용, -1이면 거부
-
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext())
-
-        if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
-            fusedLocationClient.lastLocation.addOnSuccessListener { location ->
-                if (location != null) {
-                    val position = LatLng(location.latitude, location.longitude)
-                    currentPosition = position
-
-                    Timber.d("latitude: ${location.latitude}, longitude: ${location.longitude}")
-
-                    naverMap?.let { map ->
-                        map.moveCamera(CameraUpdate.scrollTo(position))
-                        map.locationOverlay.position = position
-                        map.locationOverlay.isVisible = true
-                    }
-                    Timber.d("lastLocation으로 즉시 이동")
-                } else {
-                    val locationRequest = LocationRequest.create().apply {
-                        priority = Priority.PRIORITY_HIGH_ACCURACY
-                        interval = 5000L
-                    }
-
-                    fusedLocationClient.requestLocationUpdates(
-                        locationRequest,
-                        mLocationCallback,
-                        Looper.getMainLooper()
-                    )
-
-                    Timber.d("실시간 위치 요청 시작")
-                }
-            }
-
-            mapView.getMapAsync(this)
-        } else {
-            Timber.d("위치 권한 거부됨 → 권한 요청 실행")
-            requestPermissions(REQUIRED_PERMISSIONS, PERMISSIONS_REQUEST_CODE)
-        }*/
     }
 
     // 시스템으로 부터 위치 정보를 콜백으로 받음
@@ -282,8 +238,13 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
                     val position = LatLng(location.latitude, location.longitude)
                     currentPosition = position
 
-                    naverMap.moveCamera(CameraUpdate.scrollTo(position))
+                    if (isFirstCameraMove) {
+                        naverMap.moveCamera(CameraUpdate.scrollTo(position))
+                        isFirstCameraMove = false
+                    }
+
                     naverMap.locationOverlay.position = position
+                    requestStoreFromServer(position, 1)
                 } else {
                     requestAccurateLocation()
                 }
@@ -317,12 +278,7 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
                     filterMarkers(center, radius)
                 }
             } else {
-                if (shouldFetchFromServer(center)) {
-                    isFetching = true
-                    lastRequestedPosition = center
-                    lastZoomLevel = zoom
-                    requestStoreFromServer(center, radius)
-                } else if (shouldUpdateZoom) {
+                if (shouldUpdateZoom) {
                     lastZoomLevel = zoom
                     filterMarkers(center, radius)
                 }
@@ -594,7 +550,10 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
         // 클릭해도 색상 유지되도록 다시 설정
         marker.iconTintColor = getColorByRank(store.storeRank)
 
-        val isBan = marker.tag as? Boolean ?: false
+        naverMap?.let { map ->
+            lastRequestedPosition = map.cameraPosition.target  // 카메라 중심 좌표 저장
+        }
+
         showStoreFragment(
             store.id, true
         )
@@ -988,12 +947,9 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
                 // 1. ReviewFragment가 있으면 제거
                 storeFragment != null -> {
                     Timber.d("back: StoreFragment is not null")
-                    parentFragmentManager.beginTransaction()
-                        .remove(storeFragment)
-                        .commitNow()
+                    collapseStoreFragment()
 
                     markerClick = false
-                    //selectedMarker?.map = null
                     selectedMarker?.captionText = ""
 
                     if (clickSearch) setVisibility(true)
@@ -1021,6 +977,40 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
             }
         }
     }
+
+    private fun collapseStoreFragment() {
+        // StoreFragment의 뷰를 찾습니다.
+        val storeFragment = parentFragmentManager.findFragmentByTag("StoreFragment")
+        val storeFragmentView = storeFragment?.view
+
+        // 만약 StoreFragment가 존재한다면
+        if (storeFragmentView != null) {
+            // 애니메이션을 적용하여 StoreFragment의 뷰를 아래로 사라지게 처리
+            val animator = ValueAnimator.ofFloat(0f, storeFragmentView.height.toFloat())
+            animator.duration = 300 // 애니메이션 지속 시간 설정 (300ms)
+            animator.addUpdateListener { animation ->
+                val animatedValue = animation.animatedValue as Float
+                storeFragmentView.translationY = animatedValue
+            }
+
+            animator.start()
+
+            // 애니메이션이 끝난 후 StoreFragment를 제거
+            animator.doOnEnd {
+                val fragmentTransaction = parentFragmentManager.beginTransaction()
+
+                // StoreFragment가 존재하는지 확인하고, 존재하면 제거
+                if (storeFragment != null && storeFragment.isAdded) {
+                    Timber.d("Fragment found, removing StoreFragment")
+                    fragmentTransaction.remove(storeFragment)
+                    fragmentTransaction.commitNow()
+                } else {
+                    Timber.e("Fragment not found or not added yet")
+                }
+            }
+        }
+    }
+
 
     private fun isSearchUIVisible(): Boolean {
         return binding.rvSearch.visibility == View.VISIBLE || binding.etSearch.visibility == View.VISIBLE
@@ -1124,6 +1114,13 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
         override fun onEvent(eventType: Int, params: Bundle) {}
     }
 
+    private fun restoreLastPosition() {
+        lastRequestedPosition?.let { position ->
+            naverMap?.moveCamera(CameraUpdate.scrollTo(position))
+        }
+    }
+
+
     fun openStoreFragment(storeId: Int) {
         resetFabState()
 
@@ -1161,7 +1158,15 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
         super.onResume()
 
         resetFabState()
-        mapView.onResume()
+        //mapView.onResume()
+        if (naverMap == null) {
+            mapView.getMapAsync(this)
+        }
+
+        // 지도 복원
+        restoreLastPosition()
+
+        // 위치 권한 확인 후 위치 업데이트
         val permissionCheck = ContextCompat.checkSelfPermission(
             requireContext(),
             Manifest.permission.ACCESS_FINE_LOCATION
@@ -1178,9 +1183,27 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
                 mLocationCallback,
                 Looper.getMainLooper()
             )
-
-            mapView.getMapAsync(this) // 이미 초기화돼 있어도 괜찮음
         }
+
+       /* val permissionCheck = ContextCompat.checkSelfPermission(
+            requireContext(),
+            Manifest.permission.ACCESS_FINE_LOCATION
+        )
+
+        if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
+            val locationRequest = LocationRequest.create().apply {
+                priority = Priority.PRIORITY_HIGH_ACCURACY
+                interval = 5000L
+            }
+
+            fusedLocationClient.requestLocationUpdates(
+                locationRequest,
+                mLocationCallback,
+                Looper.getMainLooper()
+            )
+
+            //mapView.getMapAsync(this) // 이미 초기화돼 있어도 괜찮음
+        }*/
     }
 
     override fun onPause() {
