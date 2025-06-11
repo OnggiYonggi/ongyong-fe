@@ -22,11 +22,11 @@
 
     <ImageView
         android:id="@+id/iv_profile"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
         android:scaleType="centerCrop"
         android:layout_marginTop="70dp"
-        android:src="@drawable/img_user2"
+        android:src="@drawable/img_onggiyonggi"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 

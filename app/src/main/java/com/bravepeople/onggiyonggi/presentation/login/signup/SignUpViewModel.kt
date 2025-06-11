@@ -7,8 +7,10 @@ import com.bravepeople.onggiyonggi.extension.signup.CheckIdState
 import com.bravepeople.onggiyonggi.extension.signup.CheckNickNameState
 import com.bravepeople.onggiyonggi.extension.signup.SignUpState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import okhttp3.ResponseBody
@@ -21,12 +23,12 @@ import javax.inject.Inject
 class SignUpViewModel @Inject constructor(
     private val baseRepositoryImpl: BaseRepositoryImpl
 ) : ViewModel() {
-    private val _checkIdState = MutableStateFlow<CheckIdState>(CheckIdState.Loading)
-    private val _checkNickNameState = MutableStateFlow<CheckNickNameState>(CheckNickNameState.Loading)
+    private val _checkIdState = MutableSharedFlow<CheckIdState>()
+    private val _checkNickNameState = MutableSharedFlow<CheckNickNameState>()
     private val _signUpState = MutableStateFlow<SignUpState>(SignUpState.Loading)
 
-    val checkIdState: StateFlow<CheckIdState> = _checkIdState.asStateFlow()
-    val checkNickNameState: StateFlow<CheckNickNameState> = _checkNickNameState.asStateFlow()
+    val checkIdState = _checkIdState.asSharedFlow()
+    val checkNickNameState = _checkNickNameState.asSharedFlow()
     val signUpState: StateFlow<SignUpState> = _signUpState.asStateFlow()
 
     private var checkedId:String?=null
@@ -36,9 +38,9 @@ class SignUpViewModel @Inject constructor(
     fun checkId(id: String) {
         viewModelScope.launch {
             baseRepositoryImpl.checkId(id).onSuccess { response ->
-                _checkIdState.value = CheckIdState.Success(response)
+                _checkIdState.emit(CheckIdState.Success(response))
             }.onFailure {
-                _checkIdState.value = CheckIdState.Error("check id state error")
+                _checkIdState.emit(CheckIdState.Error("check id state error"))
                 if (it is HttpException) {
                     try {
                         val errorBody: ResponseBody? = it.response()?.errorBody()
@@ -56,9 +58,9 @@ class SignUpViewModel @Inject constructor(
     fun checkNickName(nickName:String){
         viewModelScope.launch {
             baseRepositoryImpl.checkNickName(nickName).onSuccess { response->
-                _checkNickNameState.value=CheckNickNameState.Success(response)
+                _checkNickNameState.emit(CheckNickNameState.Success(response))
             }.onFailure {
-                _checkNickNameState.value=CheckNickNameState.Error("check nick name state error")
+                _checkNickNameState.emit(CheckNickNameState.Error("check nick name state error"))
                 if (it is HttpException) {
                     try {
                         val errorBody: ResponseBody? = it.response()?.errorBody()

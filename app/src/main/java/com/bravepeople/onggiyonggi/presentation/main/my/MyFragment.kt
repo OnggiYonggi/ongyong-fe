@@ -54,7 +54,7 @@ class MyFragment : Fragment() {
     }
 
     private fun setting(){
-        binding.ivProfile.load(R.drawable.img_user2) {
+        binding.ivProfile.load(R.drawable.img_onggiyonggi) {
             transformations(CircleCropTransformation())
         }
 
